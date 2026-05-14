@@ -146,9 +146,66 @@ label:first-child{margin-top:0}
 .search-wrap{margin-bottom:12px;position:relative}
 .search-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px;pointer-events:none}
 .search-wrap input{padding-left:34px}
+
+/* ── Login screen ── */
+#login-screen{
+  display:none;position:fixed;inset:0;z-index:300;
+  background:var(--bg);flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;text-align:center;gap:0;
+}
+#login-screen.visible{display:flex}
+.login-logo{font-size:52px;margin-bottom:16px;line-height:1}
+.login-title{font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px}
+.login-sub{font-size:14px;color:var(--text2);margin-bottom:36px;line-height:1.5}
+.google-btn{
+  display:inline-flex;align-items:center;gap:12px;
+  padding:12px 24px;border-radius:var(--r-lg);
+  background:var(--card);border:1.5px solid var(--border);
+  font-size:15px;font-weight:600;cursor:pointer;color:var(--text);
+  font-family:var(--font);box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+.google-btn:active{opacity:.75}
+.google-btn svg{width:22px;height:22px;flex-shrink:0}
+.login-error{font-size:13px;color:var(--err-t);margin-top:16px;display:none}
+
+/* ── User avatar in topbar ── */
+.user-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 8px 4px 4px;border-radius:99px;
+  border:.5px solid var(--border);background:var(--card);
+  cursor:pointer;font-size:12px;color:var(--text2);font-family:var(--font);
+}
+.user-avatar{
+  width:28px;height:28px;border-radius:50%;object-fit:cover;
+  background:var(--bg);display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:#fff;flex-shrink:0;
+}
+.last-modified{
+  font-size:11px;color:var(--text3);margin-top:10px;
+  padding:8px 10px;background:var(--bg);border-radius:var(--r-sm);
+  border:.5px solid var(--border-l);line-height:1.5;
+}
 </style>
 </head>
 <body>
+<!-- LOGIN SCREEN -->
+<div id="login-screen" class="visible">
+  <div class="login-logo"><i class="ti ti-microscope"></i></div>
+  <div class="login-title">Hybrid Photonics Labs<br>Inventory</div>
+  <div class="login-sub">Sign in with your Google account<br>to access the lab inventory.</div>
+  <button class="google-btn" id="google-sign-in-btn">
+    <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      <path fill="none" d="M0 0h48v48H0z"/>
+    </svg>
+    Sign in with Google
+  </button>
+  <div class="login-error" id="login-error"></div>
+</div>
+
 <div class="app">
 
 <!-- Topbar -->
@@ -163,6 +220,10 @@ label:first-child{margin-top:0}
       </div>
     </div>
   </div>
+  <button class="user-btn" id="user-btn" style="display:none" title="Sign out">
+    <div class="user-avatar" id="user-avatar"></div>
+    <span id="user-name" style="max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+  </button>
   <button class="btn btn-sm" id="scan-nav-btn"><i class="ti ti-qrcode"></i> Scan</button>
 </div>
 
@@ -237,7 +298,19 @@ label:first-child{margin-top:0}
 
 <button class="fab" id="add-btn">+</button>
 <div style="position:fixed;bottom:10px;left:16px;font-size:14px;color:var(--text3);
-  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.110</div>
+  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.112</div>
+</div>
+
+<!-- FULLSCREEN QR OVERLAY -->
+<div id="qr-overlay" onclick="closeQR()" style="
+  display:none;position:fixed;inset:0;z-index:200;
+  background:#000;
+  flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  cursor:pointer;">
+  <div id="qr-overlay-code" style="background:#fff;padding:18px;border-radius:12px;line-height:0"></div>
+  <div id="qr-overlay-name" style="color:#fff;font-size:18px;font-weight:600;
+    text-align:center;padding:0 24px;max-width:360px;line-height:1.3"></div>
+  <div style="color:rgba(255,255,255,0.45);font-size:13px">Tap anywhere to close</div>
 </div>
 
 <!-- ADD/EDIT MODAL -->
@@ -316,8 +389,12 @@ label:first-child{margin-top:0}
 <script type="module">
 import { initializeApp }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getDatabase, ref, set, onValue, remove, serverTimestamp }
+import { getDatabase, ref, set, onValue, remove }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup,
+  signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
 const firebaseConfig = {
   apiKey:            "AIzaSyCWgGlxIj815RWnpq2_R6LgiO33SOeAAx0",
@@ -329,20 +406,15 @@ const firebaseConfig = {
   appId:             "1:254370239509:web:9565f56889cb81a7866a1c"
 };
 
-const fbApp = initializeApp(firebaseConfig);
-const db    = getDatabase(fbApp);
+const fbApp  = initializeApp(firebaseConfig);
+const db     = getDatabase(fbApp);
+const auth   = getAuth(fbApp);
+const provider = new GoogleAuthProvider();
 
-/* Expose DB operations to the non-module main script via window._db */
+/* ── Expose DB + Auth operations to the main script ── */
 window._db = {
-  /* Write one item to Firebase — photo is included (compressed to <1 MB before calling) */
-  save(item) {
-    return set(ref(db, 'items/' + item.id), item);
-  },
-  /* Delete one item from Firebase */
-  delete(id) {
-    return remove(ref(db, 'items/' + id));
-  },
-  /* Live listener — calls cb(itemsArray) on every change */
+  save(item)   { return set(ref(db, 'items/' + item.id), item); },
+  delete(id)   { return remove(ref(db, 'items/' + id)); },
   subscribe(cb, onErr) {
     return onValue(ref(db, 'items'), snap => {
       const val = snap.val();
@@ -352,6 +424,30 @@ window._db = {
     }, onErr);
   }
 };
+
+window._auth = {
+  signIn() {
+    // Try popup first; if blocked (mobile), fall back to redirect
+    signInWithPopup(auth, provider).catch(err => {
+      if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
+        signInWithRedirect(auth, provider);
+      } else {
+        console.error('Sign-in error:', err);
+        window.dispatchEvent(new CustomEvent('auth-error', { detail: err.message }));
+      }
+    });
+  },
+  signOut() { signOut(auth); }
+};
+
+// Handle redirect result (for mobile where popup was blocked)
+getRedirectResult(auth).catch(err => console.warn('Redirect result error:', err));
+
+// Watch auth state — drives the login screen show/hide
+onAuthStateChanged(auth, user => {
+  window._currentUser = user || null;
+  window.dispatchEvent(new CustomEvent('auth-changed', { detail: user }));
+});
 
 window.dispatchEvent(new Event('firebase-ready'));
 </script>
@@ -468,7 +564,7 @@ function render() {
       </div><div class="actions">
         <button class="btn btn-sm" onclick="showDetail('${it.id}')"><i class="ti ti-info-circle"></i> Details</button>
         <button class="btn btn-sm" onclick="openEdit('${it.id}')"><i class="ti ti-edit"></i> Edit</button>
-        <button class="btn btn-sm" onclick="showDetail('${it.id}')"><i class="ti ti-qrcode"></i> QR</button>
+        <button class="btn btn-sm" onclick="showQR('${it.id}')"><i class="ti ti-qrcode"></i> QR</button>
       </div></div>`;
     }).join('');
   }
@@ -662,6 +758,7 @@ document.getElementById('save-btn').addEventListener('click', () => {
   if (!name) { document.getElementById('f-name').focus(); return; }
   const ex = editingId ? items.find(x => x.id === editingId) : null;
   const id = editingId || uid();
+  const now = new Date();
   const data = {
     id, name,
     invnum:       document.getElementById('f-invnum').value.trim(),
@@ -675,10 +772,12 @@ document.getElementById('save-btn').addEventListener('click', () => {
     status:       document.getElementById('f-status').value,
     person:       document.getElementById('f-person').value.trim(),
     notes:        document.getElementById('f-notes').value.trim(),
-    added:        (ex && ex.added) || new Date().toISOString().slice(0, 10),
-    // Photo is compressed to <1 MB before this point — safe for Firebase
-    // Keep existing photo if user didn't change it; null clears it
-    photo:        pendingPhoto !== undefined ? pendingPhoto : (ex && ex.photo) || null
+    added:        (ex && ex.added) || now.toISOString().slice(0, 10),
+    photo:        pendingPhoto !== undefined ? pendingPhoto : (ex && ex.photo) || null,
+    // Audit trail
+    lastModifiedBy:   window._currentUser ? window._currentUser.email : 'unknown',
+    lastModifiedByName: window._currentUser ? (window._currentUser.displayName || window._currentUser.email) : 'unknown',
+    lastModifiedAt:   now.toISOString()
   };
 
   setSyncBadge('syncing', 'Saving…');
@@ -734,6 +833,20 @@ function showDetail(id) {
     ['Date added',             it.added    || '—'],
     ['Notes',                  it.notes    || '—']
   ];
+
+  // Format the last-modified audit line
+  let auditRow = '';
+  if (it.lastModifiedBy) {
+    const dt = it.lastModifiedAt ? new Date(it.lastModifiedAt) : null;
+    const dtStr = dt ? dt.toLocaleString([], {
+      year:'numeric', month:'short', day:'numeric',
+      hour:'2-digit', minute:'2-digit'
+    }) : '—';
+    auditRow = `<div class="last-modified">
+      <i class="ti ti-clock-edit" style="font-size:12px;vertical-align:-1px"></i>
+      Last modified by <strong>${esc(it.lastModifiedBy)}</strong><br>${dtStr}
+    </div>`;
+  }
   document.getElementById('detail-body').innerHTML = `
     ${photoRow}
     <div class="qr-wrap" id="detail-qr-wrap"></div>
@@ -742,6 +855,7 @@ function showDetail(id) {
       <div class="detail-value">${esc(v)}</div>
     </div>`).join('')}
     ${urlRow}
+    ${auditRow}
     <div style="display:flex;gap:8px;margin-top:12px">
       <button class="btn btn-sm" onclick="openEdit('${it.id}');closeModal('detail-modal')">
         <i class="ti ti-edit"></i> Edit
@@ -1000,7 +1114,103 @@ function showScanResult(it, id) {
     </div></div>`;
 }
 
-/* ── Boot: wait for Firebase, then subscribe to live data ── */
+/* ══════════════════════════════════════════════════
+   AUTHENTICATION UI
+   ══════════════════════════════════════════════════ */
+document.getElementById('google-sign-in-btn').addEventListener('click', () => {
+  document.getElementById('login-error').style.display = 'none';
+  if (window._auth) window._auth.signIn();
+});
+
+window.addEventListener('auth-error', e => {
+  const el = document.getElementById('login-error');
+  el.textContent = 'Sign-in failed: ' + e.detail;
+  el.style.display = 'block';
+});
+
+// Shown when user taps their avatar — shows sign-out option
+document.getElementById('user-btn').addEventListener('click', () => {
+  const user = window._currentUser;
+  if (!user) return;
+  if (confirm(`Signed in as ${user.email}\n\nSign out?`)) {
+    if (window._auth) window._auth.signOut();
+  }
+});
+
+window.addEventListener('auth-changed', e => {
+  const user = e.detail;
+  const loginScreen = document.getElementById('login-screen');
+  const userBtn     = document.getElementById('user-btn');
+  const avatarEl    = document.getElementById('user-avatar');
+  const nameEl      = document.getElementById('user-name');
+
+  if (user) {
+    // Hide login, show app
+    loginScreen.classList.remove('visible');
+
+    // Build avatar: photo if available, else coloured initials
+    if (user.photoURL) {
+      avatarEl.innerHTML = `<img src="${user.photoURL}" style="width:28px;height:28px;border-radius:50%;object-fit:cover" referrerpolicy="no-referrer">`;
+    } else {
+      const initials = (user.displayName || user.email || '?')
+        .split(/\s+|@/).filter(Boolean).slice(0,2).map(s => s[0].toUpperCase()).join('');
+      const hue = [...user.email].reduce((h, c) => h + c.charCodeAt(0), 0) % 360;
+      avatarEl.style.cssText = `width:28px;height:28px;border-radius:50%;display:flex;align-items:center;
+        justify-content:center;font-size:11px;font-weight:700;color:#fff;
+        background:hsl(${hue},55%,45%);flex-shrink:0`;
+      avatarEl.textContent = initials;
+    }
+
+    const firstName = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
+    nameEl.textContent = firstName;
+    userBtn.style.display = 'inline-flex';
+
+  } else {
+    // Show login screen, hide app UI
+    loginScreen.classList.add('visible');
+    userBtn.style.display = 'none';
+  }
+});
+
+/* ══════════════════════════════════════════════════
+   BOOT: wait for Firebase, then subscribe
+   ══════════════════════════════════════════════════ */
+function showQR(id) {
+  const it = items.find(x => x.id === id); if (!it) return;
+  const overlay = document.getElementById('qr-overlay');
+  const codeEl  = document.getElementById('qr-overlay-code');
+  const nameEl  = document.getElementById('qr-overlay-name');
+
+  // Clear previous QR and name
+  codeEl.innerHTML = '';
+  nameEl.textContent = it.name;
+
+  // Pick QR size: 80% of the shorter screen dimension, capped at 320px
+  const size = Math.min(320, Math.round(Math.min(window.innerWidth, window.innerHeight) * 0.72));
+
+  new QRCode(codeEl, {
+    text: 'labitem:' + it.id,
+    width: size,
+    height: size,
+    correctLevel: QRCode.CorrectLevel.H
+  });
+
+  overlay.style.display = 'flex';
+  // Prevent body scroll while overlay is open
+  document.body.style.overflow = 'hidden';
+}
+
+function closeQR() {
+  document.getElementById('qr-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// Also close on Escape key (desktop/keyboard users)
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeQR(); });
+
+/* ══════════════════════════════════════════════════
+   BOOT: wait for Firebase, then subscribe
+   ══════════════════════════════════════════════════ */
 window.addEventListener('firebase-ready', () => {
   // Migrate any old localStorage text data first
   migrateLegacyData();

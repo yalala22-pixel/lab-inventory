@@ -183,7 +183,9 @@ label:first-child{margin-top:0}
     <video id="video" playsinline muted></video>
     <div class="scan-crosshair"></div>
   </div>
-  <div id="scan-status">📷 Scanning… point at a QR code</div>
+  <div id="scan-status" style="font-size:13px;color:var(--text2);text-align:center;margin-bottom:8px;display:none">
+    Hold the QR code steady inside the box
+  </div>
   <div id="scan-result"></div>
   <div style="text-align:center;margin-top:8px;display:none" id="stop-wrap">
     <button class="btn btn-sm" id="stop-scan-btn"><i class="ti ti-x"></i> Stop Camera</button>
@@ -192,7 +194,7 @@ label:first-child{margin-top:0}
 
 <button class="fab" id="add-btn">+</button>
 <div style="position:fixed;bottom:10px;left:16px;font-size:14px;color:var(--text3);
-  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.105</div>
+  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.106</div>
 </div>
 
 <!-- ADD/EDIT MODAL -->
@@ -601,24 +603,46 @@ async function startScan(){
 
 function scanLoop(){
   if(!scanning)return;
-  // Only attempt to read if video is actually playing with real frames
-  if(videoEl.readyState===videoEl.HAVE_ENOUGH_DATA&&videoEl.videoWidth>0&&!videoEl.paused){
-    canvasEl.width=videoEl.videoWidth;
-    canvasEl.height=videoEl.videoHeight;
-    ctxEl.drawImage(videoEl,0,0);
+
+  if(videoEl.readyState>=2&&videoEl.videoWidth>0){
+    const vw=videoEl.videoWidth, vh=videoEl.videoHeight;
+
+    // Scan a centre square crop matching the crosshair — improves decode rate
+    const cropSize=Math.round(Math.min(vw,vh)*0.75);
+    const cx=Math.round((vw-cropSize)/2);
+    const cy=Math.round((vh-cropSize)/2);
+
+    canvasEl.width=cropSize;
+    canvasEl.height=cropSize;
+    ctxEl.drawImage(videoEl, cx, cy, cropSize, cropSize, 0, 0, cropSize, cropSize);
+
     try{
-      const imgData=ctxEl.getImageData(0,0,canvasEl.width,canvasEl.height);
-      const code=jsQR(imgData.data,imgData.width,imgData.height,{inversionAttempts:'dontInvert'});
-      if(code&&code.data.startsWith('labitem:')){
-        const id=code.data.replace('labitem:','');
+      const imgData=ctxEl.getImageData(0,0,cropSize,cropSize);
+      // 'attemptBoth' tries normal + inverted — works in all lighting conditions
+      const code=jsQR(imgData.data,imgData.width,imgData.height,{inversionAttempts:'attemptBoth'});
+      if(code&&code.data){
+        // Accept any QR code that starts with labitem: — or show "not found" if it doesn't
         stopScan();
-        showScanResult(items.find(x=>x.id===id),id);
+        if(code.data.startsWith('labitem:')){
+          const id=code.data.replace('labitem:','');
+          const it=items.find(x=>x.id===id);
+          if(it){
+            // Open full detail modal immediately
+            showDetail(it.id);
+          } else {
+            showScanResult(null, id);
+          }
+        } else {
+          // QR found but not a lab item — show what was scanned
+          showScanResult(null, code.data);
+        }
         return;
       }
-    }catch(e){}
+    }catch(e){ console.warn('jsQR error:',e); }
   }
-  // ~15fps to conserve battery
-  setTimeout(()=>{if(scanning)requestAnimationFrame(scanLoop);},66);
+
+  // ~20fps scan rate — good balance of responsiveness and battery
+  setTimeout(()=>{ if(scanning) requestAnimationFrame(scanLoop); }, 50);
 }
 
 function stopScan(){
@@ -640,8 +664,12 @@ function showScanError(msg){
 
 function showScanResult(it,id){
   const res=document.getElementById('scan-result');res.style.display='block';
+  const notLabItem = it===null && !String(id).startsWith('labitem:') && !String(id).match(/^[a-z0-9]{8,}$/);
   if(!it){
-    res.innerHTML=`<div class="card"><div style="color:var(--err-t)"><i class="ti ti-alert-circle"></i> Item not found (ID: ${esc(id)})</div><div style="margin-top:8px"><button class="btn btn-sm" onclick="startScan()"><i class="ti ti-scan"></i> Scan again</button></div></div>`;
+    const msg = notLabItem
+      ? `QR code detected, but it's not a registered lab item.<br><small style="color:var(--text3)">${esc(String(id).slice(0,60))}</small>`
+      : `No device found for this QR code.<br><small style="color:var(--text3)">ID: ${esc(String(id))}</small>`;
+    res.innerHTML=`<div class="card"><div style="color:var(--err-t);margin-bottom:10px"><i class="ti ti-alert-circle"></i> ${msg}</div><button class="btn btn-sm" onclick="startScan()"><i class="ti ti-scan"></i> Scan again</button></div>`;
     return;
   }
   const ic=ICONS[it.category]||'ti-tool';

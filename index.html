@@ -2,685 +2,606 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Lab Inventory">
 <title>Optics Lab Inventory</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
 <style>
-  :root {
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --color-bg: #f2f2f7;
-    --color-card: #ffffff;
-    --color-border: #e0e0e5;
-    --color-border-light: #ebebef;
-    --color-text: #1c1c1e;
-    --color-text-secondary: #6c6c70;
-    --color-text-tertiary: #aeaeb2;
-    --color-accent: #1a1a1a;
-    --color-success-bg: #d4edda;
-    --color-success-text: #1a7a3c;
-    --color-warning-bg: #fff3cd;
-    --color-warning-text: #856404;
-    --color-danger-bg: #f8d7da;
-    --color-danger-text: #842029;
-    --color-info: #007aff;
-    --radius-sm: 8px;
-    --radius-md: 10px;
-    --radius-lg: 14px;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --color-bg: #1c1c1e;
-      --color-card: #2c2c2e;
-      --color-border: #3a3a3c;
-      --color-border-light: #3a3a3c;
-      --color-text: #ffffff;
-      --color-text-secondary: #aeaeb2;
-      --color-text-tertiary: #636366;
-      --color-accent: #ffffff;
-      --color-success-bg: #0d3320;
-      --color-success-text: #4cd964;
-      --color-warning-bg: #3d2e00;
-      --color-warning-text: #ffd60a;
-      --color-danger-bg: #3d0a0e;
-      --color-danger-text: #ff453a;
-      --color-info: #0a84ff;
-    }
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--font-sans); background: var(--color-bg); min-height: 100vh; color: var(--color-text); }
-  .app { max-width: 480px; margin: 0 auto; padding: 0 0 90px; }
-
-  /* Topbar */
-  .topbar { background: var(--color-card); border-bottom: 0.5px solid var(--color-border); padding: 14px 16px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; }
-  .topbar-title { font-size: 16px; font-weight: 600; flex: 1; }
-  .topbar-sub { font-size: 12px; color: var(--color-text-secondary); }
-
-  /* Tabs */
-  .tab-bar { display: flex; border-bottom: 0.5px solid var(--color-border); background: var(--color-card); position: sticky; top: 49px; z-index: 9; }
-  .tab { flex: 1; padding: 10px 2px; font-size: 12px; text-align: center; border: none; background: none; cursor: pointer; color: var(--color-text-secondary); border-bottom: 2px solid transparent; font-family: var(--font-sans); transition: color 0.15s; }
-  .tab.active { color: var(--color-text); border-bottom: 2px solid var(--color-text); font-weight: 600; }
-
-  /* Views */
-  .view { display: none; padding: 16px; }
-  .view.active { display: block; }
-
-  /* Buttons */
-  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--radius-md); border: 0.5px solid var(--color-border); background: var(--color-card); font-size: 13px; cursor: pointer; color: var(--color-text); font-family: var(--font-sans); transition: opacity 0.12s; -webkit-tap-highlight-color: transparent; }
-  .btn:active { opacity: 0.7; }
-  .btn-primary { background: var(--color-accent); color: #fff; border-color: var(--color-accent); }
-  @media (prefers-color-scheme: dark) { .btn-primary { color: #000; } }
-  .btn-danger { color: var(--color-danger-text); border-color: var(--color-danger-text); }
-  .btn-sm { padding: 5px 10px; font-size: 12px; }
-
-  /* Form */
-  input, select, textarea { width: 100%; padding: 10px 11px; border: 0.5px solid var(--color-border); border-radius: var(--radius-md); font-size: 15px; font-family: var(--font-sans); background: var(--color-card); color: var(--color-text); outline: none; -webkit-appearance: none; appearance: none; }
-  input:focus, select:focus, textarea:focus { border-color: var(--color-info); }
-  label { font-size: 12px; color: var(--color-text-secondary); display: block; margin-bottom: 5px; margin-top: 14px; font-weight: 500; letter-spacing: 0.02em; }
-  label:first-child { margin-top: 0; }
-  .two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
-  .two-col label { margin-top: 0; }
-
-  /* Cards */
-  .card { background: var(--color-card); border: 0.5px solid var(--color-border-light); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 10px; }
-  .card-row { display: flex; align-items: center; gap: 12px; }
-  .item-icon { width: 42px; height: 42px; border-radius: var(--radius-md); background: var(--color-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
-  .item-icon img { width: 42px; height: 42px; object-fit: cover; }
-  .item-name { font-size: 14px; font-weight: 600; }
-  .item-meta { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
-  .actions { display: flex; gap: 6px; margin-top: 10px; border-top: 0.5px solid var(--color-border-light); padding-top: 10px; flex-wrap: wrap; }
-
-  /* Badges */
-  .badge { display: inline-block; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; white-space: nowrap; }
-  .badge-ok { background: var(--color-success-bg); color: var(--color-success-text); }
-  .badge-warn { background: var(--color-warning-bg); color: var(--color-warning-text); }
-  .badge-out { background: var(--color-danger-bg); color: var(--color-danger-text); }
-
-  /* FAB */
-  .fab { position: fixed; bottom: 24px; right: 20px; width: 56px; height: 56px; border-radius: 50%; background: var(--color-accent); color: #fff; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 20; box-shadow: 0 4px 14px rgba(0,0,0,0.2); -webkit-tap-highlight-color: transparent; }
-  @media (prefers-color-scheme: dark) { .fab { color: #000; } }
-
-  /* Modals */
-  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: flex-end; }
-  .modal-bg.open { display: flex; }
-  .modal { background: var(--color-card); border-radius: 20px 20px 0 0; padding: 20px 16px 40px; width: 100%; max-height: 92vh; overflow-y: auto; }
-  .modal-header { display: flex; align-items: center; margin-bottom: 18px; }
-  .modal-title { font-size: 17px; font-weight: 600; flex: 1; }
-  .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--color-text-secondary); line-height: 1; padding: 4px; }
-
-  /* Detail */
-  .detail-section { margin-bottom: 13px; }
-  .detail-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--color-text-tertiary); margin-bottom: 3px; font-weight: 600; }
-  .detail-value { font-size: 15px; color: var(--color-text); }
-  .qr-wrap { display: flex; justify-content: center; margin: 14px 0; }
-  .detail-photo { width: 100%; height: 180px; object-fit: cover; border-radius: var(--radius-lg); margin-bottom: 14px; }
-
-  /* Print view */
-  .print-sel-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 10px 12px; background: var(--color-card); border-radius: var(--radius-md); font-size: 13px; border: 0.5px solid var(--color-border-light); }
-  .print-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .print-card { background: var(--color-card); border: 0.5px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 10px; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-  .print-card.selected { border: 2.5px solid var(--color-text); }
-  .print-card .pname { font-size: 12px; font-weight: 600; margin-top: 6px; word-break: break-word; }
-  .print-card .pmeta { font-size: 10px; color: var(--color-text-secondary); margin-top: 2px; }
-
-  /* Scan view */
-  .scan-area { background: var(--color-card); border-radius: var(--radius-lg); padding: 28px 16px; text-align: center; margin-bottom: 16px; border: 0.5px solid var(--color-border-light); }
-  #video-wrap { display: none; border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 12px; position: relative; }
-  #video-wrap video { width: 100%; display: block; }
-  .scan-overlay { position: absolute; inset: 0; border: 2px solid rgba(255,255,255,0.25); border-radius: var(--radius-lg); pointer-events: none; }
-  .scan-crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 170px; height: 170px; border: 2.5px solid rgba(255,255,255,0.85); border-radius: 10px; pointer-events: none; }
-  #scan-result { display: none; }
-
-  /* Photo */
-  .photo-placeholder { width: 100%; height: 110px; border: 1.5px dashed var(--color-border); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 6px; color: var(--color-text-secondary); font-size: 13px; margin-top: 8px; cursor: pointer; background: var(--color-bg); }
-  .photo-preview-img { width: 100%; height: 150px; object-fit: cover; border-radius: var(--radius-md); display: block; margin-top: 8px; }
-
-  /* Empty state */
-  .empty-state { text-align: center; padding: 48px 16px; color: var(--color-text-secondary); font-size: 14px; line-height: 1.6; }
-  .empty-state i { font-size: 36px; display: block; margin: 0 auto 10px; }
-
-  /* Search */
-  .search-wrap { margin-bottom: 12px; position: relative; }
-  .search-wrap i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--color-text-tertiary); font-size: 16px; pointer-events: none; }
-  .search-wrap input { padding-left: 34px; }
-
-  @media print {
-    .no-print { display: none !important; }
-  }
+:root {
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --bg:#f2f2f7; --card:#fff; --border:#e0e0e5; --border-l:#ebebef;
+  --text:#1c1c1e; --text2:#6c6c70; --text3:#aeaeb2; --accent:#1a1a1a; --info:#007aff;
+  --ok-bg:#d4edda; --ok-t:#1a7a3c; --warn-bg:#fff3cd; --warn-t:#856404;
+  --err-bg:#f8d7da; --err-t:#842029; --r-sm:8px; --r-md:10px; --r-lg:14px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1e; --card:#2c2c2e; --border:#3a3a3c; --border-l:#3a3a3c;
+  --text:#fff; --text2:#aeaeb2; --text3:#636366; --accent:#fff; --info:#0a84ff;
+  --ok-bg:#0d3320; --ok-t:#4cd964; --warn-bg:#3d2e00; --warn-t:#ffd60a;
+  --err-bg:#3d0a0e; --err-t:#ff453a;
+}}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+.app{max-width:480px;margin:0 auto;padding-bottom:90px}
+.topbar{background:var(--card);border-bottom:.5px solid var(--border);padding:14px 16px;
+  display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+.topbar-title{font-size:16px;font-weight:600;flex:1}
+.topbar-sub{font-size:12px;color:var(--text2)}
+.tab-bar{display:flex;border-bottom:.5px solid var(--border);background:var(--card);
+  position:sticky;top:49px;z-index:9}
+.tab{flex:1;padding:10px 2px;font-size:12px;text-align:center;border:none;
+  background:none;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;font-family:var(--font)}
+.tab.active{color:var(--text);border-bottom:2px solid var(--text);font-weight:600}
+.view{display:none;padding:16px}.view.active{display:block}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;
+  border-radius:var(--r-md);border:.5px solid var(--border);background:var(--card);
+  font-size:13px;cursor:pointer;color:var(--text);font-family:var(--font)}
+.btn:active{opacity:.7}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+@media(prefers-color-scheme:dark){.btn-primary{color:#000}}
+.btn-danger{color:var(--err-t);border-color:var(--err-t)}
+.btn-sm{padding:5px 10px;font-size:12px}
+input,select,textarea{width:100%;padding:10px 11px;border:.5px solid var(--border);
+  border-radius:var(--r-md);font-size:15px;font-family:var(--font);
+  background:var(--card);color:var(--text);outline:none;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--info)}
+label{font-size:12px;color:var(--text2);display:block;margin-bottom:5px;margin-top:14px;font-weight:500}
+label:first-child{margin-top:0}
+.two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.two-col label{margin-top:0}
+.card{background:var(--card);border:.5px solid var(--border-l);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:10px}
+.card-row{display:flex;align-items:center;gap:12px}
+.item-icon{width:42px;height:42px;border-radius:var(--r-md);background:var(--bg);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.item-icon img{width:42px;height:42px;object-fit:cover}
+.item-name{font-size:14px;font-weight:600}
+.item-meta{font-size:12px;color:var(--text2);margin-top:2px}
+.actions{display:flex;gap:6px;margin-top:10px;border-top:.5px solid var(--border-l);padding-top:10px;flex-wrap:wrap}
+.badge{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-ok{background:var(--ok-bg);color:var(--ok-t)}
+.badge-warn{background:var(--warn-bg);color:var(--warn-t)}
+.badge-out{background:var(--err-bg);color:var(--err-t)}
+.fab{position:fixed;bottom:24px;right:20px;width:56px;height:56px;border-radius:50%;
+  background:var(--accent);color:#fff;border:none;font-size:28px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;z-index:20;
+  box-shadow:0 4px 16px rgba(0,0,0,.25)}
+@media(prefers-color-scheme:dark){.fab{color:#000}}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:flex-end}
+.modal-bg.open{display:flex}
+.modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px 16px 40px;width:100%;max-height:92vh;overflow-y:auto}
+.modal-header{display:flex;align-items:center;margin-bottom:18px}
+.modal-title{font-size:17px;font-weight:600;flex:1}
+.modal-close{background:none;border:none;font-size:24px;cursor:pointer;color:var(--text2);line-height:1;padding:4px}
+.detail-section{margin-bottom:12px}
+.detail-label{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:3px;font-weight:600}
+.detail-value{font-size:15px}
+.qr-wrap{display:flex;justify-content:center;margin:14px 0}
+.detail-photo{width:100%;height:180px;object-fit:cover;border-radius:var(--r-lg);margin-bottom:14px}
+.print-sel-bar{display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:12px;padding:10px 12px;background:var(--card);
+  border-radius:var(--r-md);font-size:13px;border:.5px solid var(--border-l)}
+.print-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.print-card{background:var(--card);border:.5px solid var(--border);border-radius:var(--r-md);padding:12px 10px;text-align:center;cursor:pointer}
+.print-card.selected{border:2.5px solid var(--text)}
+.print-card .pname{font-size:12px;font-weight:600;margin-top:6px;word-break:break-word}
+.print-card .pmeta{font-size:10px;color:var(--text2);margin-top:2px}
+.size-row{display:flex;gap:8px;margin-bottom:14px}
+.size-btn{flex:1;padding:8px 4px;border-radius:var(--r-md);border:.5px solid var(--border);
+  background:var(--card);font-size:12px;cursor:pointer;color:var(--text);font-family:var(--font);text-align:center}
+.size-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+@media(prefers-color-scheme:dark){.size-btn.active{color:#000}}
+.scan-area{background:var(--card);border-radius:var(--r-lg);padding:28px 16px;text-align:center;margin-bottom:16px;border:.5px solid var(--border-l)}
+#video-wrap{display:none;border-radius:var(--r-lg);overflow:hidden;margin-bottom:12px;position:relative}
+#video-wrap video{width:100%;display:block;object-fit:cover;background:#000}
+.scan-crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:200px;height:200px;border:2.5px solid rgba(255,255,255,.9);border-radius:12px;pointer-events:none}
+#scan-result{display:none}
+#scan-status{font-size:13px;color:var(--text2);text-align:center;margin-bottom:8px;display:none}
+.notice{padding:10px 14px;border-radius:var(--r-md);background:var(--warn-bg);color:var(--warn-t);font-size:13px;margin-bottom:12px;display:none}
+.photo-placeholder{width:100%;height:110px;border:1.5px dashed var(--border);
+  border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:6px;color:var(--text2);font-size:13px;margin-top:8px;cursor:pointer;background:var(--bg)}
+.photo-preview-img{width:100%;height:150px;object-fit:cover;border-radius:var(--r-md);display:block;margin-top:8px}
+.empty-state{text-align:center;padding:48px 16px;color:var(--text2);font-size:14px;line-height:1.6}
+.empty-state i{font-size:36px;display:block;margin:0 auto 10px}
+.search-wrap{margin-bottom:12px;position:relative}
+.search-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px;pointer-events:none}
+.search-wrap input{padding-left:34px}
 </style>
 </head>
 <body>
 <div class="app">
-
-  <!-- Topbar -->
-  <div class="topbar">
-    <i class="ti ti-microscope" style="font-size:22px"></i>
-    <div style="flex:1">
-      <div class="topbar-title">Optics Lab Inventory</div>
-      <div class="topbar-sub" id="item-count">0 pieces of equipment</div>
-    </div>
-    <button class="btn btn-sm" id="scan-nav-btn"><i class="ti ti-qrcode"></i> Scan</button>
+<div class="topbar">
+  <i class="ti ti-microscope" style="font-size:22px"></i>
+  <div style="flex:1">
+    <div class="topbar-title">Optics Lab Inventory</div>
+    <div class="topbar-sub" id="item-count">0 pieces of equipment</div>
   </div>
-
-  <!-- Tab bar -->
-  <div class="tab-bar">
-    <button class="tab active" data-view="items"><i class="ti ti-list"></i> Items</button>
-    <button class="tab" data-view="print"><i class="ti ti-printer"></i> Print</button>
-    <button class="tab" data-view="scan"><i class="ti ti-scan"></i> Scan</button>
-  </div>
-
-  <!-- Items view -->
-  <div class="view active" id="view-items">
-    <div class="search-wrap">
-      <i class="ti ti-search"></i>
-      <input type="search" id="search-input" placeholder="Search by name, category, location…">
-    </div>
-    <div id="items-list">
-      <div class="empty-state"><i class="ti ti-package-off"></i>No items yet.<br>Tap + to add your first piece of equipment.</div>
-    </div>
-  </div>
-
-  <!-- Print view -->
-  <div class="view" id="view-print">
-    <div class="print-sel-bar">
-      <span id="sel-count">0 selected</span>
-      <div style="display:flex;gap:6px">
-        <button class="btn btn-sm" id="sel-all-btn">Select all</button>
-        <button class="btn btn-sm btn-primary" id="print-btn"><i class="ti ti-printer"></i> Print</button>
-      </div>
-    </div>
-    <div class="print-grid" id="print-grid"></div>
-    <div id="print-empty" class="empty-state" style="display:none"><i class="ti ti-printer"></i>Add items first to print QR labels.</div>
-  </div>
-
-  <!-- Scan view -->
-  <div class="view" id="view-scan">
-    <div class="scan-area">
-      <div id="scan-icon-wrap">
-        <i class="ti ti-qrcode" style="font-size:52px;display:block;margin:0 auto 10px"></i>
-        <div style="font-size:16px;font-weight:600;margin-bottom:6px">Scan a QR label</div>
-        <div style="font-size:13px;color:var(--color-text-secondary)">Point your camera at a piece of equipment's QR code</div>
-        <button class="btn btn-primary" style="margin-top:18px" id="start-scan-btn"><i class="ti ti-camera"></i> Open Camera</button>
-      </div>
-    </div>
-    <div id="video-wrap">
-      <video id="video" playsinline autoplay muted></video>
-      <div class="scan-overlay"></div>
-      <div class="scan-crosshair"></div>
-    </div>
-    <div id="scan-result"></div>
-  </div>
-
-  <button class="fab" id="add-btn" aria-label="Add piece of equipment">+</button>
+  <button class="btn btn-sm" id="scan-nav-btn"><i class="ti ti-qrcode"></i> Scan</button>
+</div>
+<div class="tab-bar">
+  <button class="tab active" data-view="items"><i class="ti ti-list"></i> Items</button>
+  <button class="tab" data-view="print"><i class="ti ti-printer"></i> Print</button>
+  <button class="tab" data-view="scan"><i class="ti ti-scan"></i> Scan</button>
 </div>
 
-<!-- Add / Edit modal -->
+<!-- ITEMS -->
+<div class="view active" id="view-items">
+  <div class="search-wrap">
+    <i class="ti ti-search"></i>
+    <input type="search" id="search-input" placeholder="Search by name, category, location…">
+  </div>
+  <div id="items-list">
+    <div class="empty-state"><i class="ti ti-package-off"></i>No items yet.<br>Tap + to add your first piece of equipment.</div>
+  </div>
+</div>
+
+<!-- PRINT -->
+<div class="view" id="view-print">
+  <div class="print-sel-bar">
+    <span id="sel-count">0 selected</span>
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-sm" id="sel-all-btn">Select all</button>
+      <button class="btn btn-sm btn-primary" id="print-btn"><i class="ti ti-file-type-pdf"></i> Export PDF</button>
+    </div>
+  </div>
+  <div style="margin-bottom:12px">
+    <div style="font-size:12px;color:var(--text2);margin-bottom:7px;font-weight:500">QR code size on label</div>
+    <div class="size-row">
+      <button class="size-btn active" data-mm="20">20 × 20 mm</button>
+      <button class="size-btn" data-mm="30">30 × 30 mm</button>
+      <button class="size-btn" data-mm="40">40 × 40 mm</button>
+    </div>
+  </div>
+  <div class="print-grid" id="print-grid"></div>
+  <div id="print-empty" class="empty-state" style="display:none">
+    <i class="ti ti-printer"></i>Add items first to print QR labels.
+  </div>
+</div>
+
+<!-- SCAN -->
+<div class="view" id="view-scan">
+  <div class="notice" id="https-notice">
+    ⚠️ Camera requires HTTPS. Host this file on GitHub Pages or another secure server to enable scanning.
+  </div>
+  <div class="scan-area">
+    <div id="scan-icon-wrap">
+      <i class="ti ti-qrcode" style="font-size:52px;display:block;margin:0 auto 10px"></i>
+      <div style="font-size:16px;font-weight:600;margin-bottom:6px">Scan a QR label</div>
+      <div style="font-size:13px;color:var(--text2)">Point your rear camera at a QR code</div>
+      <button class="btn btn-primary" style="margin-top:18px" id="start-scan-btn">
+        <i class="ti ti-camera"></i> Open Camera
+      </button>
+    </div>
+  </div>
+  <div id="video-wrap">
+    <video id="video" playsinline muted></video>
+    <div class="scan-crosshair"></div>
+  </div>
+  <div id="scan-status">📷 Scanning… point at a QR code</div>
+  <div id="scan-result"></div>
+  <div style="text-align:center;margin-top:8px;display:none" id="stop-wrap">
+    <button class="btn btn-sm" id="stop-scan-btn"><i class="ti ti-x"></i> Stop Camera</button>
+  </div>
+</div>
+
+<button class="fab" id="add-btn">+</button>
+</div>
+
+<!-- ADD/EDIT MODAL -->
 <div class="modal-bg" id="add-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title" id="modal-title">Add piece of equipment</span>
-      <button class="modal-close" id="close-modal-btn">✕</button>
-    </div>
-    <input type="hidden" id="edit-id">
-    <label>Name *</label>
-    <input type="text" id="f-name" placeholder="e.g. Ti:Sapphire Laser System" autocomplete="off">
-    <label>Skoltech inventory number</label>
-    <input type="text" id="f-invnum" placeholder="e.g. SKT-2024-0042" autocomplete="off">
-    <label>Manufacturer</label>
-    <input type="text" id="f-manufacturer" placeholder="e.g. Coherent" autocomplete="off">
-    <div class="two-col">
-      <div><label>Model</label><input type="text" id="f-model" placeholder="e.g. Mira 900" autocomplete="off"></div>
-      <div><label>Serial no.</label><input type="text" id="f-serial" placeholder="e.g. SN-00421" autocomplete="off"></div>
-    </div>
-    <label>Manufacturer webpage</label>
-    <input type="url" id="f-url" placeholder="https://...">
-    <label>Location</label>
-    <input type="text" id="f-location" placeholder="e.g. Lab 3, Optical Table B" autocomplete="off">
-    <label>Name of setup</label>
-    <input type="text" id="f-setup" placeholder="e.g. Raman microscopy setup" autocomplete="off">
-    <label>Category</label>
-    <select id="f-category">
-      <option>Laser system</option><option>Laser diode</option><option>3D stage / positioner</option>
-      <option>Spectrometer</option><option>Cryostat</option><option>Microscope</option>
-      <option>Optical power meter</option><option>Lock-in amplifier</option><option>Oscilloscope</option>
-      <option>Photodetector / APD</option><option>Camera / CCD</option>
-      <option>Beam splitter / optics</option><option>Optical fiber equipment</option>
-      <option>Vacuum system</option><option>Electronics / DAQ</option><option>Other</option>
-    </select>
-    <label>Status</label>
-    <select id="f-status">
-      <option value="available">Available</option>
-      <option value="in-use">In Use</option>
-      <option value="maintenance">Maintenance</option>
-      <option value="out-of-order">Out of Order</option>
-    </select>
-    <label>Responsible person</label>
-    <input type="text" id="f-person" placeholder="e.g. Dr. Nagy Anna" autocomplete="off">
-    <label>Notes</label>
-    <textarea id="f-notes" rows="3" placeholder="Optional notes…"></textarea>
-    <label>Photo</label>
-    <div class="photo-placeholder" id="photo-placeholder" onclick="document.getElementById('f-photo-input').click()">
-      <i class="ti ti-camera" style="font-size:26px"></i>
-      <span>Tap to take or choose a photo</span>
-    </div>
-    <img id="photo-preview" class="photo-preview-img" style="display:none" alt="Equipment photo">
-    <input type="file" id="f-photo-input" accept="image/*" capture="environment" style="display:none">
-    <button class="btn btn-sm" id="remove-photo-btn" style="margin-top:8px;display:none"><i class="ti ti-trash"></i> Remove photo</button>
-    <div style="display:flex;gap:8px;margin-top:18px">
-      <button class="btn btn-primary" style="flex:1" id="save-btn"><i class="ti ti-check"></i> Save</button>
-      <button class="btn btn-danger btn-sm" id="delete-btn" style="display:none"><i class="ti ti-trash"></i></button>
-    </div>
+<div class="modal">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-title">Add piece of equipment</span>
+    <button class="modal-close" id="close-modal-btn">✕</button>
+  </div>
+  <input type="hidden" id="edit-id">
+  <label>Name *</label>
+  <input type="text" id="f-name" placeholder="e.g. Ti:Sapphire Laser System" autocomplete="off">
+  <label>Skoltech inventory number</label>
+  <input type="text" id="f-invnum" placeholder="e.g. SKT-2024-0042" autocomplete="off">
+  <label>Manufacturer</label>
+  <input type="text" id="f-manufacturer" placeholder="e.g. Coherent" autocomplete="off">
+  <div class="two-col">
+    <div><label>Model</label><input type="text" id="f-model" placeholder="e.g. Mira 900" autocomplete="off"></div>
+    <div><label>Serial no.</label><input type="text" id="f-serial" placeholder="e.g. SN-00421" autocomplete="off"></div>
+  </div>
+  <label>Manufacturer webpage</label>
+  <input type="url" id="f-url" placeholder="https://...">
+  <label>Location</label>
+  <input type="text" id="f-location" placeholder="e.g. Lab 3, Optical Table B" autocomplete="off">
+  <label>Name of setup</label>
+  <input type="text" id="f-setup" placeholder="e.g. Raman microscopy setup" autocomplete="off">
+  <label>Category</label>
+  <select id="f-category">
+    <option>Laser system</option><option>Laser diode</option><option>3D stage / positioner</option>
+    <option>Spectrometer</option><option>Cryostat</option><option>Microscope</option>
+    <option>Optical power meter</option><option>Lock-in amplifier</option><option>Oscilloscope</option>
+    <option>Photodetector / APD</option><option>Camera / CCD</option>
+    <option>Beam splitter / optics</option><option>Optical fiber equipment</option>
+    <option>Vacuum system</option><option>Electronics / DAQ</option><option>Other</option>
+  </select>
+  <label>Status</label>
+  <select id="f-status">
+    <option value="available">Available</option><option value="in-use">In Use</option>
+    <option value="maintenance">Maintenance</option><option value="out-of-order">Out of Order</option>
+  </select>
+  <label>Responsible person</label>
+  <input type="text" id="f-person" placeholder="e.g. Dr. Nagy Anna" autocomplete="off">
+  <label>Notes</label>
+  <textarea id="f-notes" rows="3" placeholder="Optional notes…"></textarea>
+  <label>Photo</label>
+  <div class="photo-placeholder" id="photo-placeholder" onclick="document.getElementById('f-photo-input').click()">
+    <i class="ti ti-camera" style="font-size:26px"></i>
+    <span>Tap to take or choose a photo</span>
+  </div>
+  <img id="photo-preview" class="photo-preview-img" style="display:none" alt="Equipment photo">
+  <input type="file" id="f-photo-input" accept="image/*" capture="environment" style="display:none">
+  <button class="btn btn-sm" id="remove-photo-btn" style="margin-top:8px;display:none">
+    <i class="ti ti-trash"></i> Remove photo
+  </button>
+  <div style="display:flex;gap:8px;margin-top:18px">
+    <button class="btn btn-primary" style="flex:1" id="save-btn"><i class="ti ti-check"></i> Save</button>
+    <button class="btn btn-danger btn-sm" id="delete-btn" style="display:none"><i class="ti ti-trash"></i></button>
   </div>
 </div>
+</div>
 
-<!-- Detail modal -->
+<!-- DETAIL MODAL -->
 <div class="modal-bg" id="detail-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title" id="detail-title">Equipment detail</span>
-      <button class="modal-close" id="close-detail-btn">✕</button>
-    </div>
-    <div id="detail-body"></div>
+<div class="modal">
+  <div class="modal-header">
+    <span class="modal-title" id="detail-title">Equipment detail</span>
+    <button class="modal-close" id="close-detail-btn">✕</button>
   </div>
+  <div id="detail-body"></div>
+</div>
 </div>
 
 <script>
-// ─── Storage (localStorage) ───────────────────────────────────────────────────
-const LS_KEY = 'optics-lab-inventory-v1';
-function loadItems() {
-  try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch(e) { return []; }
-}
-function saveItems(arr) {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); } catch(e) {}
-}
+/* ── Storage ── */
+const LS='optics-lab-v1';
+let items=(()=>{try{return JSON.parse(localStorage.getItem(LS))||[];}catch(e){return [];}})();
+function saveItems(){try{localStorage.setItem(LS,JSON.stringify(items));}catch(e){}}
 
-// ─── State ────────────────────────────────────────────────────────────────────
-let items = loadItems();
-let selected = new Set();
-let editingId = null;
-let stream = null;
-let scanInterval = null;
-let pendingPhoto = null;
-let searchQuery = '';
+/* ── State ── */
+let selected=new Set(),editingId=null,stream=null,scanning=false;
+let pendingPhoto=null,searchQuery='',selectedMM=20;
+const videoEl=document.getElementById('video');
+let canvasEl=null,ctxEl=null;
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-const ICONS = {
-  'Laser system':'ti-ripple','Laser diode':'ti-bolt','3D stage / positioner':'ti-3d-rotate',
+/* ── Helpers ── */
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+const ICONS={'Laser system':'ti-ripple','Laser diode':'ti-bolt','3D stage / positioner':'ti-3d-rotate',
   'Spectrometer':'ti-wave-sine','Cryostat':'ti-snowflake','Microscope':'ti-microscope',
   'Optical power meter':'ti-gauge','Lock-in amplifier':'ti-activity','Oscilloscope':'ti-chart-line',
   'Photodetector / APD':'ti-eye','Camera / CCD':'ti-camera','Beam splitter / optics':'ti-prism',
   'Optical fiber equipment':'ti-topology-star','Vacuum system':'ti-circle-dashed',
-  'Electronics / DAQ':'ti-cpu','Other':'ti-tool'
-};
+  'Electronics / DAQ':'ti-cpu','Other':'ti-tool'};
+function mkbadge(s){
+  if(s==='available')return'<span class="badge badge-ok">Available</span>';
+  if(s==='in-use')return'<span class="badge badge-warn">In Use</span>';
+  if(s==='maintenance')return'<span class="badge badge-warn">Maintenance</span>';
+  return'<span class="badge badge-out">Out of Order</span>';}
 
-function mkbadge(s) {
-  if (s==='available') return '<span class="badge badge-ok">Available</span>';
-  if (s==='in-use')    return '<span class="badge badge-warn">In Use</span>';
-  if (s==='maintenance') return '<span class="badge badge-warn">Maintenance</span>';
-  return '<span class="badge badge-out">Out of Order</span>';
-}
-
-// ─── Render ───────────────────────────────────────────────────────────────────
-function render() {
-  const n = items.length;
-  document.getElementById('item-count').textContent =
-    n + ' piece' + (n !== 1 ? 's' : '') + ' of equipment';
-
-  const q = searchQuery.toLowerCase();
-  const filtered = q
-    ? items.filter(it =>
-        [it.name, it.category, it.location, it.setup, it.manufacturer, it.invnum, it.model, it.serial, it.person]
-          .some(f => (f||'').toLowerCase().includes(q)))
-    : items;
-
-  const list = document.getElementById('items-list');
-  if (!filtered.length) {
-    list.innerHTML = '<div class="empty-state"><i class="ti ti-package-off"></i>' +
-      (q ? 'No results for "' + esc(q) + '".' : 'No items yet.<br>Tap + to add your first piece of equipment.') + '</div>';
-  } else {
-    list.innerHTML = filtered.map(it => {
-      const ic = ICONS[it.category] || 'ti-tool';
-      const thumb = it.photo
-        ? `<img src="${it.photo}" style="width:42px;height:42px;object-fit:cover;border-radius:var(--radius-md)" alt="">`
-        : `<i class="ti ${ic}" style="font-size:20px"></i>`;
-      const meta = [it.category, it.manufacturer, it.setup].filter(Boolean).join(' · ');
-      const inv = it.invnum ? `<div style="font-size:11px;color:var(--color-text-tertiary);margin-top:2px">${esc(it.invnum)}</div>` : '';
-      return `<div class="card">
-        <div class="card-row">
-          <div class="item-icon">${thumb}</div>
-          <div style="flex:1;min-width:0">
-            <div class="item-name">${esc(it.name)}</div>
-            <div class="item-meta">${esc(meta)}</div>${inv}
-          </div>
-          ${mkbadge(it.status)}
-        </div>
-        <div class="actions">
-          <button class="btn btn-sm" onclick="showDetail('${it.id}')"><i class="ti ti-info-circle"></i> Details</button>
-          <button class="btn btn-sm" onclick="openEdit('${it.id}')"><i class="ti ti-edit"></i> Edit</button>
-          <button class="btn btn-sm" onclick="showDetail('${it.id}')"><i class="ti ti-qrcode"></i> QR</button>
-        </div>
-      </div>`;
+/* ── Render ── */
+function render(){
+  const n=items.length;
+  document.getElementById('item-count').textContent=n+' piece'+(n!==1?'s':'')+' of equipment';
+  const q=searchQuery.toLowerCase();
+  const list=q?items.filter(it=>[it.name,it.category,it.location,it.setup,it.manufacturer,it.invnum,it.model,it.serial,it.person].some(f=>(f||'').toLowerCase().includes(q))):items;
+  const el=document.getElementById('items-list');
+  if(!list.length){
+    el.innerHTML='<div class="empty-state"><i class="ti ti-package-off"></i>'+(q?'No results for "'+esc(q)+'".'  :'No items yet.<br>Tap + to add your first piece of equipment.')+'</div>';
+  }else{
+    el.innerHTML=list.map(it=>{
+      const ic=ICONS[it.category]||'ti-tool';
+      const thumb=it.photo?`<img src="${it.photo}" style="width:42px;height:42px;object-fit:cover;border-radius:var(--r-md)" alt="">`:`<i class="ti ${ic}" style="font-size:20px"></i>`;
+      const meta=[it.category,it.manufacturer,it.setup].filter(Boolean).join(' · ');
+      const inv=it.invnum?`<div style="font-size:11px;color:var(--text3);margin-top:2px">${esc(it.invnum)}</div>`:'';
+      return`<div class="card"><div class="card-row"><div class="item-icon">${thumb}</div><div style="flex:1;min-width:0"><div class="item-name">${esc(it.name)}</div><div class="item-meta">${esc(meta)}</div>${inv}</div>${mkbadge(it.status)}</div><div class="actions"><button class="btn btn-sm" onclick="showDetail('${it.id}')"><i class="ti ti-info-circle"></i> Details</button><button class="btn btn-sm" onclick="openEdit('${it.id}')"><i class="ti ti-edit"></i> Edit</button><button class="btn btn-sm" onclick="showDetail('${it.id}')"><i class="ti ti-qrcode"></i> QR</button></div></div>`;
     }).join('');
   }
   renderPrint();
 }
 
-function renderPrint() {
-  const grid = document.getElementById('print-grid');
-  const empty = document.getElementById('print-empty');
-  if (!items.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-  grid.innerHTML = items.map(it => {
-    const ic = ICONS[it.category] || 'ti-tool';
-    const sel = selected.has(it.id) ? 'selected' : '';
-    const thumb = it.photo
-      ? `<img src="${it.photo}" style="width:38px;height:38px;object-fit:cover;border-radius:6px;margin:0 auto;display:block" alt="">`
-      : `<i class="ti ${ic}" style="font-size:26px;color:var(--color-text-secondary)"></i>`;
-    return `<div class="print-card ${sel}" onclick="toggleSel('${it.id}')">
-      ${thumb}
-      <div class="pname">${esc(it.name)}</div>
-      <div class="pmeta">${esc(it.invnum || it.location || it.category)}</div>
-    </div>`;
+function renderPrint(){
+  const grid=document.getElementById('print-grid'),empty=document.getElementById('print-empty');
+  if(!items.length){grid.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  grid.innerHTML=items.map(it=>{
+    const ic=ICONS[it.category]||'ti-tool',sel=selected.has(it.id)?'selected':'';
+    const thumb=it.photo?`<img src="${it.photo}" style="width:38px;height:38px;object-fit:cover;border-radius:6px;margin:0 auto;display:block" alt="">`:`<i class="ti ${ic}" style="font-size:26px;color:var(--text2)"></i>`;
+    return`<div class="print-card ${sel}" onclick="toggleSel('${it.id}')">${thumb}<div class="pname">${esc(it.name)}</div><div class="pmeta">${esc(it.invnum||it.location||it.category)}</div></div>`;
   }).join('');
-  document.getElementById('sel-count').textContent = selected.size + ' selected';
+  document.getElementById('sel-count').textContent=selected.size+' selected';
 }
+function toggleSel(id){selected.has(id)?selected.delete(id):selected.add(id);renderPrint();}
 
-function toggleSel(id) {
-  if (selected.has(id)) selected.delete(id); else selected.add(id);
-  renderPrint();
+/* ── QR size selector ── */
+document.querySelectorAll('.size-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.size-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    selectedMM=parseInt(b.dataset.mm);
+  });
+});
+
+/* ── Form ── */
+const FF=['name','invnum','manufacturer','model','serial','url','location','setup','person','notes'];
+function resetForm(){
+  FF.forEach(f=>document.getElementById('f-'+f).value='');
+  document.getElementById('f-category').value='Laser system';
+  document.getElementById('f-status').value='available';
+  pendingPhoto=null;
+  document.getElementById('photo-preview').style.display='none';
+  document.getElementById('photo-placeholder').style.display='flex';
+  document.getElementById('remove-photo-btn').style.display='none';
+  document.getElementById('f-photo-input').value='';
 }
-
-// ─── Form helpers ─────────────────────────────────────────────────────────────
-const FFIELDS = ['name','invnum','manufacturer','model','serial','url','location','setup','person','notes'];
-
-function resetForm() {
-  FFIELDS.forEach(f => document.getElementById('f-' + f).value = '');
-  document.getElementById('f-category').value = 'Laser system';
-  document.getElementById('f-status').value = 'available';
-  pendingPhoto = null;
-  document.getElementById('photo-preview').style.display = 'none';
-  document.getElementById('photo-placeholder').style.display = 'flex';
-  document.getElementById('remove-photo-btn').style.display = 'none';
-  document.getElementById('f-photo-input').value = '';
-}
-
-function openAdd() {
-  editingId = null; resetForm();
-  document.getElementById('modal-title').textContent = 'Add piece of equipment';
-  document.getElementById('delete-btn').style.display = 'none';
+function openAdd(){editingId=null;resetForm();document.getElementById('modal-title').textContent='Add piece of equipment';document.getElementById('delete-btn').style.display='none';openModal('add-modal');}
+function openEdit(id){
+  const it=items.find(x=>x.id===id);if(!it)return;
+  editingId=id;resetForm();
+  document.getElementById('modal-title').textContent='Edit piece of equipment';
+  FF.forEach(f=>document.getElementById('f-'+f).value=it[f]||'');
+  document.getElementById('f-category').value=it.category||'Other';
+  document.getElementById('f-status').value=it.status||'available';
+  pendingPhoto=it.photo||null;
+  if(it.photo){document.getElementById('photo-preview').src=it.photo;document.getElementById('photo-preview').style.display='block';document.getElementById('photo-placeholder').style.display='none';document.getElementById('remove-photo-btn').style.display='inline-flex';}
+  document.getElementById('delete-btn').style.display='inline-flex';
   openModal('add-modal');
 }
-
-function openEdit(id) {
-  const it = items.find(x => x.id === id); if (!it) return;
-  editingId = id; resetForm();
-  document.getElementById('modal-title').textContent = 'Edit piece of equipment';
-  FFIELDS.forEach(f => document.getElementById('f-' + f).value = it[f] || '');
-  document.getElementById('f-category').value = it.category || 'Other';
-  document.getElementById('f-status').value = it.status || 'available';
-  pendingPhoto = it.photo || null;
-  if (it.photo) {
-    document.getElementById('photo-preview').src = it.photo;
-    document.getElementById('photo-preview').style.display = 'block';
-    document.getElementById('photo-placeholder').style.display = 'none';
-    document.getElementById('remove-photo-btn').style.display = 'inline-flex';
-  }
-  document.getElementById('delete-btn').style.display = 'inline-flex';
-  openModal('add-modal');
-}
-
-// ─── Photo ────────────────────────────────────────────────────────────────────
-document.getElementById('f-photo-input').addEventListener('change', e => {
-  const file = e.target.files[0]; if (!file) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    pendingPhoto = ev.target.result;
-    document.getElementById('photo-preview').src = pendingPhoto;
-    document.getElementById('photo-preview').style.display = 'block';
-    document.getElementById('photo-placeholder').style.display = 'none';
-    document.getElementById('remove-photo-btn').style.display = 'inline-flex';
-  };
+document.getElementById('f-photo-input').addEventListener('change',e=>{
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{pendingPhoto=ev.target.result;document.getElementById('photo-preview').src=pendingPhoto;document.getElementById('photo-preview').style.display='block';document.getElementById('photo-placeholder').style.display='none';document.getElementById('remove-photo-btn').style.display='inline-flex';};
   r.readAsDataURL(file);
 });
-document.getElementById('remove-photo-btn').addEventListener('click', () => {
-  pendingPhoto = null;
-  document.getElementById('photo-preview').style.display = 'none';
-  document.getElementById('photo-placeholder').style.display = 'flex';
-  document.getElementById('remove-photo-btn').style.display = 'none';
-  document.getElementById('f-photo-input').value = '';
+document.getElementById('remove-photo-btn').addEventListener('click',()=>{pendingPhoto=null;document.getElementById('photo-preview').style.display='none';document.getElementById('photo-placeholder').style.display='flex';document.getElementById('remove-photo-btn').style.display='none';document.getElementById('f-photo-input').value='';});
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.getElementById('add-btn').addEventListener('click',openAdd);
+document.getElementById('scan-nav-btn').addEventListener('click',()=>switchView('scan'));
+document.getElementById('close-modal-btn').addEventListener('click',()=>closeModal('add-modal'));
+document.getElementById('close-detail-btn').addEventListener('click',()=>closeModal('detail-modal'));
+document.getElementById('add-modal').addEventListener('click',e=>{if(e.target===document.getElementById('add-modal'))closeModal('add-modal');});
+document.getElementById('detail-modal').addEventListener('click',e=>{if(e.target===document.getElementById('detail-modal'))closeModal('detail-modal');});
+document.getElementById('search-input').addEventListener('input',e=>{searchQuery=e.target.value;render();});
+document.getElementById('save-btn').addEventListener('click',()=>{
+  const name=document.getElementById('f-name').value.trim();if(!name){document.getElementById('f-name').focus();return;}
+  const ex=editingId?items.find(x=>x.id===editingId):null;
+  const data={id:editingId||uid(),name,invnum:document.getElementById('f-invnum').value.trim(),manufacturer:document.getElementById('f-manufacturer').value.trim(),model:document.getElementById('f-model').value.trim(),serial:document.getElementById('f-serial').value.trim(),url:document.getElementById('f-url').value.trim(),location:document.getElementById('f-location').value.trim(),setup:document.getElementById('f-setup').value.trim(),category:document.getElementById('f-category').value,status:document.getElementById('f-status').value,person:document.getElementById('f-person').value.trim(),notes:document.getElementById('f-notes').value.trim(),photo:pendingPhoto||null,added:(ex&&ex.added)||new Date().toISOString().slice(0,10)};
+  if(editingId){const i=items.findIndex(x=>x.id===editingId);if(i>-1)items[i]=data;}else items.unshift(data);
+  saveItems();render();closeModal('add-modal');
 });
-
-// ─── Modal helpers ────────────────────────────────────────────────────────────
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-// ─── Event listeners ──────────────────────────────────────────────────────────
-document.getElementById('add-btn').addEventListener('click', openAdd);
-document.getElementById('scan-nav-btn').addEventListener('click', () => switchView('scan'));
-document.getElementById('close-modal-btn').addEventListener('click', () => closeModal('add-modal'));
-document.getElementById('close-detail-btn').addEventListener('click', () => closeModal('detail-modal'));
-document.getElementById('add-modal').addEventListener('click', e => { if (e.target === document.getElementById('add-modal')) closeModal('add-modal'); });
-document.getElementById('detail-modal').addEventListener('click', e => { if (e.target === document.getElementById('detail-modal')) closeModal('detail-modal'); });
-
-document.getElementById('search-input').addEventListener('input', e => {
-  searchQuery = e.target.value;
-  render();
+document.getElementById('delete-btn').addEventListener('click',()=>{
+  if(!editingId)return;if(!confirm('Delete this piece of equipment?'))return;
+  items=items.filter(x=>x.id!==editingId);selected.delete(editingId);saveItems();render();closeModal('add-modal');
 });
-
-document.getElementById('save-btn').addEventListener('click', () => {
-  const name = document.getElementById('f-name').value.trim();
-  if (!name) { document.getElementById('f-name').focus(); return; }
-  const ex = editingId ? items.find(x => x.id === editingId) : null;
-  const data = {
-    id: editingId || uid(), name,
-    invnum: document.getElementById('f-invnum').value.trim(),
-    manufacturer: document.getElementById('f-manufacturer').value.trim(),
-    model: document.getElementById('f-model').value.trim(),
-    serial: document.getElementById('f-serial').value.trim(),
-    url: document.getElementById('f-url').value.trim(),
-    location: document.getElementById('f-location').value.trim(),
-    setup: document.getElementById('f-setup').value.trim(),
-    category: document.getElementById('f-category').value,
-    status: document.getElementById('f-status').value,
-    person: document.getElementById('f-person').value.trim(),
-    notes: document.getElementById('f-notes').value.trim(),
-    photo: pendingPhoto || null,
-    added: (ex && ex.added) || new Date().toISOString().slice(0, 10)
-  };
-  if (editingId) { const i = items.findIndex(x => x.id === editingId); if (i > -1) items[i] = data; }
-  else items.unshift(data);
-  saveItems(items);
-  render();
-  closeModal('add-modal');
-});
-
-document.getElementById('delete-btn').addEventListener('click', () => {
-  if (!editingId) return;
-  if (!confirm('Delete this piece of equipment?')) return;
-  items = items.filter(x => x.id !== editingId);
-  selected.delete(editingId);
-  saveItems(items);
-  render();
-  closeModal('add-modal');
-});
-
-// ─── Tabs ─────────────────────────────────────────────────────────────────────
-document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchView(t.dataset.view)));
-function switchView(v) {
-  document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-  document.getElementById('view-' + v).classList.add('active');
-  document.querySelector('.tab[data-view="' + v + '"]').classList.add('active');
-  if (v !== 'scan') stopScan();
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>switchView(t.dataset.view)));
+function switchView(v){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelector('.tab[data-view="'+v+'"]').classList.add('active');
+  if(v!=='scan')stopScan();
 }
 
-// ─── Detail view ──────────────────────────────────────────────────────────────
-function showDetail(id) {
-  const it = items.find(x => x.id === id); if (!it) return;
-  document.getElementById('detail-title').textContent = it.name;
-  const photoRow = it.photo ? `<img src="${it.photo}" class="detail-photo" alt="Photo of ${esc(it.name)}">` : '';
-  const urlRow = it.url
-    ? `<div class="detail-section"><div class="detail-label">Manufacturer webpage</div><div class="detail-value"><a href="${esc(it.url)}" target="_blank" style="color:var(--color-info);word-break:break-all">${esc(it.url)}</a></div></div>`
-    : '';
-  const fields = [
-    ['Skoltech inventory no.', it.invnum || '—'],
-    ['Manufacturer', it.manufacturer || '—'],
-    ['Model', it.model || '—'],
-    ['Serial no.', it.serial || '—'],
-    ['Category', it.category],
-    ['Location', it.location || '—'],
-    ['Name of setup', it.setup || '—'],
-    ['Status', it.status],
-    ['Responsible', it.person || '—'],
-    ['Date added', it.added || '—'],
-    ['Notes', it.notes || '—']
-  ];
-  document.getElementById('detail-body').innerHTML = `
-    ${photoRow}
-    <div class="qr-wrap" id="detail-qr-wrap"></div>
-    ${fields.map(([l, v]) => `<div class="detail-section"><div class="detail-label">${l}</div><div class="detail-value">${esc(v)}</div></div>`).join('')}
-    ${urlRow}
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button class="btn btn-sm" onclick="openEdit('${it.id}');closeModal('detail-modal')"><i class="ti ti-edit"></i> Edit</button>
-    </div>`;
+/* ── Detail ── */
+function showDetail(id){
+  const it=items.find(x=>x.id===id);if(!it)return;
+  document.getElementById('detail-title').textContent=it.name;
+  const photoRow=it.photo?`<img src="${it.photo}" class="detail-photo" alt="Photo of ${esc(it.name)}">`:'';
+  const urlRow=it.url?`<div class="detail-section"><div class="detail-label">Manufacturer webpage</div><div class="detail-value"><a href="${esc(it.url)}" target="_blank" style="color:var(--info);word-break:break-all">${esc(it.url)}</a></div></div>`:'';
+  const fields=[['Skoltech inventory no.',it.invnum||'—'],['Manufacturer',it.manufacturer||'—'],['Model',it.model||'—'],['Serial no.',it.serial||'—'],['Category',it.category],['Location',it.location||'—'],['Name of setup',it.setup||'—'],['Status',it.status],['Responsible',it.person||'—'],['Date added',it.added||'—'],['Notes',it.notes||'—']];
+  document.getElementById('detail-body').innerHTML=`${photoRow}<div class="qr-wrap" id="detail-qr-wrap"></div>${fields.map(([l,v])=>`<div class="detail-section"><div class="detail-label">${l}</div><div class="detail-value">${esc(v)}</div></div>`).join('')}${urlRow}<div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-sm" onclick="openEdit('${it.id}');closeModal('detail-modal')"><i class="ti ti-edit"></i> Edit</button></div>`;
   openModal('detail-modal');
-  setTimeout(() => {
-    const el = document.getElementById('detail-qr-wrap'); if (!el) return;
-    el.innerHTML = '';
-    const w = document.createElement('div'); el.appendChild(w);
-    new QRCode(w, { text: 'labitem:' + it.id, width: 110, height: 110, correctLevel: QRCode.CorrectLevel.M });
-  }, 50);
+  setTimeout(()=>{const el=document.getElementById('detail-qr-wrap');if(!el)return;el.innerHTML='';const w=document.createElement('div');el.appendChild(w);new QRCode(w,{text:'labitem:'+it.id,width:110,height:110,correctLevel:QRCode.CorrectLevel.M});},50);
 }
 
-// ─── Print ────────────────────────────────────────────────────────────────────
-document.getElementById('sel-all-btn').addEventListener('click', () => {
-  if (selected.size === items.length) selected.clear(); else items.forEach(it => selected.add(it.id));
-  renderPrint();
+/* ── Print / PDF ── */
+document.getElementById('sel-all-btn').addEventListener('click',()=>{if(selected.size===items.length)selected.clear();else items.forEach(it=>selected.add(it.id));renderPrint();});
+document.getElementById('print-btn').addEventListener('click',()=>{
+  const tp=items.filter(it=>selected.has(it.id));
+  if(!tp.length){alert('Select at least one item to print.');return;}
+  printLabels(tp,selectedMM);
 });
 
-document.getElementById('print-btn').addEventListener('click', () => {
-  const tp = items.filter(it => selected.has(it.id));
-  if (!tp.length) { alert('Select at least one item to print.'); return; }
-  printLabels(tp);
-});
+function printLabels(tp,mm){
+  // px at 96 dpi: 1mm = 96/25.4 px
+  const dpi=96, mmToPx=dpi/25.4;
+  const qrPx=Math.round(mm*mmToPx);
+  const nameFontPt=Math.max(6,Math.round(mm*0.26));
+  const invFontPt=Math.max(5,Math.round(mm*0.20));
+  const labelPadPx=4;
+  const labelWPx=qrPx+labelPadPx*2;
 
-function printLabels(tp) {
-  const win = window.open('', '_blank', 'width=800,height=600');
-  if (!win) { alert('Please allow pop-ups to print labels.'); return; }
-  win.document.write(`<!DOCTYPE html><html><head><title>Lab QR Labels</title>
+  // Gap between labels: 3mm
+  const gapMM=3, gapPx=Math.round(gapMM*mmToPx);
+  // A4 usable width at 96dpi: (210-20)mm = 190mm
+  const usableWPx=Math.round(190*mmToPx);
+  const cols=Math.max(1,Math.floor((usableWPx+gapPx)/(labelWPx+gapPx)));
+
+  // Render QR codes to data URLs via hidden canvas
+  const tmp=document.createElement('div');
+  tmp.style.cssText='position:fixed;left:-9999px;top:0;visibility:hidden;pointer-events:none';
+  document.body.appendChild(tmp);
+
+  const qrURLs={};
+  const promises=tp.map(it=>new Promise(resolve=>{
+    const wrap=document.createElement('div');
+    tmp.appendChild(wrap);
+    new QRCode(wrap,{text:'labitem:'+it.id,width:qrPx,height:qrPx,correctLevel:QRCode.CorrectLevel.H});
+    // QRCode.js renders async; give it 400ms
+    setTimeout(()=>{
+      const canvas=wrap.querySelector('canvas');
+      const img=wrap.querySelector('img');
+      if(canvas){qrURLs[it.id]=canvas.toDataURL('image/png');}
+      else if(img&&img.src){qrURLs[it.id]=img.src;}
+      resolve();
+    },400);
+  }));
+
+  Promise.all(promises).then(()=>{
+    document.body.removeChild(tmp);
+
+    // Build label HTML cells
+    const cells=tp.map(it=>{
+      const src=qrURLs[it.id]||'';
+      const name=(it.name||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const inv=it.invnum?`<div style="font-size:${invFontPt}pt;color:#333;font-weight:700;margin-top:1px;text-align:center;max-width:${qrPx}px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${it.invnum.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`:'';
+      return`<div class="lbl"><img src="${src}" width="${qrPx}" height="${qrPx}" style="display:block"><div class="lname" style="font-size:${nameFontPt}pt;max-width:${qrPx}px">${name}</div>${inv}</div>`;
+    }).join('');
+
+    const win=window.open('','_blank','width=900,height=700');
+    if(!win){alert('Allow pop-ups to generate the PDF.');return;}
+    win.document.write(`<!DOCTYPE html><html><head><title>QR Labels ${mm}mm</title>
 <style>
-body{font-family:Arial,sans-serif;margin:16px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.label{border:1px solid #ccc;border-radius:8px;padding:12px 10px;text-align:center;page-break-inside:avoid}
-.label img.th{width:52px;height:52px;object-fit:cover;border-radius:5px;margin-bottom:4px;display:block;margin-left:auto;margin-right:auto}
-.lname{font-size:11px;font-weight:700;margin-top:5px;word-break:break-word;line-height:1.3}
-.linv{font-size:9px;color:#333;margin-top:3px;font-weight:700}
-.lmeta{font-size:9px;color:#666;margin-top:2px;line-height:1.3}
-.print-btn{padding:8px 18px;font-size:14px;cursor:pointer;margin-bottom:14px;border-radius:6px;border:1px solid #ccc;background:#f5f5f5}
-@media print{.no-print{display:none!important}}
-</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
-</head><body>
-<button class="print-btn no-print" onclick="window.print()">🖨 Print Labels</button>
-<div class="grid" id="g"></div>
-<script>
-const items = ${JSON.stringify(tp)};
-const g = document.getElementById('g');
-items.forEach(it => {
-  const d = document.createElement('div'); d.className = 'label';
-  if (it.photo) {
-    const img = document.createElement('img'); img.src = it.photo; img.className = 'th'; d.appendChild(img);
-  }
-  const qd = document.createElement('div'); d.appendChild(qd);
-  new QRCode(qd, { text: 'labitem:' + it.id, width: 88, height: 88, correctLevel: QRCode.CorrectLevel.M });
-  const inv = it.invnum ? '<div class="linv">' + it.invnum + '<\/div>' : '';
-  const mdl = [it.model, it.serial].filter(Boolean).join(' / ');
-  const mfr = it.manufacturer || '';
-  d.innerHTML += '<div class="lname">' + it.name + '<\/div>' + inv +
-    '<div class="lmeta">' + (mfr ? mfr + (mdl ? ' · ' : '') : '') + mdl + '<\/div>' +
-    '<div class="lmeta">' + (it.location || '') + (it.setup ? ' · ' + it.setup : '') + '<\/div>';
-  g.appendChild(d);
-});
-<\/script></body></html>`);
-  win.document.close();
+@page{size:A4 portrait;margin:10mm}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:#000}
+.controls{padding:12px 16px;background:#f5f5f5;border-bottom:1px solid #ddd;display:flex;align-items:center;gap:12px}
+.controls button{padding:7px 18px;border-radius:6px;border:1px solid #aaa;background:#fff;cursor:pointer;font-size:13px;font-family:Arial}
+.controls button.p{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.controls span{font-size:12px;color:#555}
+.grid{display:flex;flex-wrap:wrap;gap:${gapPx}px;padding:2px;align-content:flex-start}
+.lbl{display:inline-flex;flex-direction:column;align-items:center;padding:${labelPadPx}px;page-break-inside:avoid;break-inside:avoid;border:0.5px solid #ccc;border-radius:3px}
+.lname{font-weight:700;text-align:center;line-height:1.2;margin-top:3px;overflow:hidden;word-break:break-word}
+@media print{.controls{display:none!important}}
+</style></head><body>
+<div class="controls">
+  <button class="p" onclick="window.print()">🖨 Print / Save as PDF</button>
+  <span>${tp.length} label${tp.length!==1?'s':''} &nbsp;·&nbsp; ${mm} × ${mm} mm &nbsp;·&nbsp; ${cols} per row &nbsp;·&nbsp; Error correction: High</span>
+</div>
+<div class="grid">${cells}</div>
+</body></html>`);
+    win.document.close();
+  });
 }
 
-// ─── QR Scanning ──────────────────────────────────────────────────────────────
-let videoEl, canvasEl, ctxEl;
+/* ── Scanning (Android-safe) ── */
+if(location.protocol!=='https:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){
+  document.getElementById('https-notice').style.display='block';
+}
 
-document.getElementById('start-scan-btn').addEventListener('click', async () => {
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
-    videoEl = document.getElementById('video');
-    videoEl.srcObject = stream;
-    document.getElementById('video-wrap').style.display = 'block';
-    document.getElementById('scan-icon-wrap').style.display = 'none';
-    canvasEl = document.createElement('canvas');
-    ctxEl = canvasEl.getContext('2d');
-    scanInterval = setInterval(scanFrame, 200);
-  } catch(e) {
-    document.getElementById('scan-icon-wrap').innerHTML =
-      '<div style="font-size:15px;font-weight:600">Camera access denied</div>' +
-      '<div style="font-size:13px;color:var(--color-text-secondary);margin-top:6px">Please allow camera access in your browser settings, then reload the page.</div>';
+document.getElementById('start-scan-btn').addEventListener('click',startScan);
+document.getElementById('stop-scan-btn').addEventListener('click',stopScan);
+
+async function startScan(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    showScanError('Camera API not available. This page must be served over HTTPS.');return;
   }
-});
+  stopScan();
+  try{
+    // Try rear camera first
+    try{
+      stream=await navigator.mediaDevices.getUserMedia({
+        video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
+    }catch(e){
+      // Fallback: any camera
+      stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+    }
 
-function scanFrame() {
-  if (!videoEl || videoEl.readyState < 2) return;
-  canvasEl.width = videoEl.videoWidth; canvasEl.height = videoEl.videoHeight;
-  ctxEl.drawImage(videoEl, 0, 0);
-  const code = jsQR(ctxEl.getImageData(0, 0, canvasEl.width, canvasEl.height).data, canvasEl.width, canvasEl.height);
-  if (code && code.data.startsWith('labitem:')) {
-    const id = code.data.replace('labitem:', '');
-    stopScan();
-    showScanResult(items.find(x => x.id === id), id);
+    // ANDROID BLACK SCREEN FIX:
+    // 1) Assign srcObject before calling play()
+    videoEl.srcObject=stream;
+
+    // 2) Call play() and catch rejection gracefully
+    const playPromise=videoEl.play();
+    if(playPromise!==undefined){
+      playPromise.catch(e=>console.warn('Initial play() suppressed:',e));
+    }
+
+    // 3) Wait for loadedmetadata (guarantees frames are available)
+    if(videoEl.readyState<2){
+      await new Promise((res)=>{
+        const done=()=>{videoEl.removeEventListener('loadedmetadata',done);res();};
+        videoEl.addEventListener('loadedmetadata',done);
+        setTimeout(res,4000); // safety timeout
+      });
+    }
+
+    // 4) Call play() AGAIN after metadata — this is the key Android fix
+    try{await videoEl.play();}catch(e){console.warn('Second play() suppressed:',e);}
+
+    // Show video
+    document.getElementById('video-wrap').style.display='block';
+    document.getElementById('scan-status').style.display='block';
+    document.getElementById('stop-wrap').style.display='block';
+    document.getElementById('scan-result').style.display='none';
+
+    canvasEl=document.createElement('canvas');
+    ctxEl=canvasEl.getContext('2d',{willReadFrequently:true});
+    scanning=true;
+    requestAnimationFrame(scanLoop);
+
+  }catch(err){
+    console.error('getUserMedia error:',err);
+    let msg='Could not access camera.';
+    if(err.name==='NotAllowedError')msg='Camera permission denied. Tap the camera icon in your browser address bar and allow access.';
+    else if(err.name==='NotFoundError')msg='No camera found on this device.';
+    else if(err.name==='NotReadableError')msg='Camera is already in use by another app. Close it and try again.';
+    showScanError(msg);
   }
 }
 
-function stopScan() {
-  if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
-  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-  const vw = document.getElementById('video-wrap'); if (vw) vw.style.display = 'none';
-  const sw = document.getElementById('scan-icon-wrap'); if (sw) sw.style.display = 'block';
+function scanLoop(){
+  if(!scanning)return;
+  // Only attempt to read if video is actually playing with real frames
+  if(videoEl.readyState===videoEl.HAVE_ENOUGH_DATA&&videoEl.videoWidth>0&&!videoEl.paused){
+    canvasEl.width=videoEl.videoWidth;
+    canvasEl.height=videoEl.videoHeight;
+    ctxEl.drawImage(videoEl,0,0);
+    try{
+      const imgData=ctxEl.getImageData(0,0,canvasEl.width,canvasEl.height);
+      const code=jsQR(imgData.data,imgData.width,imgData.height,{inversionAttempts:'dontInvert'});
+      if(code&&code.data.startsWith('labitem:')){
+        const id=code.data.replace('labitem:','');
+        stopScan();
+        showScanResult(items.find(x=>x.id===id),id);
+        return;
+      }
+    }catch(e){}
+  }
+  // ~15fps to conserve battery
+  setTimeout(()=>{if(scanning)requestAnimationFrame(scanLoop);},66);
 }
 
-function showScanResult(it, id) {
-  const res = document.getElementById('scan-result'); res.style.display = 'block';
-  if (!it) {
-    res.innerHTML = `<div class="card"><div style="color:var(--color-danger-text)"><i class="ti ti-alert-circle"></i> Item not found (ID: ${esc(id)})</div></div>`;
+function stopScan(){
+  scanning=false;
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  videoEl.srcObject=null;
+  document.getElementById('video-wrap').style.display='none';
+  document.getElementById('scan-status').style.display='none';
+  document.getElementById('stop-wrap').style.display='none';
+}
+
+function showScanError(msg){
+  document.getElementById('scan-icon-wrap').innerHTML=
+    `<i class="ti ti-alert-circle" style="font-size:40px;color:var(--err-t);display:block;margin:0 auto 10px"></i>
+     <div style="font-size:15px;font-weight:600;margin-bottom:6px">Camera unavailable</div>
+     <div style="font-size:13px;color:var(--text2);margin-bottom:16px">${msg}</div>
+     <button class="btn btn-sm" onclick="location.reload()"><i class="ti ti-refresh"></i> Reload page</button>`;
+}
+
+function showScanResult(it,id){
+  const res=document.getElementById('scan-result');res.style.display='block';
+  if(!it){
+    res.innerHTML=`<div class="card"><div style="color:var(--err-t)"><i class="ti ti-alert-circle"></i> Item not found (ID: ${esc(id)})</div><div style="margin-top:8px"><button class="btn btn-sm" onclick="startScan()"><i class="ti ti-scan"></i> Scan again</button></div></div>`;
     return;
   }
-  const ic = ICONS[it.category] || 'ti-tool';
-  const thumb = it.photo
-    ? `<img src="${it.photo}" style="width:42px;height:42px;object-fit:cover;border-radius:var(--radius-md)" alt="">`
-    : `<i class="ti ${ic}" style="font-size:20px"></i>`;
-  res.innerHTML = `<div class="card">
-    <div class="card-row" style="margin-bottom:10px">
-      <div class="item-icon">${thumb}</div>
-      <div style="flex:1;min-width:0">
-        <div class="item-name">${esc(it.name)}</div>
-        <div class="item-meta">${esc(it.manufacturer || it.category)}${it.setup ? ' · ' + esc(it.setup) : ''}</div>
-        ${it.invnum ? `<div style="font-size:11px;color:var(--color-text-tertiary)">${esc(it.invnum)}</div>` : ''}
-      </div>
-      ${mkbadge(it.status)}
-    </div>
-    <div class="actions">
-      <button class="btn btn-sm" onclick="showDetail('${it.id}')"><i class="ti ti-info-circle"></i> Details</button>
-      <button class="btn btn-sm" onclick="openEdit('${it.id}')"><i class="ti ti-edit"></i> Edit</button>
-      <button class="btn btn-sm" onclick="document.getElementById('scan-result').style.display='none'"><i class="ti ti-x"></i> Clear</button>
-    </div>
-  </div>`;
+  const ic=ICONS[it.category]||'ti-tool';
+  const thumb=it.photo?`<img src="${it.photo}" style="width:42px;height:42px;object-fit:cover;border-radius:var(--r-md)" alt="">`:`<i class="ti ${ic}" style="font-size:20px"></i>`;
+  res.innerHTML=`<div class="card"><div class="card-row" style="margin-bottom:10px"><div class="item-icon">${thumb}</div><div style="flex:1;min-width:0"><div class="item-name">${esc(it.name)}</div><div class="item-meta">${esc(it.manufacturer||it.category)}${it.setup?' · '+esc(it.setup):''}</div>${it.invnum?`<div style="font-size:11px;color:var(--text3)">${esc(it.invnum)}</div>`:''}</div>${mkbadge(it.status)}</div><div class="actions"><button class="btn btn-sm" onclick="showDetail('${it.id}')"><i class="ti ti-info-circle"></i> Details</button><button class="btn btn-sm" onclick="openEdit('${it.id}')"><i class="ti ti-edit"></i> Edit</button><button class="btn btn-sm" onclick="startScan()"><i class="ti ti-scan"></i> Scan again</button></div></div>`;
 }
 
-// ─── Init ─────────────────────────────────────────────────────────────────────
+/* ── Init ── */
 render();
 </script>
 </body>

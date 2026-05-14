@@ -237,7 +237,7 @@ label:first-child{margin-top:0}
 
 <button class="fab" id="add-btn">+</button>
 <div style="position:fixed;bottom:10px;left:16px;font-size:14px;color:var(--text3);
-  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.109</div>
+  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.110</div>
 </div>
 
 <!-- ADD/EDIT MODAL -->
@@ -836,7 +836,11 @@ function printLabels(tp, mm) {
   });
 }
 
-/* ── QR Scanning ── */
+/* ══════════════════════════════════════════════════
+   QR SCANNING
+   Primary:  BarcodeDetector API (native, hardware-accelerated — Android Chrome)
+   Fallback: jsQR (pure JS canvas — works everywhere else)
+   ══════════════════════════════════════════════════ */
 if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
   document.getElementById('https-notice').style.display = 'block';
 }
@@ -844,15 +848,37 @@ if (location.protocol !== 'https:' && location.hostname !== 'localhost' && locat
 document.getElementById('start-scan-btn').addEventListener('click', startScan);
 document.getElementById('stop-scan-btn').addEventListener('click', stopScan);
 
+let barcodeDetector = null;
+let useNativeDetector = false;
+
+async function initDetector() {
+  if ('BarcodeDetector' in window) {
+    try {
+      const formats = await BarcodeDetector.getSupportedFormats();
+      if (formats.includes('qr_code')) {
+        barcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+        useNativeDetector = true;
+        console.log('✓ Using native BarcodeDetector API');
+        return;
+      }
+    } catch(e) { console.warn('BarcodeDetector init failed:', e); }
+  }
+  useNativeDetector = false;
+  console.log('ℹ Falling back to jsQR');
+}
+
 async function startScan() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     showScanError('Camera API not available. This page must be served over HTTPS.'); return;
   }
   stopScan();
+  await initDetector();
   try {
     try {
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false
+      });
     } catch(e) {
       stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
     }
@@ -871,6 +897,8 @@ async function startScan() {
     document.getElementById('scan-status').style.display = 'block';
     document.getElementById('stop-wrap').style.display = 'block';
     document.getElementById('scan-result').style.display = 'none';
+    document.getElementById('scan-status').textContent =
+      useNativeDetector ? 'Hold the QR code steady inside the box' : 'Scanning… hold QR code steady';
     canvasEl = document.createElement('canvas');
     ctxEl = canvasEl.getContext('2d', { willReadFrequently: true });
     scanning = true;
@@ -884,39 +912,44 @@ async function startScan() {
   }
 }
 
-function scanLoop() {
+async function scanLoop() {
   if (!scanning) return;
 
   if (videoEl.readyState === videoEl.HAVE_ENOUGH_DATA) {
-    // Draw FULL frame — no crop. Cropping can cause zero-size or
-    // misaligned draws on some Android cameras where videoWidth/Height
-    // differ from the requested constraints.
-    canvasEl.width  = videoEl.videoWidth;
-    canvasEl.height = videoEl.videoHeight;
-    ctxEl.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
-
     try {
-      const imageData = ctxEl.getImageData(0, 0, canvasEl.width, canvasEl.height);
-      const code = jsQR(imageData.data, imageData.width, imageData.height, {
-        inversionAttempts: 'attemptBoth'
-      });
-      if (code && code.data) {
+      let result = null;
+
+      if (useNativeDetector && barcodeDetector) {
+        // PRIMARY: pass video element directly — no canvas, no pixel copying
+        const barcodes = await barcodeDetector.detect(videoEl);
+        if (barcodes.length > 0) result = barcodes[0].rawValue;
+      } else {
+        // FALLBACK: jsQR via canvas
+        canvasEl.width  = videoEl.videoWidth;
+        canvasEl.height = videoEl.videoHeight;
+        ctxEl.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+        const imageData = ctxEl.getImageData(0, 0, canvasEl.width, canvasEl.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+          inversionAttempts: 'attemptBoth'
+        });
+        if (code) result = code.data;
+      }
+
+      if (result) {
         stopScan();
-        if (code.data.startsWith('labitem:')) {
-          const id = code.data.replace('labitem:', '');
+        if (result.startsWith('labitem:')) {
+          const id = result.replace('labitem:', '');
           const it = items.find(x => x.id === id);
           if (it) { showDetail(it.id); }
           else    { showScanResult(null, id); }
         } else {
-          showScanResult(null, code.data);
+          showScanResult(null, result);
         }
         return;
       }
-    } catch(e) { console.warn('jsQR error:', e); }
+    } catch(e) { console.warn('Scan error:', e); }
   }
 
-  // requestAnimationFrame only — no setTimeout wrapper.
-  // Matches the official jsQR demo pattern and avoids double-scheduling.
   requestAnimationFrame(scanLoop);
 }
 
@@ -940,8 +973,8 @@ function showScanError(msg) {
 function showScanResult(it, id) {
   const res = document.getElementById('scan-result'); res.style.display = 'block';
   if (!it) {
-    const isUnknown = !String(id).match(/^[a-z0-9]{8,}$/);
-    const msg = isUnknown
+    const foreign = !String(id).match(/^[a-z0-9]{8,}$/);
+    const msg = foreign
       ? `QR code detected but not a registered device.<br><small style="color:var(--text3)">${esc(String(id).slice(0,60))}</small>`
       : `No device found for ID: <small style="color:var(--text3)">${esc(String(id))}</small>`;
     res.innerHTML = `<div class="card"><div style="color:var(--err-t);margin-bottom:10px">

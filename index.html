@@ -26,16 +26,16 @@
   --err-bg:#3d0a0e;--err-t:#ff453a;
 }}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:16px}
 .app{max-width:480px;margin:0 auto;padding-bottom:90px}
 
 /* ── Topbar ── */
 .topbar{background:var(--card);border-bottom:.5px solid var(--border);padding:14px 16px;
   display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
 .topbar-title{font-size:19px;font-weight:700;flex:1;line-height:1.2}
-.topbar-sub{font-size:13px;color:var(--text2);margin-top:1px}
-.sync-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;
-  padding:2px 8px;border-radius:99px;font-weight:600;white-space:nowrap;margin-top:3px}
+.topbar-sub{font-size:14px;color:var(--text2);margin-top:1px}
+.sync-badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;
+  padding:3px 9px;border-radius:99px;font-weight:600;white-space:nowrap;margin-top:3px}
 .sync-badge.synced {background:var(--ok-bg); color:var(--ok-t)}
 .sync-badge.syncing{background:var(--warn-bg);color:var(--warn-t)}
 .sync-badge.offline{background:var(--err-bg); color:var(--err-t)}
@@ -44,7 +44,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 /* ── Tabs ── */
 .tab-bar{display:flex;border-bottom:.5px solid var(--border);background:var(--card);
   position:sticky;top:61px;z-index:9}
-.tab{flex:1;padding:12px 2px;font-size:14px;text-align:center;border:none;
+.tab{flex:1;padding:13px 2px;font-size:15px;text-align:center;border:none;
   background:none;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;font-family:var(--font)}
 .tab.active{color:var(--text);border-bottom:2px solid var(--text);font-weight:600}
 
@@ -52,44 +52,44 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .view{display:none;padding:16px}.view.active{display:block}
 
 /* ── Buttons ── */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;
   border-radius:var(--r-md);border:.5px solid var(--border);background:var(--card);
-  font-size:13px;cursor:pointer;color:var(--text);font-family:var(--font)}
+  font-size:15px;cursor:pointer;color:var(--text);font-family:var(--font)}
 .btn:active{opacity:.7}
 .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
 @media(prefers-color-scheme:dark){.btn-primary{color:#000}}
 .btn-danger{color:var(--err-t);border-color:var(--err-t)}
-.btn-sm{padding:5px 10px;font-size:12px}
+.btn-sm{padding:8px 14px;font-size:14px}
 
 /* ── Form ── */
-input,select,textarea{width:100%;padding:10px 11px;border:.5px solid var(--border);
-  border-radius:var(--r-md);font-size:15px;font-family:var(--font);
+input,select,textarea{width:100%;padding:12px 13px;border:.5px solid var(--border);
+  border-radius:var(--r-md);font-size:16px;font-family:var(--font);
   background:var(--card);color:var(--text);outline:none;-webkit-appearance:none}
 input:focus,select:focus,textarea:focus{border-color:var(--info)}
-label{font-size:12px;color:var(--text2);display:block;margin-bottom:5px;margin-top:14px;font-weight:500}
+label{font-size:14px;color:var(--text2);display:block;margin-bottom:6px;margin-top:16px;font-weight:500}
 label:first-child{margin-top:0}
-.two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
 .two-col label{margin-top:0}
 
 /* ── Cards ── */
 .card{background:var(--card);border:.5px solid var(--border-l);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:10px}
 .card-row{display:flex;align-items:center;gap:12px}
-.item-icon{width:42px;height:42px;border-radius:var(--r-md);background:var(--bg);
+.item-icon{width:46px;height:46px;border-radius:var(--r-md);background:var(--bg);
   display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
-.item-icon img{width:42px;height:42px;object-fit:cover}
-.item-name{font-size:14px;font-weight:600}
-.item-meta{font-size:12px;color:var(--text2);margin-top:2px}
-.actions{display:flex;gap:6px;margin-top:10px;border-top:.5px solid var(--border-l);padding-top:10px;flex-wrap:wrap}
+.item-icon img{width:46px;height:46px;object-fit:cover}
+.item-name{font-size:16px;font-weight:600}
+.item-meta{font-size:14px;color:var(--text2);margin-top:3px}
+.actions{display:flex;gap:8px;margin-top:12px;border-top:.5px solid var(--border-l);padding-top:12px;flex-wrap:wrap}
 
 /* ── Badges ── */
-.badge{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge{display:inline-block;padding:4px 10px;border-radius:99px;font-size:13px;font-weight:600;white-space:nowrap}
 .badge-ok{background:var(--ok-bg);color:var(--ok-t)}
 .badge-warn{background:var(--warn-bg);color:var(--warn-t)}
 .badge-out{background:var(--err-bg);color:var(--err-t)}
 
 /* ── FAB ── */
-.fab{position:fixed;bottom:24px;right:20px;width:56px;height:56px;border-radius:50%;
-  background:var(--accent);color:#fff;border:none;font-size:28px;cursor:pointer;
+.fab{position:fixed;bottom:24px;right:20px;width:60px;height:60px;border-radius:50%;
+  background:var(--accent);color:#fff;border:none;font-size:30px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;z-index:20;
   box-shadow:0 4px 16px rgba(0,0,0,.25)}
 @media(prefers-color-scheme:dark){.fab{color:#000}}
@@ -97,31 +97,31 @@ label:first-child{margin-top:0}
 /* ── Modals ── */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:flex-end}
 .modal-bg.open{display:flex}
-.modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px 16px 40px;
+.modal{background:var(--card);border-radius:20px 20px 0 0;padding:22px 16px 44px;
   width:100%;max-height:92vh;overflow-y:auto}
-.modal-header{display:flex;align-items:center;margin-bottom:18px}
-.modal-title{font-size:17px;font-weight:600;flex:1}
-.modal-close{background:none;border:none;font-size:24px;cursor:pointer;color:var(--text2);line-height:1;padding:4px}
+.modal-header{display:flex;align-items:center;margin-bottom:20px}
+.modal-title{font-size:18px;font-weight:600;flex:1}
+.modal-close{background:none;border:none;font-size:26px;cursor:pointer;color:var(--text2);line-height:1;padding:4px}
 
 /* ── Detail ── */
-.detail-section{margin-bottom:12px}
-.detail-label{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:3px;font-weight:600}
-.detail-value{font-size:15px}
+.detail-section{margin-bottom:14px}
+.detail-label{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:4px;font-weight:600}
+.detail-value{font-size:16px}
 .qr-wrap{display:flex;justify-content:center;margin:14px 0}
 .detail-photo{width:100%;height:180px;object-fit:cover;border-radius:var(--r-lg);margin-bottom:14px}
 
 /* ── Print ── */
 .print-sel-bar{display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:12px;padding:10px 12px;background:var(--card);
-  border-radius:var(--r-md);font-size:13px;border:.5px solid var(--border-l)}
+  margin-bottom:14px;padding:12px 14px;background:var(--card);
+  border-radius:var(--r-md);font-size:15px;border:.5px solid var(--border-l)}
 .print-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.print-card{background:var(--card);border:.5px solid var(--border);border-radius:var(--r-md);padding:12px 10px;text-align:center;cursor:pointer}
+.print-card{background:var(--card);border:.5px solid var(--border);border-radius:var(--r-md);padding:14px 10px;text-align:center;cursor:pointer}
 .print-card.selected{border:2.5px solid var(--text)}
-.print-card .pname{font-size:12px;font-weight:600;margin-top:6px;word-break:break-word}
-.print-card .pmeta{font-size:10px;color:var(--text2);margin-top:2px}
+.print-card .pname{font-size:14px;font-weight:600;margin-top:8px;word-break:break-word}
+.print-card .pmeta{font-size:12px;color:var(--text2);margin-top:3px}
 .size-row{display:flex;gap:8px;margin-bottom:14px}
-.size-btn{flex:1;padding:8px 4px;border-radius:var(--r-md);border:.5px solid var(--border);
-  background:var(--card);font-size:12px;cursor:pointer;color:var(--text);font-family:var(--font);text-align:center}
+.size-btn{flex:1;padding:10px 4px;border-radius:var(--r-md);border:.5px solid var(--border);
+  background:var(--card);font-size:14px;cursor:pointer;color:var(--text);font-family:var(--font);text-align:center}
 .size-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 @media(prefers-color-scheme:dark){.size-btn.active{color:#000}}
 
@@ -132,20 +132,20 @@ label:first-child{margin-top:0}
 .scan-crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   width:200px;height:200px;border:2.5px solid rgba(255,255,255,.9);border-radius:12px;pointer-events:none}
 #scan-result{display:none}
-.notice{padding:10px 14px;border-radius:var(--r-md);background:var(--warn-bg);color:var(--warn-t);font-size:13px;margin-bottom:12px;display:none}
+.notice{padding:12px 14px;border-radius:var(--r-md);background:var(--warn-bg);color:var(--warn-t);font-size:14px;margin-bottom:12px;display:none}
 
 /* ── Photo ── */
 .photo-placeholder{width:100%;height:110px;border:1.5px dashed var(--border);
   border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;
-  flex-direction:column;gap:6px;color:var(--text2);font-size:13px;margin-top:8px;cursor:pointer;background:var(--bg)}
+  flex-direction:column;gap:6px;color:var(--text2);font-size:14px;margin-top:8px;cursor:pointer;background:var(--bg)}
 .photo-preview-img{width:100%;height:150px;object-fit:cover;border-radius:var(--r-md);display:block;margin-top:8px}
 
 /* ── Misc ── */
-.empty-state{text-align:center;padding:48px 16px;color:var(--text2);font-size:14px;line-height:1.6}
-.empty-state i{font-size:36px;display:block;margin:0 auto 10px}
-.search-wrap{margin-bottom:12px;position:relative}
-.search-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px;pointer-events:none}
-.search-wrap input{padding-left:34px}
+.empty-state{text-align:center;padding:48px 16px;color:var(--text2);font-size:16px;line-height:1.6}
+.empty-state i{font-size:40px;display:block;margin:0 auto 12px}
+.search-wrap{margin-bottom:14px;position:relative}
+.search-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:18px;pointer-events:none}
+.search-wrap input{padding-left:38px}
 
 /* ── Login screen ── */
 #login-screen{
@@ -154,36 +154,36 @@ label:first-child{margin-top:0}
   padding:32px 24px;text-align:center;gap:0;
 }
 #login-screen.visible{display:flex}
-.login-logo{font-size:52px;margin-bottom:16px;line-height:1}
-.login-title{font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px}
-.login-sub{font-size:14px;color:var(--text2);margin-bottom:36px;line-height:1.5}
+.login-logo{font-size:56px;margin-bottom:18px;line-height:1}
+.login-title{font-size:24px;font-weight:700;color:var(--text);margin-bottom:8px}
+.login-sub{font-size:16px;color:var(--text2);margin-bottom:40px;line-height:1.5}
 .google-btn{
   display:inline-flex;align-items:center;gap:12px;
-  padding:12px 24px;border-radius:var(--r-lg);
+  padding:14px 28px;border-radius:var(--r-lg);
   background:var(--card);border:1.5px solid var(--border);
-  font-size:15px;font-weight:600;cursor:pointer;color:var(--text);
+  font-size:17px;font-weight:600;cursor:pointer;color:var(--text);
   font-family:var(--font);box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
 .google-btn:active{opacity:.75}
-.google-btn svg{width:22px;height:22px;flex-shrink:0}
-.login-error{font-size:13px;color:var(--err-t);margin-top:16px;display:none}
+.google-btn svg{width:24px;height:24px;flex-shrink:0}
+.login-error{font-size:14px;color:var(--err-t);margin-top:18px;display:none}
 
 /* ── User avatar in topbar ── */
 .user-btn{
   display:inline-flex;align-items:center;gap:6px;
-  padding:4px 8px 4px 4px;border-radius:99px;
+  padding:4px 10px 4px 4px;border-radius:99px;
   border:.5px solid var(--border);background:var(--card);
-  cursor:pointer;font-size:12px;color:var(--text2);font-family:var(--font);
+  cursor:pointer;font-size:13px;color:var(--text2);font-family:var(--font);
 }
 .user-avatar{
-  width:28px;height:28px;border-radius:50%;object-fit:cover;
+  width:30px;height:30px;border-radius:50%;object-fit:cover;
   background:var(--bg);display:flex;align-items:center;justify-content:center;
   font-size:13px;font-weight:700;color:#fff;flex-shrink:0;
 }
 .last-modified{
-  font-size:11px;color:var(--text3);margin-top:10px;
-  padding:8px 10px;background:var(--bg);border-radius:var(--r-sm);
-  border:.5px solid var(--border-l);line-height:1.5;
+  font-size:13px;color:var(--text3);margin-top:12px;
+  padding:10px 12px;background:var(--bg);border-radius:var(--r-sm);
+  border:.5px solid var(--border-l);line-height:1.6;
 }
 </style>
 </head>
@@ -224,7 +224,13 @@ label:first-child{margin-top:0}
     <div class="user-avatar" id="user-avatar"></div>
     <span id="user-name" style="max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
   </button>
-  <button class="btn btn-sm" id="scan-nav-btn"><i class="ti ti-qrcode"></i> Scan</button>
+  <div id="online-badge" style="display:none;align-items:center;gap:5px;
+    font-size:13px;color:var(--text2);font-family:var(--font);
+    padding:4px 10px;border-radius:99px;border:.5px solid var(--border);
+    background:var(--card);white-space:nowrap">
+    <span style="width:8px;height:8px;border-radius:50%;background:#34c759;display:inline-block;flex-shrink:0"></span>
+    <span id="online-count">1</span>
+  </div>
 </div>
 
 <!-- Tabs -->
@@ -255,7 +261,7 @@ label:first-child{margin-top:0}
     </div>
   </div>
   <div style="margin-bottom:12px">
-    <div style="font-size:12px;color:var(--text2);margin-bottom:7px;font-weight:500">QR code size on label</div>
+    <div style="font-size:14px;color:var(--text2);margin-bottom:7px;font-weight:500">QR code size on label</div>
     <div class="size-row">
       <button class="size-btn active" data-mm="20">20 × 20 mm</button>
       <button class="size-btn" data-mm="30">30 × 30 mm</button>
@@ -277,7 +283,7 @@ label:first-child{margin-top:0}
     <div id="scan-icon-wrap">
       <i class="ti ti-qrcode" style="font-size:52px;display:block;margin:0 auto 10px"></i>
       <div style="font-size:16px;font-weight:600;margin-bottom:6px">Scan a QR label</div>
-      <div style="font-size:13px;color:var(--text2)">Point your rear camera at a device's QR code</div>
+      <div style="font-size:15px;color:var(--text2)">Point your rear camera at a device's QR code</div>
       <button class="btn btn-primary" style="margin-top:18px" id="start-scan-btn">
         <i class="ti ti-camera"></i> Open Camera
       </button>
@@ -287,7 +293,7 @@ label:first-child{margin-top:0}
     <video id="video" playsinline muted></video>
     <div class="scan-crosshair"></div>
   </div>
-  <div id="scan-status" style="font-size:13px;color:var(--text2);text-align:center;margin-bottom:8px;display:none">
+  <div id="scan-status" style="font-size:15px;color:var(--text2);text-align:center;margin-bottom:8px;display:none">
     Hold the QR code steady inside the box
   </div>
   <div id="scan-result"></div>
@@ -298,7 +304,7 @@ label:first-child{margin-top:0}
 
 <button class="fab" id="add-btn">+</button>
 <div style="position:fixed;bottom:10px;left:16px;font-size:14px;color:var(--text3);
-  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.112</div>
+  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.114</div>
 </div>
 
 <!-- FULLSCREEN QR OVERLAY -->
@@ -310,7 +316,7 @@ label:first-child{margin-top:0}
   <div id="qr-overlay-code" style="background:#fff;padding:18px;border-radius:12px;line-height:0"></div>
   <div id="qr-overlay-name" style="color:#fff;font-size:18px;font-weight:600;
     text-align:center;padding:0 24px;max-width:360px;line-height:1.3"></div>
-  <div style="color:rgba(255,255,255,0.45);font-size:13px">Tap anywhere to close</div>
+  <div style="color:rgba(255,255,255,0.45);font-size:15px">Tap anywhere to close</div>
 </div>
 
 <!-- ADD/EDIT MODAL -->
@@ -389,7 +395,7 @@ label:first-child{margin-top:0}
 <script type="module">
 import { initializeApp }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getDatabase, ref, set, onValue, remove }
+import { getDatabase, ref, set, onValue, remove, onDisconnect, serverTimestamp }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 import {
   getAuth, GoogleAuthProvider, signInWithPopup,
@@ -443,10 +449,33 @@ window._auth = {
 // Handle redirect result (for mobile where popup was blocked)
 getRedirectResult(auth).catch(err => console.warn('Redirect result error:', err));
 
-// Watch auth state — drives the login screen show/hide
+// Presence tracking — writes user to /presence/<uid> on login,
+// onDisconnect removes it automatically when tab closes or network drops
+let presenceRef = null;
 onAuthStateChanged(auth, user => {
   window._currentUser = user || null;
   window.dispatchEvent(new CustomEvent('auth-changed', { detail: user }));
+
+  // Clean up previous presence entry
+  if (presenceRef) { remove(presenceRef).catch(()=>{}); presenceRef = null; }
+
+  if (user) {
+    presenceRef = ref(db, 'presence/' + user.uid);
+    const presenceData = {
+      email:       user.email,
+      displayName: user.displayName || user.email,
+      lastSeen:    serverTimestamp()
+    };
+    set(presenceRef, presenceData).catch(console.error);
+    // Auto-remove when tab closes / network drops
+    onDisconnect(presenceRef).remove().catch(console.error);
+  }
+});
+
+// Subscribe to presence count — expose via window for main script
+onValue(ref(db, 'presence'), snap => {
+  const count = snap.val() ? Object.keys(snap.val()).length : 0;
+  window.dispatchEvent(new CustomEvent('presence-changed', { detail: count }));
 });
 
 window.dispatchEvent(new Event('firebase-ready'));
@@ -554,7 +583,7 @@ function render() {
         ? `<img src="${it.photo}" style="width:42px;height:42px;object-fit:cover;border-radius:var(--r-md)" alt="">`
         : `<i class="ti ${ic}" style="font-size:20px"></i>`;
       const meta = [it.category, it.manufacturer, it.setup].filter(Boolean).join(' · ');
-      const inv = it.invnum ? `<div style="font-size:11px;color:var(--text3);margin-top:2px">${esc(it.invnum)}</div>` : '';
+      const inv = it.invnum ? `<div style="font-size:13px;color:var(--text3);margin-top:3px">${esc(it.invnum)}</div>` : '';
       return `<div class="card"><div class="card-row">
         <div class="item-icon">${thumb}</div>
         <div style="flex:1;min-width:0">
@@ -745,7 +774,18 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 
 /* ── Event listeners ── */
 document.getElementById('add-btn').addEventListener('click', openAdd);
-document.getElementById('scan-nav-btn').addEventListener('click', () => switchView('scan'));
+// Presence badge update
+window.addEventListener('presence-changed', e => {
+  const count = e.detail;
+  const badge = document.getElementById('online-badge');
+  const countEl = document.getElementById('online-count');
+  if (count > 0) {
+    countEl.textContent = count + ' online';
+    badge.style.display = 'inline-flex';
+  } else {
+    badge.style.display = 'none';
+  }
+});
 document.getElementById('close-modal-btn').addEventListener('click', () => closeModal('add-modal'));
 document.getElementById('close-detail-btn').addEventListener('click', () => closeModal('detail-modal'));
 document.getElementById('add-modal').addEventListener('click', e => { if (e.target === document.getElementById('add-modal')) closeModal('add-modal'); });
@@ -843,7 +883,7 @@ function showDetail(id) {
       hour:'2-digit', minute:'2-digit'
     }) : '—';
     auditRow = `<div class="last-modified">
-      <i class="ti ti-clock-edit" style="font-size:12px;vertical-align:-1px"></i>
+      <i class="ti ti-clock-edit" style="font-size:14px;vertical-align:-1px"></i>
       Last modified by <strong>${esc(it.lastModifiedBy)}</strong><br>${dtStr}
     </div>`;
   }
@@ -1080,7 +1120,7 @@ function showScanError(msg) {
   document.getElementById('scan-icon-wrap').innerHTML =
     `<i class="ti ti-alert-circle" style="font-size:40px;color:var(--err-t);display:block;margin:0 auto 10px"></i>
      <div style="font-size:15px;font-weight:600;margin-bottom:6px">Camera unavailable</div>
-     <div style="font-size:13px;color:var(--text2);margin-bottom:16px">${msg}</div>
+     <div style="font-size:15px;color:var(--text2);margin-bottom:16px">${msg}</div>
      <button class="btn btn-sm" onclick="location.reload()"><i class="ti ti-refresh"></i> Reload page</button>`;
 }
 
@@ -1105,7 +1145,7 @@ function showScanResult(it, id) {
     <div style="flex:1;min-width:0">
       <div class="item-name">${esc(it.name)}</div>
       <div class="item-meta">${esc(it.manufacturer||it.category)}${it.setup?' · '+esc(it.setup):''}</div>
-      ${it.invnum?`<div style="font-size:11px;color:var(--text3)">${esc(it.invnum)}</div>`:''}
+      ${it.invnum?`<div style="font-size:13px;color:var(--text3)">${esc(it.invnum)}</div>`:''}
     </div>${mkbadge(it.status)}</div>
     <div class="actions">
       <button class="btn btn-sm" onclick="showDetail('${it.id}')"><i class="ti ti-info-circle"></i> Details</button>
@@ -1164,11 +1204,13 @@ window.addEventListener('auth-changed', e => {
     const firstName = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
     nameEl.textContent = firstName;
     userBtn.style.display = 'inline-flex';
+    document.getElementById('online-badge').style.display = 'inline-flex';
 
   } else {
     // Show login screen, hide app UI
     loginScreen.classList.add('visible');
     userBtn.style.display = 'none';
+    document.getElementById('online-badge').style.display = 'none';
   }
 });
 

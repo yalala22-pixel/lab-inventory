@@ -13,31 +13,45 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root {
-  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --bg:#f2f2f7; --card:#fff; --border:#e0e0e5; --border-l:#ebebef;
-  --text:#1c1c1e; --text2:#6c6c70; --text3:#aeaeb2; --accent:#1a1a1a; --info:#007aff;
-  --ok-bg:#d4edda; --ok-t:#1a7a3c; --warn-bg:#fff3cd; --warn-t:#856404;
-  --err-bg:#f8d7da; --err-t:#842029; --r-sm:8px; --r-md:10px; --r-lg:14px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --bg:#f2f2f7;--card:#fff;--border:#e0e0e5;--border-l:#ebebef;
+  --text:#1c1c1e;--text2:#6c6c70;--text3:#aeaeb2;--accent:#1a1a1a;--info:#007aff;
+  --ok-bg:#d4edda;--ok-t:#1a7a3c;--warn-bg:#fff3cd;--warn-t:#856404;
+  --err-bg:#f8d7da;--err-t:#842029;--r-sm:8px;--r-md:10px;--r-lg:14px;
 }
 @media(prefers-color-scheme:dark){:root{
-  --bg:#1c1c1e; --card:#2c2c2e; --border:#3a3a3c; --border-l:#3a3a3c;
-  --text:#fff; --text2:#aeaeb2; --text3:#636366; --accent:#fff; --info:#0a84ff;
-  --ok-bg:#0d3320; --ok-t:#4cd964; --warn-bg:#3d2e00; --warn-t:#ffd60a;
-  --err-bg:#3d0a0e; --err-t:#ff453a;
+  --bg:#1c1c1e;--card:#2c2c2e;--border:#3a3a3c;--border-l:#3a3a3c;
+  --text:#fff;--text2:#aeaeb2;--text3:#636366;--accent:#fff;--info:#0a84ff;
+  --ok-bg:#0d3320;--ok-t:#4cd964;--warn-bg:#3d2e00;--warn-t:#ffd60a;
+  --err-bg:#3d0a0e;--err-t:#ff453a;
 }}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
 .app{max-width:480px;margin:0 auto;padding-bottom:90px}
-.topbar{background:var(--card);border-bottom:.5px solid var(--border);padding:16px 16px;
+
+/* ── Topbar ── */
+.topbar{background:var(--card);border-bottom:.5px solid var(--border);padding:14px 16px;
   display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
-.topbar-title{font-size:20px;font-weight:700;flex:1}
-.topbar-sub{font-size:14px;color:var(--text2)}
+.topbar-title{font-size:19px;font-weight:700;flex:1;line-height:1.2}
+.topbar-sub{font-size:13px;color:var(--text2);margin-top:1px}
+.sync-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;
+  padding:2px 8px;border-radius:99px;font-weight:600;white-space:nowrap;margin-top:3px}
+.sync-badge.synced {background:var(--ok-bg); color:var(--ok-t)}
+.sync-badge.syncing{background:var(--warn-bg);color:var(--warn-t)}
+.sync-badge.offline{background:var(--err-bg); color:var(--err-t)}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* ── Tabs ── */
 .tab-bar{display:flex;border-bottom:.5px solid var(--border);background:var(--card);
-  position:sticky;top:57px;z-index:9}
+  position:sticky;top:61px;z-index:9}
 .tab{flex:1;padding:12px 2px;font-size:14px;text-align:center;border:none;
   background:none;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;font-family:var(--font)}
 .tab.active{color:var(--text);border-bottom:2px solid var(--text);font-weight:600}
+
+/* ── Views ── */
 .view{display:none;padding:16px}.view.active{display:block}
+
+/* ── Buttons ── */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;
   border-radius:var(--r-md);border:.5px solid var(--border);background:var(--card);
   font-size:13px;cursor:pointer;color:var(--text);font-family:var(--font)}
@@ -46,6 +60,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 @media(prefers-color-scheme:dark){.btn-primary{color:#000}}
 .btn-danger{color:var(--err-t);border-color:var(--err-t)}
 .btn-sm{padding:5px 10px;font-size:12px}
+
+/* ── Form ── */
 input,select,textarea{width:100%;padding:10px 11px;border:.5px solid var(--border);
   border-radius:var(--r-md);font-size:15px;font-family:var(--font);
   background:var(--card);color:var(--text);outline:none;-webkit-appearance:none}
@@ -54,6 +70,8 @@ label{font-size:12px;color:var(--text2);display:block;margin-bottom:5px;margin-t
 label:first-child{margin-top:0}
 .two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
 .two-col label{margin-top:0}
+
+/* ── Cards ── */
 .card{background:var(--card);border:.5px solid var(--border-l);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:10px}
 .card-row{display:flex;align-items:center;gap:12px}
 .item-icon{width:42px;height:42px;border-radius:var(--r-md);background:var(--bg);
@@ -62,26 +80,37 @@ label:first-child{margin-top:0}
 .item-name{font-size:14px;font-weight:600}
 .item-meta{font-size:12px;color:var(--text2);margin-top:2px}
 .actions{display:flex;gap:6px;margin-top:10px;border-top:.5px solid var(--border-l);padding-top:10px;flex-wrap:wrap}
+
+/* ── Badges ── */
 .badge{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap}
 .badge-ok{background:var(--ok-bg);color:var(--ok-t)}
 .badge-warn{background:var(--warn-bg);color:var(--warn-t)}
 .badge-out{background:var(--err-bg);color:var(--err-t)}
+
+/* ── FAB ── */
 .fab{position:fixed;bottom:24px;right:20px;width:56px;height:56px;border-radius:50%;
   background:var(--accent);color:#fff;border:none;font-size:28px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;z-index:20;
   box-shadow:0 4px 16px rgba(0,0,0,.25)}
 @media(prefers-color-scheme:dark){.fab{color:#000}}
+
+/* ── Modals ── */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:flex-end}
 .modal-bg.open{display:flex}
-.modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px 16px 40px;width:100%;max-height:92vh;overflow-y:auto}
+.modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px 16px 40px;
+  width:100%;max-height:92vh;overflow-y:auto}
 .modal-header{display:flex;align-items:center;margin-bottom:18px}
 .modal-title{font-size:17px;font-weight:600;flex:1}
 .modal-close{background:none;border:none;font-size:24px;cursor:pointer;color:var(--text2);line-height:1;padding:4px}
+
+/* ── Detail ── */
 .detail-section{margin-bottom:12px}
 .detail-label{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:3px;font-weight:600}
 .detail-value{font-size:15px}
 .qr-wrap{display:flex;justify-content:center;margin:14px 0}
 .detail-photo{width:100%;height:180px;object-fit:cover;border-radius:var(--r-lg);margin-bottom:14px}
+
+/* ── Print ── */
 .print-sel-bar{display:flex;justify-content:space-between;align-items:center;
   margin-bottom:12px;padding:10px 12px;background:var(--card);
   border-radius:var(--r-md);font-size:13px;border:.5px solid var(--border-l)}
@@ -95,18 +124,23 @@ label:first-child{margin-top:0}
   background:var(--card);font-size:12px;cursor:pointer;color:var(--text);font-family:var(--font);text-align:center}
 .size-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 @media(prefers-color-scheme:dark){.size-btn.active{color:#000}}
+
+/* ── Scan ── */
 .scan-area{background:var(--card);border-radius:var(--r-lg);padding:28px 16px;text-align:center;margin-bottom:16px;border:.5px solid var(--border-l)}
 #video-wrap{display:none;border-radius:var(--r-lg);overflow:hidden;margin-bottom:12px;position:relative}
 #video-wrap video{width:100%;display:block;object-fit:cover;background:#000}
 .scan-crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   width:200px;height:200px;border:2.5px solid rgba(255,255,255,.9);border-radius:12px;pointer-events:none}
 #scan-result{display:none}
-#scan-status{font-size:13px;color:var(--text2);text-align:center;margin-bottom:8px;display:none}
 .notice{padding:10px 14px;border-radius:var(--r-md);background:var(--warn-bg);color:var(--warn-t);font-size:13px;margin-bottom:12px;display:none}
+
+/* ── Photo ── */
 .photo-placeholder{width:100%;height:110px;border:1.5px dashed var(--border);
   border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;
   flex-direction:column;gap:6px;color:var(--text2);font-size:13px;margin-top:8px;cursor:pointer;background:var(--bg)}
 .photo-preview-img{width:100%;height:150px;object-fit:cover;border-radius:var(--r-md);display:block;margin-top:8px}
+
+/* ── Misc ── */
 .empty-state{text-align:center;padding:48px 16px;color:var(--text2);font-size:14px;line-height:1.6}
 .empty-state i{font-size:36px;display:block;margin:0 auto 10px}
 .search-wrap{margin-bottom:12px;position:relative}
@@ -116,14 +150,23 @@ label:first-child{margin-top:0}
 </head>
 <body>
 <div class="app">
+
+<!-- Topbar -->
 <div class="topbar">
   <i class="ti ti-microscope" style="font-size:26px"></i>
-  <div style="flex:1">
+  <div style="flex:1;min-width:0">
     <div class="topbar-title">Hybrid Photonics Labs Inventory</div>
-    <div class="topbar-sub" id="item-count">0 devices</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div class="topbar-sub" id="item-count">Loading…</div>
+      <div class="sync-badge syncing" id="sync-badge">
+        <span class="sync-dot"></span><span id="sync-text">Connecting…</span>
+      </div>
+    </div>
   </div>
-  <button class="btn" style="font-size:14px;padding:7px 14px" id="scan-nav-btn"><i class="ti ti-qrcode"></i> Scan</button>
+  <button class="btn btn-sm" id="scan-nav-btn"><i class="ti ti-qrcode"></i> Scan</button>
 </div>
+
+<!-- Tabs -->
 <div class="tab-bar">
   <button class="tab active" data-view="items"><i class="ti ti-list"></i> Items</button>
   <button class="tab" data-view="print"><i class="ti ti-printer"></i> Print</button>
@@ -137,7 +180,7 @@ label:first-child{margin-top:0}
     <input type="search" id="search-input" placeholder="Search by name, category, location…">
   </div>
   <div id="items-list">
-    <div class="empty-state"><i class="ti ti-package-off"></i>No items yet.<br>Tap + to add your first device.</div>
+    <div class="empty-state"><i class="ti ti-loader"></i>Connecting to database…</div>
   </div>
 </div>
 
@@ -160,7 +203,7 @@ label:first-child{margin-top:0}
   </div>
   <div class="print-grid" id="print-grid"></div>
   <div id="print-empty" class="empty-state" style="display:none">
-    <i class="ti ti-printer"></i>Add items first to print QR labels.
+    <i class="ti ti-printer"></i>Add devices first to print QR labels.
   </div>
 </div>
 
@@ -194,7 +237,7 @@ label:first-child{margin-top:0}
 
 <button class="fab" id="add-btn">+</button>
 <div style="position:fixed;bottom:10px;left:16px;font-size:14px;color:var(--text3);
-  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.106</div>
+  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.108</div>
 </div>
 
 <!-- ADD/EDIT MODAL -->
@@ -239,12 +282,12 @@ label:first-child{margin-top:0}
   <input type="text" id="f-person" placeholder="e.g. Dr. Nagy Anna" autocomplete="off">
   <label>Notes</label>
   <textarea id="f-notes" rows="3" placeholder="Optional notes…"></textarea>
-  <label>Photo</label>
+  <label>Photo <span style="font-weight:400;color:var(--text3)">(compressed &amp; synced to all devices)</span></label>
   <div class="photo-placeholder" id="photo-placeholder" onclick="document.getElementById('f-photo-input').click()">
     <i class="ti ti-camera" style="font-size:26px"></i>
     <span>Tap to take or choose a photo</span>
   </div>
-  <img id="photo-preview" class="photo-preview-img" style="display:none" alt="Equipment photo">
+  <img id="photo-preview" class="photo-preview-img" style="display:none" alt="Device photo">
   <input type="file" id="f-photo-input" accept="image/*" capture="environment" style="display:none">
   <button class="btn btn-sm" id="remove-photo-btn" style="margin-top:8px;display:none">
     <i class="ti ti-trash"></i> Remove photo
@@ -267,192 +310,486 @@ label:first-child{margin-top:0}
 </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════
+     FIREBASE  (ES module — must be type="module")
+     ═══════════════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getDatabase, ref, set, onValue, remove, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyCWgGlxIj815RWnpq2_R6LgiO33SOeAAx0",
+  authDomain:        "laboratory-inventory-ba448.firebaseapp.com",
+  databaseURL:       "https://laboratory-inventory-ba448-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "laboratory-inventory-ba448",
+  storageBucket:     "laboratory-inventory-ba448.firebasestorage.app",
+  messagingSenderId: "254370239509",
+  appId:             "1:254370239509:web:9565f56889cb81a7866a1c"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db    = getDatabase(fbApp);
+
+/* Expose DB operations to the non-module main script via window._db */
+window._db = {
+  /* Write one item to Firebase — photo is included (compressed to <1 MB before calling) */
+  save(item) {
+    return set(ref(db, 'items/' + item.id), item);
+  },
+  /* Delete one item from Firebase */
+  delete(id) {
+    return remove(ref(db, 'items/' + id));
+  },
+  /* Live listener — calls cb(itemsArray) on every change */
+  subscribe(cb, onErr) {
+    return onValue(ref(db, 'items'), snap => {
+      const val = snap.val();
+      const arr = val ? Object.values(val) : [];
+      arr.sort((a, b) => ((b.added || '') > (a.added || '') ? 1 : -1));
+      cb(arr);
+    }, onErr);
+  }
+};
+
+window.dispatchEvent(new Event('firebase-ready'));
+</script>
+
+<!-- ═══════════════════════════════════════════════════
+     MAIN APP SCRIPT
+     ═══════════════════════════════════════════════════ -->
 <script>
-/* ── Storage ── */
-const LS='optics-lab-v1';
-let items=(()=>{try{return JSON.parse(localStorage.getItem(LS))||[];}catch(e){return [];}})();
-function saveItems(){try{localStorage.setItem(LS,JSON.stringify(items));}catch(e){}}
+/* ── Legacy localStorage photo migration (runs once, then cleans up) ──
+   Old versions stored photos in localStorage. On first boot we push them
+   into Firebase as part of the item, then remove the local copies.        */
+function migrateLegacyPhotos() {
+  const prefix = 'hpl-photo-';
+  let migrated = 0;
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith(prefix)) continue;
+    const id = key.slice(prefix.length);
+    const photo = localStorage.getItem(key);
+    if (!photo) { localStorage.removeItem(key); continue; }
+    // Find matching item and push photo into Firebase
+    const it = items.find(x => x.id === id);
+    if (it && !it.photo) {
+      window._db.save({ ...it, photo }).catch(console.error);
+    }
+    localStorage.removeItem(key);
+    migrated++;
+  }
+  if (migrated) console.log(`Migrated ${migrated} photos from localStorage to Firebase.`);
+}
+
+/* ── Migrate legacy data from old localStorage key ── */
+function migrateLegacyData() {
+  const LS = 'optics-lab-v1';
+  try {
+    const raw = localStorage.getItem(LS);
+    if (!raw) return;
+    const legacy = JSON.parse(raw);
+    if (!Array.isArray(legacy) || !legacy.length) return;
+    console.log(`Migrating ${legacy.length} items from localStorage to Firebase…`);
+    legacy.forEach(it => {
+      // photo is part of the item — save() now includes it in Firebase
+      window._db.save(it).catch(e => console.error('Migration write error:', e));
+    });
+    localStorage.removeItem(LS);
+    console.log('Migration complete.');
+  } catch(e) { console.error('Migration error:', e); }
+}
 
 /* ── State ── */
-let selected=new Set(),editingId=null,stream=null,scanning=false;
-let pendingPhoto=null,searchQuery='',selectedMM=20;
-const videoEl=document.getElementById('video');
-let canvasEl=null,ctxEl=null;
+let items = [], selected = new Set(), editingId = null;
+let stream = null, scanning = false, pendingPhoto = null;
+let searchQuery = '', selectedMM = 20;
+const videoEl = document.getElementById('video');
+let canvasEl = null, ctxEl = null;
+
+/* ── Sync badge ── */
+function setSyncBadge(state, text) {
+  const b = document.getElementById('sync-badge');
+  const t = document.getElementById('sync-text');
+  b.className = 'sync-badge ' + state;
+  t.textContent = text;
+}
 
 /* ── Helpers ── */
-function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-const ICONS={'Laser system':'ti-ripple','Laser diode':'ti-bolt','3D stage / positioner':'ti-3d-rotate',
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+const ICONS = {
+  'Laser system':'ti-ripple','Laser diode':'ti-bolt','3D stage / positioner':'ti-3d-rotate',
   'Spectrometer':'ti-wave-sine','Cryostat':'ti-snowflake','Microscope':'ti-microscope',
   'Optical power meter':'ti-gauge','Lock-in amplifier':'ti-activity','Oscilloscope':'ti-chart-line',
   'Photodetector / APD':'ti-eye','Camera / CCD':'ti-camera','Beam splitter / optics':'ti-prism',
   'Optical fiber equipment':'ti-topology-star','Vacuum system':'ti-circle-dashed',
-  'Electronics / DAQ':'ti-cpu','Other':'ti-tool'};
-function mkbadge(s){
-  if(s==='available')return'<span class="badge badge-ok">Available</span>';
-  if(s==='in-use')return'<span class="badge badge-warn">In Use</span>';
-  if(s==='maintenance')return'<span class="badge badge-warn">Maintenance</span>';
-  return'<span class="badge badge-out">Out of Order</span>';}
+  'Electronics / DAQ':'ti-cpu','Other':'ti-tool'
+};
 
-/* ── Render ── */
-function render(){
-  const n=items.length;
-  document.getElementById('item-count').textContent=n+' device'+(n!==1?'s':'');
-  const q=searchQuery.toLowerCase();
-  const list=q?items.filter(it=>[it.name,it.category,it.location,it.setup,it.manufacturer,it.invnum,it.model,it.serial,it.person].some(f=>(f||'').toLowerCase().includes(q))):items;
-  const el=document.getElementById('items-list');
-  if(!list.length){
-    el.innerHTML='<div class="empty-state"><i class="ti ti-package-off"></i>'+(q?'No results for "'+esc(q)+'".'  :'No items yet.<br>Tap + to add your first device.')+'</div>';
-  }else{
-    el.innerHTML=list.map(it=>{
-      const ic=ICONS[it.category]||'ti-tool';
-      const thumb=it.photo?`<img src="${it.photo}" style="width:42px;height:42px;object-fit:cover;border-radius:var(--r-md)" alt="">`:`<i class="ti ${ic}" style="font-size:20px"></i>`;
-      const meta=[it.category,it.manufacturer,it.setup].filter(Boolean).join(' · ');
-      const inv=it.invnum?`<div style="font-size:11px;color:var(--text3);margin-top:2px">${esc(it.invnum)}</div>`:'';
-      return`<div class="card"><div class="card-row"><div class="item-icon">${thumb}</div><div style="flex:1;min-width:0"><div class="item-name">${esc(it.name)}</div><div class="item-meta">${esc(meta)}</div>${inv}</div>${mkbadge(it.status)}</div><div class="actions"><button class="btn btn-sm" onclick="showDetail('${it.id}')"><i class="ti ti-info-circle"></i> Details</button><button class="btn btn-sm" onclick="openEdit('${it.id}')"><i class="ti ti-edit"></i> Edit</button><button class="btn btn-sm" onclick="showDetail('${it.id}')"><i class="ti ti-qrcode"></i> QR</button></div></div>`;
+function mkbadge(s) {
+  if (s==='available')  return '<span class="badge badge-ok">Available</span>';
+  if (s==='in-use')     return '<span class="badge badge-warn">In Use</span>';
+  if (s==='maintenance')return '<span class="badge badge-warn">Maintenance</span>';
+  return '<span class="badge badge-out">Out of Order</span>';
+}
+
+/* ── Render items ── */
+function render() {
+  const n = items.length;
+  document.getElementById('item-count').textContent = n + ' device' + (n !== 1 ? 's' : '');
+  const q = searchQuery.toLowerCase();
+  const list = q
+    ? items.filter(it => [it.name,it.category,it.location,it.setup,it.manufacturer,
+        it.invnum,it.model,it.serial,it.person].some(f => (f||'').toLowerCase().includes(q)))
+    : items;
+
+  const el = document.getElementById('items-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><i class="ti ti-package-off"></i>' +
+      (q ? 'No results for "' + esc(q) + '".' : 'No devices yet.<br>Tap + to add your first device.') +
+      '</div>';
+  } else {
+    el.innerHTML = list.map(it => {
+      const ic = ICONS[it.category] || 'ti-tool';
+      const thumb = it.photo
+        ? `<img src="${it.photo}" style="width:42px;height:42px;object-fit:cover;border-radius:var(--r-md)" alt="">`
+        : `<i class="ti ${ic}" style="font-size:20px"></i>`;
+      const meta = [it.category, it.manufacturer, it.setup].filter(Boolean).join(' · ');
+      const inv = it.invnum ? `<div style="font-size:11px;color:var(--text3);margin-top:2px">${esc(it.invnum)}</div>` : '';
+      return `<div class="card"><div class="card-row">
+        <div class="item-icon">${thumb}</div>
+        <div style="flex:1;min-width:0">
+          <div class="item-name">${esc(it.name)}</div>
+          <div class="item-meta">${esc(meta)}</div>${inv}
+        </div>${mkbadge(it.status)}
+      </div><div class="actions">
+        <button class="btn btn-sm" onclick="showDetail('${it.id}')"><i class="ti ti-info-circle"></i> Details</button>
+        <button class="btn btn-sm" onclick="openEdit('${it.id}')"><i class="ti ti-edit"></i> Edit</button>
+        <button class="btn btn-sm" onclick="showDetail('${it.id}')"><i class="ti ti-qrcode"></i> QR</button>
+      </div></div>`;
     }).join('');
   }
   renderPrint();
 }
 
-function renderPrint(){
-  const grid=document.getElementById('print-grid'),empty=document.getElementById('print-empty');
-  if(!items.length){grid.innerHTML='';empty.style.display='block';return;}
-  empty.style.display='none';
-  grid.innerHTML=items.map(it=>{
-    const ic=ICONS[it.category]||'ti-tool',sel=selected.has(it.id)?'selected':'';
-    const thumb=it.photo?`<img src="${it.photo}" style="width:38px;height:38px;object-fit:cover;border-radius:6px;margin:0 auto;display:block" alt="">`:`<i class="ti ${ic}" style="font-size:26px;color:var(--text2)"></i>`;
-    return`<div class="print-card ${sel}" onclick="toggleSel('${it.id}')">${thumb}<div class="pname">${esc(it.name)}</div><div class="pmeta">${esc(it.invnum||it.location||it.category)}</div></div>`;
+/* ── Render print grid ── */
+function renderPrint() {
+  const grid = document.getElementById('print-grid');
+  const empty = document.getElementById('print-empty');
+  if (!items.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  grid.innerHTML = items.map(it => {
+    const ic = ICONS[it.category] || 'ti-tool';
+    const sel = selected.has(it.id) ? 'selected' : '';
+    const photo = it.photo || null;
+    const thumb = photo
+      ? `<img src="${photo}" style="width:38px;height:38px;object-fit:cover;border-radius:6px;margin:0 auto;display:block" alt="">`
+      : `<i class="ti ${ic}" style="font-size:26px;color:var(--text2)"></i>`;
+    return `<div class="print-card ${sel}" onclick="toggleSel('${it.id}')">
+      ${thumb}
+      <div class="pname">${esc(it.name)}</div>
+      <div class="pmeta">${esc(it.invnum || it.location || it.category)}</div>
+    </div>`;
   }).join('');
-  document.getElementById('sel-count').textContent=selected.size+' selected';
+  document.getElementById('sel-count').textContent = selected.size + ' selected';
 }
-function toggleSel(id){selected.has(id)?selected.delete(id):selected.add(id);renderPrint();}
+
+function toggleSel(id) { selected.has(id) ? selected.delete(id) : selected.add(id); renderPrint(); }
 
 /* ── QR size selector ── */
-document.querySelectorAll('.size-btn').forEach(b=>{
-  b.addEventListener('click',()=>{
-    document.querySelectorAll('.size-btn').forEach(x=>x.classList.remove('active'));
+document.querySelectorAll('.size-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.size-btn').forEach(x => x.classList.remove('active'));
     b.classList.add('active');
-    selectedMM=parseInt(b.dataset.mm);
+    selectedMM = parseInt(b.dataset.mm);
   });
 });
 
-/* ── Form ── */
-const FF=['name','invnum','manufacturer','model','serial','url','location','setup','person','notes'];
-function resetForm(){
-  FF.forEach(f=>document.getElementById('f-'+f).value='');
-  document.getElementById('f-category').value='Laser system';
-  document.getElementById('f-status').value='available';
-  pendingPhoto=null;
-  document.getElementById('photo-preview').style.display='none';
-  document.getElementById('photo-placeholder').style.display='flex';
-  document.getElementById('remove-photo-btn').style.display='none';
-  document.getElementById('f-photo-input').value='';
+/* ── Form helpers ── */
+const FF = ['name','invnum','manufacturer','model','serial','url','location','setup','person','notes'];
+
+function resetForm() {
+  FF.forEach(f => document.getElementById('f-' + f).value = '');
+  document.getElementById('f-category').value = 'Laser system';
+  document.getElementById('f-status').value = 'available';
+  pendingPhoto = null;
+  document.getElementById('photo-preview').style.display = 'none';
+  document.getElementById('photo-placeholder').style.display = 'flex';
+  document.getElementById('remove-photo-btn').style.display = 'none';
+  document.getElementById('f-photo-input').value = '';
 }
-function openAdd(){editingId=null;resetForm();document.getElementById('modal-title').textContent='Add device';document.getElementById('delete-btn').style.display='none';openModal('add-modal');}
-function openEdit(id){
-  const it=items.find(x=>x.id===id);if(!it)return;
-  editingId=id;resetForm();
-  document.getElementById('modal-title').textContent='Edit device';
-  FF.forEach(f=>document.getElementById('f-'+f).value=it[f]||'');
-  document.getElementById('f-category').value=it.category||'Other';
-  document.getElementById('f-status').value=it.status||'available';
-  pendingPhoto=it.photo||null;
-  if(it.photo){document.getElementById('photo-preview').src=it.photo;document.getElementById('photo-preview').style.display='block';document.getElementById('photo-placeholder').style.display='none';document.getElementById('remove-photo-btn').style.display='inline-flex';}
-  document.getElementById('delete-btn').style.display='inline-flex';
+
+function openAdd() {
+  editingId = null; resetForm();
+  document.getElementById('modal-title').textContent = 'Add device';
+  document.getElementById('delete-btn').style.display = 'none';
   openModal('add-modal');
 }
-document.getElementById('f-photo-input').addEventListener('change',e=>{
-  const file=e.target.files[0];if(!file)return;
-  const r=new FileReader();
-  r.onload=ev=>{pendingPhoto=ev.target.result;document.getElementById('photo-preview').src=pendingPhoto;document.getElementById('photo-preview').style.display='block';document.getElementById('photo-placeholder').style.display='none';document.getElementById('remove-photo-btn').style.display='inline-flex';};
-  r.readAsDataURL(file);
-});
-document.getElementById('remove-photo-btn').addEventListener('click',()=>{pendingPhoto=null;document.getElementById('photo-preview').style.display='none';document.getElementById('photo-placeholder').style.display='flex';document.getElementById('remove-photo-btn').style.display='none';document.getElementById('f-photo-input').value='';});
-function openModal(id){document.getElementById(id).classList.add('open');}
-function closeModal(id){document.getElementById(id).classList.remove('open');}
-document.getElementById('add-btn').addEventListener('click',openAdd);
-document.getElementById('scan-nav-btn').addEventListener('click',()=>switchView('scan'));
-document.getElementById('close-modal-btn').addEventListener('click',()=>closeModal('add-modal'));
-document.getElementById('close-detail-btn').addEventListener('click',()=>closeModal('detail-modal'));
-document.getElementById('add-modal').addEventListener('click',e=>{if(e.target===document.getElementById('add-modal'))closeModal('add-modal');});
-document.getElementById('detail-modal').addEventListener('click',e=>{if(e.target===document.getElementById('detail-modal'))closeModal('detail-modal');});
-document.getElementById('search-input').addEventListener('input',e=>{searchQuery=e.target.value;render();});
-document.getElementById('save-btn').addEventListener('click',()=>{
-  const name=document.getElementById('f-name').value.trim();if(!name){document.getElementById('f-name').focus();return;}
-  const ex=editingId?items.find(x=>x.id===editingId):null;
-  const data={id:editingId||uid(),name,invnum:document.getElementById('f-invnum').value.trim(),manufacturer:document.getElementById('f-manufacturer').value.trim(),model:document.getElementById('f-model').value.trim(),serial:document.getElementById('f-serial').value.trim(),url:document.getElementById('f-url').value.trim(),location:document.getElementById('f-location').value.trim(),setup:document.getElementById('f-setup').value.trim(),category:document.getElementById('f-category').value,status:document.getElementById('f-status').value,person:document.getElementById('f-person').value.trim(),notes:document.getElementById('f-notes').value.trim(),photo:pendingPhoto||null,added:(ex&&ex.added)||new Date().toISOString().slice(0,10)};
-  if(editingId){const i=items.findIndex(x=>x.id===editingId);if(i>-1)items[i]=data;}else items.unshift(data);
-  saveItems();render();closeModal('add-modal');
-});
-document.getElementById('delete-btn').addEventListener('click',()=>{
-  if(!editingId)return;if(!confirm('Delete this device?'))return;
-  items=items.filter(x=>x.id!==editingId);selected.delete(editingId);saveItems();render();closeModal('add-modal');
-});
-document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>switchView(t.dataset.view)));
-function switchView(v){
-  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-  document.getElementById('view-'+v).classList.add('active');
-  document.querySelector('.tab[data-view="'+v+'"]').classList.add('active');
-  if(v!=='scan')stopScan();
+
+function openEdit(id) {
+  const it = items.find(x => x.id === id); if (!it) return;
+  editingId = id; resetForm();
+  document.getElementById('modal-title').textContent = 'Edit device';
+  FF.forEach(f => document.getElementById('f-' + f).value = it[f] || '');
+  document.getElementById('f-category').value = it.category || 'Other';
+  document.getElementById('f-status').value = it.status || 'available';
+  // Photo comes from Firebase item — set as pending so it's preserved on save
+  pendingPhoto = it.photo || null;
+  if (pendingPhoto) {
+    document.getElementById('photo-preview').src = pendingPhoto;
+    document.getElementById('photo-preview').style.display = 'block';
+    document.getElementById('photo-placeholder').style.display = 'none';
+    const kb = Math.round(pendingPhoto.length * 0.75 / 1024);
+    const btn = document.getElementById('remove-photo-btn');
+    btn.style.display = 'inline-flex';
+    btn.innerHTML = `<i class="ti ti-trash"></i> Remove photo (${kb} KB)`;
+  }
+  document.getElementById('delete-btn').style.display = 'inline-flex';
+  openModal('add-modal');
 }
 
-/* ── Detail ── */
-function showDetail(id){
-  const it=items.find(x=>x.id===id);if(!it)return;
-  document.getElementById('detail-title').textContent=it.name;
-  const photoRow=it.photo?`<img src="${it.photo}" class="detail-photo" alt="Photo of ${esc(it.name)}">`:'';
-  const urlRow=it.url?`<div class="detail-section"><div class="detail-label">Manufacturer webpage</div><div class="detail-value"><a href="${esc(it.url)}" target="_blank" style="color:var(--info);word-break:break-all">${esc(it.url)}</a></div></div>`:'';
-  const fields=[['Skoltech inventory no.',it.invnum||'—'],['Manufacturer',it.manufacturer||'—'],['Model',it.model||'—'],['Serial no.',it.serial||'—'],['Category',it.category],['Location',it.location||'—'],['Name of setup',it.setup||'—'],['Status',it.status],['Responsible',it.person||'—'],['Date added',it.added||'—'],['Notes',it.notes||'—']];
-  document.getElementById('detail-body').innerHTML=`${photoRow}<div class="qr-wrap" id="detail-qr-wrap"></div>${fields.map(([l,v])=>`<div class="detail-section"><div class="detail-label">${l}</div><div class="detail-value">${esc(v)}</div></div>`).join('')}${urlRow}<div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-sm" onclick="openEdit('${it.id}');closeModal('detail-modal')"><i class="ti ti-edit"></i> Edit</button></div>`;
+/* ── Photo compression ──────────────────────────────────────────────────────
+   Guarantees the base64 result is under MAX_BYTES (Firebase node limit).
+   Strategy:
+     1. Resize so longest edge ≤ MAX_PX
+     2. Encode as JPEG at starting quality
+     3. If still too large, reduce quality in steps until it fits
+     4. As a last resort, halve the pixel dimensions and retry
+   ─────────────────────────────────────────────────────────────────────── */
+const MAX_BYTES  = 900 * 1024;   // 900 KB base64 ≈ ~675 KB binary — safe under 1 MB Firebase node limit
+const MAX_PX     = 1280;         // max longest dimension in pixels
+const QUAL_START = 0.82;
+const QUAL_STEP  = 0.07;
+const QUAL_MIN   = 0.25;
+
+function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = ev => {
+      img.onerror = reject;
+      img.onload = () => {
+        const result = _compress(img, MAX_PX, QUAL_START);
+        resolve(result);
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function _compress(img, maxPx, startQual) {
+  // Step 1: scale down
+  let w = img.width, h = img.height;
+  if (Math.max(w, h) > maxPx) {
+    if (w >= h) { h = Math.round(h * maxPx / w); w = maxPx; }
+    else        { w = Math.round(w * maxPx / h); h = maxPx; }
+  }
+  const cvs = document.createElement('canvas');
+  cvs.width = w; cvs.height = h;
+  cvs.getContext('2d').drawImage(img, 0, 0, w, h);
+
+  // Step 2: iterative quality reduction
+  let qual = startQual, b64 = '';
+  while (qual >= QUAL_MIN) {
+    b64 = cvs.toDataURL('image/jpeg', qual);
+    if (b64.length <= MAX_BYTES) return b64;
+    qual = Math.round((qual - QUAL_STEP) * 100) / 100;
+  }
+
+  // Step 3: last resort — halve pixel dimensions and retry
+  if (maxPx > 320) return _compress(img, Math.round(maxPx / 2), QUAL_START);
+
+  // Absolute fallback — return whatever we have (very small image by now)
+  return b64;
+}
+
+/* ── Photo upload handler ── */
+document.getElementById('f-photo-input').addEventListener('change', async e => {
+  const file = e.target.files[0]; if (!file) return;
+
+  // Show a compressing indicator
+  const placeholder = document.getElementById('photo-placeholder');
+  const origHTML = placeholder.innerHTML;
+  placeholder.innerHTML = '<i class="ti ti-loader" style="font-size:24px"></i><span>Compressing…</span>';
+
+  try {
+    const compressed = await compressImage(file);
+    const kb = Math.round(compressed.length * 0.75 / 1024); // approx binary size
+    pendingPhoto = compressed;
+    document.getElementById('photo-preview').src = pendingPhoto;
+    document.getElementById('photo-preview').style.display = 'block';
+    placeholder.style.display = 'none';
+    document.getElementById('remove-photo-btn').style.display = 'inline-flex';
+    document.getElementById('remove-photo-btn').textContent = `✕ Remove photo (${kb} KB)`;
+  } catch(err) {
+    console.error('Compression error:', err);
+    placeholder.innerHTML = origHTML;
+    alert('Could not process the photo. Please try a different image.');
+  }
+});
+
+document.getElementById('remove-photo-btn').addEventListener('click', () => {
+  pendingPhoto = null;
+  document.getElementById('photo-preview').style.display = 'none';
+  document.getElementById('photo-placeholder').style.display = 'flex';
+  const btn = document.getElementById('remove-photo-btn');
+  btn.style.display = 'none';
+  btn.innerHTML = '<i class="ti ti-trash"></i> Remove photo';
+  document.getElementById('f-photo-input').value = '';
+});
+
+/* ── Modal helpers ── */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+/* ── Event listeners ── */
+document.getElementById('add-btn').addEventListener('click', openAdd);
+document.getElementById('scan-nav-btn').addEventListener('click', () => switchView('scan'));
+document.getElementById('close-modal-btn').addEventListener('click', () => closeModal('add-modal'));
+document.getElementById('close-detail-btn').addEventListener('click', () => closeModal('detail-modal'));
+document.getElementById('add-modal').addEventListener('click', e => { if (e.target === document.getElementById('add-modal')) closeModal('add-modal'); });
+document.getElementById('detail-modal').addEventListener('click', e => { if (e.target === document.getElementById('detail-modal')) closeModal('detail-modal'); });
+document.getElementById('search-input').addEventListener('input', e => { searchQuery = e.target.value; render(); });
+
+/* ── Save device ── */
+document.getElementById('save-btn').addEventListener('click', () => {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { document.getElementById('f-name').focus(); return; }
+  const ex = editingId ? items.find(x => x.id === editingId) : null;
+  const id = editingId || uid();
+  const data = {
+    id, name,
+    invnum:       document.getElementById('f-invnum').value.trim(),
+    manufacturer: document.getElementById('f-manufacturer').value.trim(),
+    model:        document.getElementById('f-model').value.trim(),
+    serial:       document.getElementById('f-serial').value.trim(),
+    url:          document.getElementById('f-url').value.trim(),
+    location:     document.getElementById('f-location').value.trim(),
+    setup:        document.getElementById('f-setup').value.trim(),
+    category:     document.getElementById('f-category').value,
+    status:       document.getElementById('f-status').value,
+    person:       document.getElementById('f-person').value.trim(),
+    notes:        document.getElementById('f-notes').value.trim(),
+    added:        (ex && ex.added) || new Date().toISOString().slice(0, 10),
+    // Photo is compressed to <1 MB before this point — safe for Firebase
+    // Keep existing photo if user didn't change it; null clears it
+    photo:        pendingPhoto !== undefined ? pendingPhoto : (ex && ex.photo) || null
+  };
+
+  setSyncBadge('syncing', 'Saving…');
+  window._db.save(data)
+    .then(() => setSyncBadge('synced', 'Synced'))
+    .catch(err => { console.error(err); setSyncBadge('offline', 'Save failed'); });
+
+  closeModal('add-modal');
+});
+
+/* ── Delete device ── */
+document.getElementById('delete-btn').addEventListener('click', () => {
+  if (!editingId) return;
+  if (!confirm('Delete this device?')) return;
+  const id = editingId;
+  setSyncBadge('syncing', 'Deleting…');
+  window._db.delete(id)
+    .then(() => setSyncBadge('synced', 'Synced'))
+    .catch(err => { console.error(err); setSyncBadge('offline', 'Delete failed'); });
+  closeModal('add-modal');
+});
+
+/* ── Tabs ── */
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchView(t.dataset.view)));
+function switchView(v) {
+  document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.getElementById('view-' + v).classList.add('active');
+  document.querySelector('.tab[data-view="' + v + '"]').classList.add('active');
+  if (v !== 'scan') stopScan();
+}
+
+/* ── Detail modal ── */
+function showDetail(id) {
+  const it = items.find(x => x.id === id); if (!it) return;
+  document.getElementById('detail-title').textContent = it.name;
+  const photo = it.photo || null;
+  const photoRow = photo ? `<img src="${photo}" class="detail-photo" alt="Photo of ${esc(it.name)}">` : '';
+  const urlRow = it.url
+    ? `<div class="detail-section"><div class="detail-label">Manufacturer webpage</div>
+       <div class="detail-value"><a href="${esc(it.url)}" target="_blank"
+       style="color:var(--info);word-break:break-all">${esc(it.url)}</a></div></div>` : '';
+  const fields = [
+    ['Skoltech inventory no.', it.invnum   || '—'],
+    ['Manufacturer',           it.manufacturer || '—'],
+    ['Model',                  it.model    || '—'],
+    ['Serial no.',             it.serial   || '—'],
+    ['Category',               it.category],
+    ['Location',               it.location || '—'],
+    ['Name of setup',          it.setup    || '—'],
+    ['Status',                 it.status],
+    ['Responsible',            it.person   || '—'],
+    ['Date added',             it.added    || '—'],
+    ['Notes',                  it.notes    || '—']
+  ];
+  document.getElementById('detail-body').innerHTML = `
+    ${photoRow}
+    <div class="qr-wrap" id="detail-qr-wrap"></div>
+    ${fields.map(([l,v]) => `<div class="detail-section">
+      <div class="detail-label">${l}</div>
+      <div class="detail-value">${esc(v)}</div>
+    </div>`).join('')}
+    ${urlRow}
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-sm" onclick="openEdit('${it.id}');closeModal('detail-modal')">
+        <i class="ti ti-edit"></i> Edit
+      </button>
+    </div>`;
   openModal('detail-modal');
-  setTimeout(()=>{const el=document.getElementById('detail-qr-wrap');if(!el)return;el.innerHTML='';const w=document.createElement('div');el.appendChild(w);new QRCode(w,{text:'labitem:'+it.id,width:110,height:110,correctLevel:QRCode.CorrectLevel.M});},50);
+  setTimeout(() => {
+    const el = document.getElementById('detail-qr-wrap'); if (!el) return;
+    el.innerHTML = '';
+    const w = document.createElement('div'); el.appendChild(w);
+    new QRCode(w, { text: 'labitem:' + it.id, width: 110, height: 110, correctLevel: QRCode.CorrectLevel.M });
+  }, 50);
 }
 
-/* ── Print / PDF ── */
-document.getElementById('sel-all-btn').addEventListener('click',()=>{if(selected.size===items.length)selected.clear();else items.forEach(it=>selected.add(it.id));renderPrint();});
-document.getElementById('print-btn').addEventListener('click',()=>{
-  const tp=items.filter(it=>selected.has(it.id));
-  if(!tp.length){alert('Select at least one item to print.');return;}
-  printLabels(tp,selectedMM);
+/* ── PDF print ── */
+document.getElementById('sel-all-btn').addEventListener('click', () => {
+  if (selected.size === items.length) selected.clear(); else items.forEach(it => selected.add(it.id));
+  renderPrint();
+});
+document.getElementById('print-btn').addEventListener('click', () => {
+  const tp = items.filter(it => selected.has(it.id));
+  if (!tp.length) { alert('Select at least one device to print.'); return; }
+  printLabels(tp, selectedMM);
 });
 
 function printLabels(tp, mm) {
-  // Show a loading indicator
   const printBtn = document.getElementById('print-btn');
   const origHTML = printBtn.innerHTML;
   printBtn.innerHTML = '<i class="ti ti-loader"></i> Generating…';
   printBtn.disabled = true;
 
-  // jsPDF uses mm units natively — A4 = 210 x 297 mm
-  const marginMM = 10;
-  const gapMM = 3;
-  const labelMM = mm; // QR square size
-  const nameFontMM = Math.max(2.5, mm * 0.22); // ~pt equivalent in mm
+  const marginMM = 10, gapMM = 3, labelMM = mm;
+  const nameFontMM = Math.max(2.5, mm * 0.22);
   const invFontMM  = Math.max(2.0, mm * 0.17);
-  const textGapMM  = 1.0; // gap between QR and name text
-  const labelHMM   = labelMM + textGapMM + nameFontMM + 1.5; // total label height
+  const textGapMM  = 1.0;
+  const labelHMM   = labelMM + textGapMM + nameFontMM + 1.5;
+  const usableW    = 210 - marginMM * 2;
+  const cols       = Math.max(1, Math.floor((usableW + gapMM) / (labelMM + gapMM)));
+  const qrSize     = Math.max(128, mm * 12);
+  const qrURLs     = {};
 
-  const usableW = 210 - marginMM * 2;
-  const cols = Math.max(1, Math.floor((usableW + gapMM) / (labelMM + gapMM)));
-
-  // Step 1: render all QR codes to canvas data-URLs off-screen
   const tmp = document.createElement('div');
   tmp.style.cssText = 'position:fixed;left:-9999px;top:0;visibility:hidden;pointer-events:none';
   document.body.appendChild(tmp);
 
-  const qrSize = Math.max(128, mm * 12); // higher res for PDF quality (px)
-  const qrURLs = {};
-
   const promises = tp.map(it => new Promise(resolve => {
-    const wrap = document.createElement('div');
-    tmp.appendChild(wrap);
-    new QRCode(wrap, {
-      text: 'labitem:' + it.id,
-      width: qrSize, height: qrSize,
-      correctLevel: QRCode.CorrectLevel.H
-    });
+    const wrap = document.createElement('div'); tmp.appendChild(wrap);
+    new QRCode(wrap, { text: 'labitem:' + it.id, width: qrSize, height: qrSize, correctLevel: QRCode.CorrectLevel.H });
     setTimeout(() => {
       const canvas = wrap.querySelector('canvas');
       const img    = wrap.querySelector('img');
@@ -464,221 +801,184 @@ function printLabels(tp, mm) {
 
   Promise.all(promises).then(() => {
     document.body.removeChild(tmp);
-
-    // Step 2: build PDF with jsPDF
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
     doc.setFont('helvetica', 'bold');
-
     let col = 0, row = 0;
-
     tp.forEach((it, idx) => {
       const x = marginMM + col * (labelMM + gapMM);
       const y = marginMM + row * (labelHMM + gapMM);
-
-      // QR image
       const src = qrURLs[it.id];
-      if (src) {
-        doc.addImage(src, 'PNG', x, y, labelMM, labelMM);
-      }
-
-      // Thin border around label
-      doc.setDrawColor(180);
-      doc.setLineWidth(0.2);
-      doc.rect(x, y, labelMM, labelHMM);
-
-      // Device name — truncate if too long
-      const name = it.name || '';
-      doc.setFontSize(nameFontMM * 2.835); // mm → pt (1pt = 0.353mm → 1mm = 2.835pt)
-      doc.setTextColor(0);
-
-      // Clip name to fit label width
+      if (src) doc.addImage(src, 'PNG', x, y, labelMM, labelMM);
+      doc.setDrawColor(180); doc.setLineWidth(0.2); doc.rect(x, y, labelMM, labelHMM);
       const maxW = labelMM - 1;
-      const lines = doc.splitTextToSize(name, maxW);
-      const displayName = lines[0] + (lines.length > 1 ? '…' : '');
-      doc.text(displayName, x + labelMM / 2, y + labelMM + textGapMM + nameFontMM, { align: 'center' });
-
-      // Skoltech inventory number (smaller, below name)
+      doc.setFontSize(nameFontMM * 2.835); doc.setTextColor(0);
+      const lines = doc.splitTextToSize(it.name || '', maxW);
+      doc.text(lines[0] + (lines.length > 1 ? '…' : ''), x + labelMM / 2, y + labelMM + textGapMM + nameFontMM, { align: 'center' });
       if (it.invnum) {
-        doc.setFontSize(invFontMM * 2.835);
-        doc.setTextColor(80);
-        const invLines = doc.splitTextToSize(it.invnum, maxW);
-        doc.text(invLines[0], x + labelMM / 2, y + labelMM + textGapMM + nameFontMM + invFontMM + 0.5, { align: 'center' });
+        doc.setFontSize(invFontMM * 2.835); doc.setTextColor(80);
+        const iLines = doc.splitTextToSize(it.invnum, maxW);
+        doc.text(iLines[0], x + labelMM / 2, y + labelMM + textGapMM + nameFontMM + invFontMM + 0.5, { align: 'center' });
       }
-
-      // Advance grid position
       col++;
       if (col >= cols) {
-        col = 0;
-        row++;
-        // New page if we've run out of vertical space
+        col = 0; row++;
         const nextY = marginMM + row * (labelHMM + gapMM) + labelHMM;
-        if (nextY > 297 - marginMM && idx < tp.length - 1) {
-          doc.addPage();
-          row = 0;
-        }
+        if (nextY > 297 - marginMM && idx < tp.length - 1) { doc.addPage(); row = 0; }
       }
     });
-
-    // Step 3: trigger download — no popup, no print dialog
     doc.save(`qr-labels-${mm}mm-${new Date().toISOString().slice(0,10)}.pdf`);
-
-    // Restore button
-    printBtn.innerHTML = origHTML;
-    printBtn.disabled = false;
+    printBtn.innerHTML = origHTML; printBtn.disabled = false;
   }).catch(err => {
-    console.error('PDF generation error:', err);
+    console.error('PDF error:', err);
     alert('PDF generation failed. Please try again.');
-    printBtn.innerHTML = origHTML;
-    printBtn.disabled = false;
+    printBtn.innerHTML = origHTML; printBtn.disabled = false;
   });
 }
 
-/* ── Scanning (Android-safe) ── */
-if(location.protocol!=='https:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){
-  document.getElementById('https-notice').style.display='block';
+/* ── QR Scanning ── */
+if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+  document.getElementById('https-notice').style.display = 'block';
 }
 
-document.getElementById('start-scan-btn').addEventListener('click',startScan);
-document.getElementById('stop-scan-btn').addEventListener('click',stopScan);
+document.getElementById('start-scan-btn').addEventListener('click', startScan);
+document.getElementById('stop-scan-btn').addEventListener('click', stopScan);
 
-async function startScan(){
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    showScanError('Camera API not available. This page must be served over HTTPS.');return;
+async function startScan() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showScanError('Camera API not available. This page must be served over HTTPS.'); return;
   }
   stopScan();
-  try{
-    // Try rear camera first
-    try{
-      stream=await navigator.mediaDevices.getUserMedia({
-        video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
-    }catch(e){
-      // Fallback: any camera
-      stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+  try {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+    } catch(e) {
+      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
     }
-
-    // ANDROID BLACK SCREEN FIX:
-    // 1) Assign srcObject before calling play()
-    videoEl.srcObject=stream;
-
-    // 2) Call play() and catch rejection gracefully
-    const playPromise=videoEl.play();
-    if(playPromise!==undefined){
-      playPromise.catch(e=>console.warn('Initial play() suppressed:',e));
-    }
-
-    // 3) Wait for loadedmetadata (guarantees frames are available)
-    if(videoEl.readyState<2){
-      await new Promise((res)=>{
-        const done=()=>{videoEl.removeEventListener('loadedmetadata',done);res();};
-        videoEl.addEventListener('loadedmetadata',done);
-        setTimeout(res,4000); // safety timeout
+    videoEl.srcObject = stream;
+    const pp = videoEl.play();
+    if (pp !== undefined) pp.catch(e => console.warn('play() suppressed:', e));
+    if (videoEl.readyState < 2) {
+      await new Promise(res => {
+        const done = () => { videoEl.removeEventListener('loadedmetadata', done); res(); };
+        videoEl.addEventListener('loadedmetadata', done);
+        setTimeout(res, 4000);
       });
     }
-
-    // 4) Call play() AGAIN after metadata — this is the key Android fix
-    try{await videoEl.play();}catch(e){console.warn('Second play() suppressed:',e);}
-
-    // Show video
-    document.getElementById('video-wrap').style.display='block';
-    document.getElementById('scan-status').style.display='block';
-    document.getElementById('stop-wrap').style.display='block';
-    document.getElementById('scan-result').style.display='none';
-
-    canvasEl=document.createElement('canvas');
-    ctxEl=canvasEl.getContext('2d',{willReadFrequently:true});
-    scanning=true;
+    try { await videoEl.play(); } catch(e) {}
+    document.getElementById('video-wrap').style.display = 'block';
+    document.getElementById('scan-status').style.display = 'block';
+    document.getElementById('stop-wrap').style.display = 'block';
+    document.getElementById('scan-result').style.display = 'none';
+    canvasEl = document.createElement('canvas');
+    ctxEl = canvasEl.getContext('2d', { willReadFrequently: true });
+    scanning = true;
     requestAnimationFrame(scanLoop);
-
-  }catch(err){
-    console.error('getUserMedia error:',err);
-    let msg='Could not access camera.';
-    if(err.name==='NotAllowedError')msg='Camera permission denied. Tap the camera icon in your browser address bar and allow access.';
-    else if(err.name==='NotFoundError')msg='No camera found on this device.';
-    else if(err.name==='NotReadableError')msg='Camera is already in use by another app. Close it and try again.';
+  } catch(err) {
+    let msg = 'Could not access camera.';
+    if (err.name === 'NotAllowedError')  msg = 'Camera permission denied. Tap the camera icon in the address bar and allow access.';
+    if (err.name === 'NotFoundError')    msg = 'No camera found on this device.';
+    if (err.name === 'NotReadableError') msg = 'Camera is in use by another app. Close it and try again.';
     showScanError(msg);
   }
 }
 
-function scanLoop(){
-  if(!scanning)return;
-
-  if(videoEl.readyState>=2&&videoEl.videoWidth>0){
-    const vw=videoEl.videoWidth, vh=videoEl.videoHeight;
-
-    // Scan a centre square crop matching the crosshair — improves decode rate
-    const cropSize=Math.round(Math.min(vw,vh)*0.75);
-    const cx=Math.round((vw-cropSize)/2);
-    const cy=Math.round((vh-cropSize)/2);
-
-    canvasEl.width=cropSize;
-    canvasEl.height=cropSize;
+function scanLoop() {
+  if (!scanning) return;
+  if (videoEl.readyState >= 2 && videoEl.videoWidth > 0) {
+    const vw = videoEl.videoWidth, vh = videoEl.videoHeight;
+    const cropSize = Math.round(Math.min(vw, vh) * 0.75);
+    const cx = Math.round((vw - cropSize) / 2), cy = Math.round((vh - cropSize) / 2);
+    canvasEl.width = cropSize; canvasEl.height = cropSize;
     ctxEl.drawImage(videoEl, cx, cy, cropSize, cropSize, 0, 0, cropSize, cropSize);
-
-    try{
-      const imgData=ctxEl.getImageData(0,0,cropSize,cropSize);
-      // 'attemptBoth' tries normal + inverted — works in all lighting conditions
-      const code=jsQR(imgData.data,imgData.width,imgData.height,{inversionAttempts:'attemptBoth'});
-      if(code&&code.data){
-        // Accept any QR code that starts with labitem: — or show "not found" if it doesn't
+    try {
+      const code = jsQR(ctxEl.getImageData(0, 0, cropSize, cropSize).data, cropSize, cropSize, { inversionAttempts: 'attemptBoth' });
+      if (code && code.data) {
         stopScan();
-        if(code.data.startsWith('labitem:')){
-          const id=code.data.replace('labitem:','');
-          const it=items.find(x=>x.id===id);
-          if(it){
-            // Open full detail modal immediately
-            showDetail(it.id);
-          } else {
-            showScanResult(null, id);
-          }
+        if (code.data.startsWith('labitem:')) {
+          const id = code.data.replace('labitem:', '');
+          const it = items.find(x => x.id === id);
+          if (it) { showDetail(it.id); }
+          else { showScanResult(null, id); }
         } else {
-          // QR found but not a lab item — show what was scanned
           showScanResult(null, code.data);
         }
         return;
       }
-    }catch(e){ console.warn('jsQR error:',e); }
+    } catch(e) {}
   }
-
-  // ~20fps scan rate — good balance of responsiveness and battery
-  setTimeout(()=>{ if(scanning) requestAnimationFrame(scanLoop); }, 50);
+  setTimeout(() => { if (scanning) requestAnimationFrame(scanLoop); }, 50);
 }
 
-function stopScan(){
-  scanning=false;
-  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
-  videoEl.srcObject=null;
-  document.getElementById('video-wrap').style.display='none';
-  document.getElementById('scan-status').style.display='none';
-  document.getElementById('stop-wrap').style.display='none';
+function stopScan() {
+  scanning = false;
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  videoEl.srcObject = null;
+  document.getElementById('video-wrap').style.display = 'none';
+  document.getElementById('scan-status').style.display = 'none';
+  document.getElementById('stop-wrap').style.display = 'none';
 }
 
-function showScanError(msg){
-  document.getElementById('scan-icon-wrap').innerHTML=
+function showScanError(msg) {
+  document.getElementById('scan-icon-wrap').innerHTML =
     `<i class="ti ti-alert-circle" style="font-size:40px;color:var(--err-t);display:block;margin:0 auto 10px"></i>
      <div style="font-size:15px;font-weight:600;margin-bottom:6px">Camera unavailable</div>
      <div style="font-size:13px;color:var(--text2);margin-bottom:16px">${msg}</div>
      <button class="btn btn-sm" onclick="location.reload()"><i class="ti ti-refresh"></i> Reload page</button>`;
 }
 
-function showScanResult(it,id){
-  const res=document.getElementById('scan-result');res.style.display='block';
-  const notLabItem = it===null && !String(id).startsWith('labitem:') && !String(id).match(/^[a-z0-9]{8,}$/);
-  if(!it){
-    const msg = notLabItem
-      ? `QR code detected, but it's not a registered lab item.<br><small style="color:var(--text3)">${esc(String(id).slice(0,60))}</small>`
-      : `No device found for this QR code.<br><small style="color:var(--text3)">ID: ${esc(String(id))}</small>`;
-    res.innerHTML=`<div class="card"><div style="color:var(--err-t);margin-bottom:10px"><i class="ti ti-alert-circle"></i> ${msg}</div><button class="btn btn-sm" onclick="startScan()"><i class="ti ti-scan"></i> Scan again</button></div>`;
+function showScanResult(it, id) {
+  const res = document.getElementById('scan-result'); res.style.display = 'block';
+  if (!it) {
+    const isUnknown = !String(id).match(/^[a-z0-9]{8,}$/);
+    const msg = isUnknown
+      ? `QR code detected but not a registered device.<br><small style="color:var(--text3)">${esc(String(id).slice(0,60))}</small>`
+      : `No device found for ID: <small style="color:var(--text3)">${esc(String(id))}</small>`;
+    res.innerHTML = `<div class="card"><div style="color:var(--err-t);margin-bottom:10px">
+      <i class="ti ti-alert-circle"></i> ${msg}</div>
+      <button class="btn btn-sm" onclick="startScan()"><i class="ti ti-scan"></i> Scan again</button></div>`;
     return;
   }
-  const ic=ICONS[it.category]||'ti-tool';
-  const thumb=it.photo?`<img src="${it.photo}" style="width:42px;height:42px;object-fit:cover;border-radius:var(--r-md)" alt="">`:`<i class="ti ${ic}" style="font-size:20px"></i>`;
-  res.innerHTML=`<div class="card"><div class="card-row" style="margin-bottom:10px"><div class="item-icon">${thumb}</div><div style="flex:1;min-width:0"><div class="item-name">${esc(it.name)}</div><div class="item-meta">${esc(it.manufacturer||it.category)}${it.setup?' · '+esc(it.setup):''}</div>${it.invnum?`<div style="font-size:11px;color:var(--text3)">${esc(it.invnum)}</div>`:''}</div>${mkbadge(it.status)}</div><div class="actions"><button class="btn btn-sm" onclick="showDetail('${it.id}')"><i class="ti ti-info-circle"></i> Details</button><button class="btn btn-sm" onclick="openEdit('${it.id}')"><i class="ti ti-edit"></i> Edit</button><button class="btn btn-sm" onclick="startScan()"><i class="ti ti-scan"></i> Scan again</button></div></div>`;
+  const ic = ICONS[it.category] || 'ti-tool';
+  const thumb = it.photo
+    ? `<img src="${it.photo}" style="width:42px;height:42px;object-fit:cover;border-radius:var(--r-md)" alt="">`
+    : `<i class="ti ${ic}" style="font-size:20px"></i>`;
+  res.innerHTML = `<div class="card"><div class="card-row" style="margin-bottom:10px">
+    <div class="item-icon">${thumb}</div>
+    <div style="flex:1;min-width:0">
+      <div class="item-name">${esc(it.name)}</div>
+      <div class="item-meta">${esc(it.manufacturer||it.category)}${it.setup?' · '+esc(it.setup):''}</div>
+      ${it.invnum?`<div style="font-size:11px;color:var(--text3)">${esc(it.invnum)}</div>`:''}
+    </div>${mkbadge(it.status)}</div>
+    <div class="actions">
+      <button class="btn btn-sm" onclick="showDetail('${it.id}')"><i class="ti ti-info-circle"></i> Details</button>
+      <button class="btn btn-sm" onclick="openEdit('${it.id}')"><i class="ti ti-edit"></i> Edit</button>
+      <button class="btn btn-sm" onclick="startScan()"><i class="ti ti-scan"></i> Scan again</button>
+    </div></div>`;
 }
 
-/* ── Init ── */
-render();
+/* ── Boot: wait for Firebase, then subscribe to live data ── */
+window.addEventListener('firebase-ready', () => {
+  // Migrate any old localStorage text data first
+  migrateLegacyData();
+
+  let firstLoad = true;
+  // Subscribe to live Firebase updates
+  window._db.subscribe(
+    newItems => {
+      items = newItems;
+      render();
+      setSyncBadge('synced', 'Live sync ✓');
+      // After first load, migrate any localStorage photos into Firebase
+      if (firstLoad) { firstLoad = false; migrateLegacyPhotos(); }
+    },
+    err => {
+      console.error('Firebase listener error:', err);
+      setSyncBadge('offline', 'Offline');
+    }
+  );
+});
 </script>
 </body>
 </html>

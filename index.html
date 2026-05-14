@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root {
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -146,7 +147,7 @@ label:first-child{margin-top:0}
     <span id="sel-count">0 selected</span>
     <div style="display:flex;gap:6px">
       <button class="btn btn-sm" id="sel-all-btn">Select all</button>
-      <button class="btn btn-sm btn-primary" id="print-btn"><i class="ti ti-file-type-pdf"></i> Export PDF</button>
+      <button class="btn btn-sm btn-primary" id="print-btn"><i class="ti ti-download"></i> Download PDF</button>
     </div>
   </div>
   <div style="margin-bottom:12px">
@@ -413,75 +414,120 @@ document.getElementById('print-btn').addEventListener('click',()=>{
   printLabels(tp,selectedMM);
 });
 
-function printLabels(tp,mm){
-  // px at 96 dpi: 1mm = 96/25.4 px
-  const dpi=96, mmToPx=dpi/25.4;
-  const qrPx=Math.round(mm*mmToPx);
-  const nameFontPt=Math.max(6,Math.round(mm*0.26));
-  const invFontPt=Math.max(5,Math.round(mm*0.20));
-  const labelPadPx=4;
-  const labelWPx=qrPx+labelPadPx*2;
+function printLabels(tp, mm) {
+  // Show a loading indicator
+  const printBtn = document.getElementById('print-btn');
+  const origHTML = printBtn.innerHTML;
+  printBtn.innerHTML = '<i class="ti ti-loader"></i> Generating…';
+  printBtn.disabled = true;
 
-  // Gap between labels: 3mm
-  const gapMM=3, gapPx=Math.round(gapMM*mmToPx);
-  // A4 usable width at 96dpi: (210-20)mm = 190mm
-  const usableWPx=Math.round(190*mmToPx);
-  const cols=Math.max(1,Math.floor((usableWPx+gapPx)/(labelWPx+gapPx)));
+  // jsPDF uses mm units natively — A4 = 210 x 297 mm
+  const marginMM = 10;
+  const gapMM = 3;
+  const labelMM = mm; // QR square size
+  const nameFontMM = Math.max(2.5, mm * 0.22); // ~pt equivalent in mm
+  const invFontMM  = Math.max(2.0, mm * 0.17);
+  const textGapMM  = 1.0; // gap between QR and name text
+  const labelHMM   = labelMM + textGapMM + nameFontMM + 1.5; // total label height
 
-  // Render QR codes to data URLs via hidden canvas
-  const tmp=document.createElement('div');
-  tmp.style.cssText='position:fixed;left:-9999px;top:0;visibility:hidden;pointer-events:none';
+  const usableW = 210 - marginMM * 2;
+  const cols = Math.max(1, Math.floor((usableW + gapMM) / (labelMM + gapMM)));
+
+  // Step 1: render all QR codes to canvas data-URLs off-screen
+  const tmp = document.createElement('div');
+  tmp.style.cssText = 'position:fixed;left:-9999px;top:0;visibility:hidden;pointer-events:none';
   document.body.appendChild(tmp);
 
-  const qrURLs={};
-  const promises=tp.map(it=>new Promise(resolve=>{
-    const wrap=document.createElement('div');
+  const qrSize = Math.max(128, mm * 12); // higher res for PDF quality (px)
+  const qrURLs = {};
+
+  const promises = tp.map(it => new Promise(resolve => {
+    const wrap = document.createElement('div');
     tmp.appendChild(wrap);
-    new QRCode(wrap,{text:'labitem:'+it.id,width:qrPx,height:qrPx,correctLevel:QRCode.CorrectLevel.H});
-    // QRCode.js renders async; give it 400ms
-    setTimeout(()=>{
-      const canvas=wrap.querySelector('canvas');
-      const img=wrap.querySelector('img');
-      if(canvas){qrURLs[it.id]=canvas.toDataURL('image/png');}
-      else if(img&&img.src){qrURLs[it.id]=img.src;}
+    new QRCode(wrap, {
+      text: 'labitem:' + it.id,
+      width: qrSize, height: qrSize,
+      correctLevel: QRCode.CorrectLevel.H
+    });
+    setTimeout(() => {
+      const canvas = wrap.querySelector('canvas');
+      const img    = wrap.querySelector('img');
+      if (canvas) qrURLs[it.id] = canvas.toDataURL('image/png');
+      else if (img && img.src) qrURLs[it.id] = img.src;
       resolve();
-    },400);
+    }, 500);
   }));
 
-  Promise.all(promises).then(()=>{
+  Promise.all(promises).then(() => {
     document.body.removeChild(tmp);
 
-    // Build label HTML cells
-    const cells=tp.map(it=>{
-      const src=qrURLs[it.id]||'';
-      const name=(it.name||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      const inv=it.invnum?`<div style="font-size:${invFontPt}pt;color:#333;font-weight:700;margin-top:1px;text-align:center;max-width:${qrPx}px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${it.invnum.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`:'';
-      return`<div class="lbl"><img src="${src}" width="${qrPx}" height="${qrPx}" style="display:block"><div class="lname" style="font-size:${nameFontPt}pt;max-width:${qrPx}px">${name}</div>${inv}</div>`;
-    }).join('');
+    // Step 2: build PDF with jsPDF
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-    const win=window.open('','_blank','width=900,height=700');
-    if(!win){alert('Allow pop-ups to generate the PDF.');return;}
-    win.document.write(`<!DOCTYPE html><html><head><title>QR Labels ${mm}mm</title>
-<style>
-@page{size:A4 portrait;margin:10mm}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:#000}
-.controls{padding:12px 16px;background:#f5f5f5;border-bottom:1px solid #ddd;display:flex;align-items:center;gap:12px}
-.controls button{padding:7px 18px;border-radius:6px;border:1px solid #aaa;background:#fff;cursor:pointer;font-size:13px;font-family:Arial}
-.controls button.p{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-.controls span{font-size:12px;color:#555}
-.grid{display:flex;flex-wrap:wrap;gap:${gapPx}px;padding:2px;align-content:flex-start}
-.lbl{display:inline-flex;flex-direction:column;align-items:center;padding:${labelPadPx}px;page-break-inside:avoid;break-inside:avoid;border:0.5px solid #ccc;border-radius:3px}
-.lname{font-weight:700;text-align:center;line-height:1.2;margin-top:3px;overflow:hidden;word-break:break-word}
-@media print{.controls{display:none!important}}
-</style></head><body>
-<div class="controls">
-  <button class="p" onclick="window.print()">🖨 Print / Save as PDF</button>
-  <span>${tp.length} label${tp.length!==1?'s':''} &nbsp;·&nbsp; ${mm} × ${mm} mm &nbsp;·&nbsp; ${cols} per row &nbsp;·&nbsp; Error correction: High</span>
-</div>
-<div class="grid">${cells}</div>
-</body></html>`);
-    win.document.close();
+    doc.setFont('helvetica', 'bold');
+
+    let col = 0, row = 0;
+
+    tp.forEach((it, idx) => {
+      const x = marginMM + col * (labelMM + gapMM);
+      const y = marginMM + row * (labelHMM + gapMM);
+
+      // QR image
+      const src = qrURLs[it.id];
+      if (src) {
+        doc.addImage(src, 'PNG', x, y, labelMM, labelMM);
+      }
+
+      // Thin border around label
+      doc.setDrawColor(180);
+      doc.setLineWidth(0.2);
+      doc.rect(x, y, labelMM, labelHMM);
+
+      // Device name — truncate if too long
+      const name = it.name || '';
+      doc.setFontSize(nameFontMM * 2.835); // mm → pt (1pt = 0.353mm → 1mm = 2.835pt)
+      doc.setTextColor(0);
+
+      // Clip name to fit label width
+      const maxW = labelMM - 1;
+      const lines = doc.splitTextToSize(name, maxW);
+      const displayName = lines[0] + (lines.length > 1 ? '…' : '');
+      doc.text(displayName, x + labelMM / 2, y + labelMM + textGapMM + nameFontMM, { align: 'center' });
+
+      // Skoltech inventory number (smaller, below name)
+      if (it.invnum) {
+        doc.setFontSize(invFontMM * 2.835);
+        doc.setTextColor(80);
+        const invLines = doc.splitTextToSize(it.invnum, maxW);
+        doc.text(invLines[0], x + labelMM / 2, y + labelMM + textGapMM + nameFontMM + invFontMM + 0.5, { align: 'center' });
+      }
+
+      // Advance grid position
+      col++;
+      if (col >= cols) {
+        col = 0;
+        row++;
+        // New page if we've run out of vertical space
+        const nextY = marginMM + row * (labelHMM + gapMM) + labelHMM;
+        if (nextY > 297 - marginMM && idx < tp.length - 1) {
+          doc.addPage();
+          row = 0;
+        }
+      }
+    });
+
+    // Step 3: trigger download — no popup, no print dialog
+    doc.save(`qr-labels-${mm}mm-${new Date().toISOString().slice(0,10)}.pdf`);
+
+    // Restore button
+    printBtn.innerHTML = origHTML;
+    printBtn.disabled = false;
+  }).catch(err => {
+    console.error('PDF generation error:', err);
+    alert('PDF generation failed. Please try again.');
+    printBtn.innerHTML = origHTML;
+    printBtn.disabled = false;
   });
 }
 

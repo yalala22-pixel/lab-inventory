@@ -237,7 +237,7 @@ label:first-child{margin-top:0}
 
 <button class="fab" id="add-btn">+</button>
 <div style="position:fixed;bottom:10px;left:16px;font-size:14px;color:var(--text3);
-  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.108</div>
+  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.109</div>
 </div>
 
 <!-- ADD/EDIT MODAL -->
@@ -886,29 +886,38 @@ async function startScan() {
 
 function scanLoop() {
   if (!scanning) return;
-  if (videoEl.readyState >= 2 && videoEl.videoWidth > 0) {
-    const vw = videoEl.videoWidth, vh = videoEl.videoHeight;
-    const cropSize = Math.round(Math.min(vw, vh) * 0.75);
-    const cx = Math.round((vw - cropSize) / 2), cy = Math.round((vh - cropSize) / 2);
-    canvasEl.width = cropSize; canvasEl.height = cropSize;
-    ctxEl.drawImage(videoEl, cx, cy, cropSize, cropSize, 0, 0, cropSize, cropSize);
+
+  if (videoEl.readyState === videoEl.HAVE_ENOUGH_DATA) {
+    // Draw FULL frame — no crop. Cropping can cause zero-size or
+    // misaligned draws on some Android cameras where videoWidth/Height
+    // differ from the requested constraints.
+    canvasEl.width  = videoEl.videoWidth;
+    canvasEl.height = videoEl.videoHeight;
+    ctxEl.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+
     try {
-      const code = jsQR(ctxEl.getImageData(0, 0, cropSize, cropSize).data, cropSize, cropSize, { inversionAttempts: 'attemptBoth' });
+      const imageData = ctxEl.getImageData(0, 0, canvasEl.width, canvasEl.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height, {
+        inversionAttempts: 'attemptBoth'
+      });
       if (code && code.data) {
         stopScan();
         if (code.data.startsWith('labitem:')) {
           const id = code.data.replace('labitem:', '');
           const it = items.find(x => x.id === id);
           if (it) { showDetail(it.id); }
-          else { showScanResult(null, id); }
+          else    { showScanResult(null, id); }
         } else {
           showScanResult(null, code.data);
         }
         return;
       }
-    } catch(e) {}
+    } catch(e) { console.warn('jsQR error:', e); }
   }
-  setTimeout(() => { if (scanning) requestAnimationFrame(scanLoop); }, 50);
+
+  // requestAnimationFrame only — no setTimeout wrapper.
+  // Matches the official jsQR demo pattern and avoids double-scheduling.
+  requestAnimationFrame(scanLoop);
 }
 
 function stopScan() {

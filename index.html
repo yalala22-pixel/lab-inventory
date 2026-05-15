@@ -472,6 +472,12 @@ window._db = {
     });
   },
   setSeedFlag() { return set(ref(db, 'meta/seedImportDone'), true); },
+  getPatchFlag() {
+    return new Promise((resolve, reject) => {
+      onValue(ref(db, 'meta/seedPatchDone'), snap => resolve(snap.val() === true), reject, { onlyOnce: true });
+    });
+  },
+  setPatchFlag() { return set(ref(db, 'meta/seedPatchDone'), true); },
   subscribe(cb, onErr) {
     return onValue(ref(db, 'items'), snap => {
       const val = snap.val();
@@ -1457,42 +1463,77 @@ window.addEventListener('auth-changed', e => {
    Safe to call repeatedly — no-ops after first run.
    ══════════════════════════════════════════════════ */
 const SEED_ITEMS = [
-  { invnum:'000003945', name:'Montana Cryostation C2 (closed-cycle cryostat) #1',
+  { invnum:'000003945',
+    name:'Montana Cryostation C2 (closed-cycle cryostat) #1',
     manufacturer:'Montana Instruments', model:'Cryostation C2',
-    category:'Cryostat / cryogenic system', purchaseDate:'2017-12-21' },
-  { invnum:'000002391', name:'Montana Cryostation C2 (closed-cycle cryostat) #2',
+    category:'Cryostat / cryogenic system', purchaseDate:'2017-12-21',
+    url:'https://www.montanainstruments.com/cryostation-s200',
+    notes:'Cryogen-free closed-cycle optical cryostat, 3.2–350 K range. Low-vibration design with five wide-aperture optical ports and 28 electrical feedthroughs. Automated cooldown and temperature control via built-in software.' },
+  { invnum:'000002391',
+    name:'Montana Cryostation C2 (closed-cycle cryostat) #2',
     manufacturer:'Montana Instruments', model:'Cryostation C2',
-    category:'Cryostat / cryogenic system', purchaseDate:'2016-10-10' },
-  { invnum:'000001413', name:'Libra-F-1K-230-HE+ Femtosecond Amplifier System',
+    category:'Cryostat / cryogenic system', purchaseDate:'2016-10-10',
+    url:'https://www.montanainstruments.com/cryostation-s200',
+    notes:'Cryogen-free closed-cycle optical cryostat, 3.2–350 K range. Low-vibration design with five wide-aperture optical ports and 28 electrical feedthroughs. Automated cooldown and temperature control via built-in software.' },
+  { invnum:'000001413',
+    name:'Libra-F-1K-230-HE+ Femtosecond Amplifier System',
     manufacturer:'Coherent', model:'Libra-F-1K-230-HE+',
-    category:'Laser system (pulsed)', purchaseDate:'2015-07-15' },
-  { invnum:'000002342', name:'M-RS4000 Double Optical Table System',
+    category:'Laser system (pulsed)', purchaseDate:'2015-07-15',
+    url:'https://www.coherent.com/lasers/amplifiers',
+    notes:'One-box Ti:Sapphire regenerative amplifier. Output: >1 mJ/pulse at 1 kHz, 800 nm, <100 fs pulse width. Integrated seed oscillator and Evolution pump. M² < 1.3. Used to pump OPAs for ultrafast spectroscopy.' },
+  { invnum:'000002342',
+    name:'M-RS4000 Double Optical Table System',
     manufacturer:'Newport', model:'M-RS4000',
-    category:'Optical table / breadboard', purchaseDate:'2016-07-05' },
-  { invnum:'000004694', name:'SpectromagPT Cryostat',
+    category:'Optical table / breadboard', purchaseDate:'2016-07-05',
+    url:'https://www.newport.com/f/tuned-damped-top-performance-optical-tables',
+    notes:'Research-grade optical table with tuned mass damping (TMD). Trussed honeycomb steel core, M6 metric holes on 25 mm grid. Six precision tuned dampers target structural resonances from 25–525 Hz for interferometry-grade stability.' },
+  { invnum:'000004694',
+    name:'SpectromagPT Magneto-Optical Cryostat',
     manufacturer:'Oxford Instruments', model:'SpectromagPT',
-    category:'Cryostat / cryogenic system', purchaseDate:'2018-07-04' },
-  { invnum:'000001397', name:'Chameleon Compact OPO-Vis',
+    category:'Cryostat / cryogenic system', purchaseDate:'2018-07-04',
+    url:'https://nanoscience.oxinst.com/products/optical-cryostats-for-microscopy/microstathires',
+    notes:'Cryofree split-pair horizontal-field superconducting magnet system. 7 T field, 1.6–300 K temperature range. Optical access parallel and perpendicular to field. Quick top-loading sample exchange without warming up.' },
+  { invnum:'000001397',
+    name:'Chameleon Compact OPO-Vis',
     manufacturer:'Coherent', model:'Chameleon Compact OPO-Vis',
-    category:'OPO / OPA / parametric source', purchaseDate:'2015-07-15' },
-  { invnum:'000001396', name:'Chameleon Ultra II Femtosecond Laser',
+    category:'OPO / OPA / parametric source', purchaseDate:'2015-07-15',
+    url:'https://www.coherent.com/lasers/laser/chameleon-compact-opo-and-mpx',
+    notes:'Automated hands-free OPO pumped by Chameleon Ultra II. OPO-Vis adds frequency doubling of both pump and OPO outputs, enabling continuous tuning from 340–1600 nm. No manual adjustment needed during tuning.' },
+  { invnum:'000001396',
+    name:'Chameleon Ultra II Femtosecond Ti:Sapphire Laser',
     manufacturer:'Coherent', model:'Chameleon Ultra II',
-    category:'Laser system (pulsed)', purchaseDate:'2015-07-15' },
-  { invnum:'000001144', name:'mPG 101 Maskless Lithography System',
-    manufacturer:'Heidelberg Instruments', model:'mPG 101',
-    category:'Thin film deposition', purchaseDate:'2015-05-13' },
-  { invnum:'000003416', name:'SolsTiS 4000 SRX XF Tunable CW Laser',
+    category:'Laser system (pulsed)', purchaseDate:'2015-07-15',
+    url:'https://www.coherent.com/lasers/oscillators/chameleon-ultra',
+    notes:'Mode-locked Ti:Sapphire oscillator, 690–1080 nm tuning range, >3.5 W average power, 80 MHz repetition rate, ~140 fs pulses. Hands-free automated tuning. Primary pump for the Chameleon Compact OPO-Vis.' },
+  { invnum:'000001144',
+    name:'mPG 101 Maskless Laser Lithography System',
+    manufacturer:'Heidelberg Instruments', model:'µPG 101',
+    category:'Thin film deposition', purchaseDate:'2015-05-13',
+    url:'https://heidelberg-instruments.com/core-technologies/maskless-laser-lithography/',
+    notes:'Compact direct-write laser lithography system for rapid prototyping without photomasks. 375 nm diode laser, minimum feature size ~0.8 µm, substrate sizes up to 5"×5". Used for MEMS, integrated optics, and microfluidics patterning.' },
+  { invnum:'000003416',
+    name:'SolsTiS 4000 SRX XF Tunable CW Ti:Sapphire Laser',
     manufacturer:'M Squared Lasers', model:'SolsTiS 4000 SRX XF',
-    category:'Laser system (CW)', purchaseDate:'2017-04-05' },
-  { invnum:'000004650', name:'PICOSTAR CCD Image Registration System',
-    manufacturer:'LaVision', model:'PICOSTAR',
-    category:'Camera / CCD / sCMOS', purchaseDate:'2018-04-06' },
+    category:'Laser system (CW)', purchaseDate:'2017-04-05',
+    url:'https://m2lasers.com/solstis.html',
+    notes:'Ultra-narrow linewidth (<100 kHz) CW Ti:Sapphire laser, tunable 700–1000 nm, >4 W output. Integrated reference cavity (SRX) for frequency stabilisation. TeraScan option enables mode-hop-free sweeps >1 THz. Ideal for atomic/molecular spectroscopy.' },
+  { invnum:'000004650',
+    name:'PICOSTAR Intensified CCD Camera System',
+    manufacturer:'LaVision', model:'PicoStar HR',
+    category:'Camera / CCD / sCMOS', purchaseDate:'2018-04-06',
+    url:'https://www.lavision.de/en/products/cameras/intensified-cameras/',
+    notes:'Time-gated intensified CCD camera with <300 ps gate width at up to 110 MHz repetition rate. Spectral range 200–900 nm. Used for FLIM, single-molecule spectroscopy, pump-probe and time-resolved Raman experiments.' },
 ];
 
 function runSeedImport() {
   // Check the flag first — only proceed if not already done
   window._db.getSeedFlag().then(done => {
-    if (done) { console.log('Seed import already done — skipping.'); return; }
+    if (done) {
+      console.log('Seed import already done — skipping.');
+      // Still run the patch in case enriched data needs applying
+      patchSeedItems();
+      return;
+    }
     console.log('Running one-shot seed import…');
     const now = new Date().toISOString();
     const promises = SEED_ITEMS.map(seed => {
@@ -1503,14 +1544,14 @@ function runSeedImport() {
         manufacturer: seed.manufacturer,
         model:        seed.model,
         serial:       '',
-        url:          '',
+        url:          seed.url   || '',
         location:     '',
         setup:        '',
         category:     seed.category,
         status:       'in-use',
         person:       'Mael Brossard',
         purchaseDate: seed.purchaseDate,
-        notes:        '',
+        notes:        seed.notes || '',
         photo:        null,
         manuals:      [],
         added:        seed.purchaseDate,
@@ -1525,6 +1566,41 @@ function runSeedImport() {
       .then(() => console.log('Seed import complete — 10 items written.'))
       .catch(err => console.error('Seed import error:', err));
   }).catch(err => console.error('Could not check seed flag:', err));
+}
+
+/* ── Patch existing seed items with enriched url/notes/model ──
+   Runs once, gated by /meta/seedPatchDone.
+   Finds items by invnum and merges in the enriched fields,
+   preserving everything else (location, photo, manuals, etc.)  */
+function patchSeedItems() {
+  window._db.getPatchFlag().then(done => {
+    if (done) { console.log('Seed patch already done — skipping.'); return; }
+    // Build a lookup by invnum
+    const byInvnum = {};
+    SEED_ITEMS.forEach(s => { byInvnum[s.invnum] = s; });
+    const toUpdate = items.filter(it => byInvnum[it.invnum]);
+    if (!toUpdate.length) { console.log('No matching items found for patch.'); return; }
+    console.log(`Patching ${toUpdate.length} seed items with enriched data…`);
+    const now = new Date().toISOString();
+    const promises = toUpdate.map(it => {
+      const seed = byInvnum[it.invnum];
+      const patched = Object.assign({}, it, {
+        name:         seed.name,
+        manufacturer: seed.manufacturer,
+        model:        seed.model,
+        url:          seed.url   || it.url   || '',
+        notes:        seed.notes || it.notes || '',
+        lastModifiedBy:     'seed-patch',
+        lastModifiedByName: 'Seed Patch',
+        lastModifiedAt:     now
+      });
+      return window._db.save(patched);
+    });
+    Promise.all(promises)
+      .then(() => window._db.setPatchFlag())
+      .then(() => console.log('Seed patch complete.'))
+      .catch(err => console.error('Seed patch error:', err));
+  }).catch(err => console.error('Could not check patch flag:', err));
 }
 
 /* ══════════════════════════════════════════════════

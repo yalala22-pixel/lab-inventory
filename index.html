@@ -480,10 +480,10 @@ window._db = {
   setPatchFlag() { return set(ref(db, 'meta/seedPatchDone'), true); },
   getImagePatchFlag() {
     return new Promise((resolve, reject) => {
-      onValue(ref(db, 'meta/seedImagePatchDone'), snap => resolve(snap.val() === true), reject, { onlyOnce: true });
+      onValue(ref(db, 'meta/seedImagePatchV2Done'), snap => resolve(snap.val() === true), reject, { onlyOnce: true });
     });
   },
-  setImagePatchFlag() { return set(ref(db, 'meta/seedImagePatchDone'), true); },
+  setImagePatchFlag() { return set(ref(db, 'meta/seedImagePatchV2Done'), true); },
   subscribe(cb, onErr) {
     return onValue(ref(db, 'items'), snap => {
       const val = snap.val();
@@ -1568,9 +1568,9 @@ function runSeedImport() {
         person:       'Mael Brossard',
         purchaseDate: seed.purchaseDate,
         notes:        seed.notes || '',
-        photo:        seed.photoUrl || null,
+        photo:        null,
         manuals:      [],
-        added:        seed.purchaseDate,
+        added:        now.toISOString().slice(0, 10),
         lastModifiedBy:     'seed-import',
         lastModifiedByName: 'Seed Import',
         lastModifiedAt:     now
@@ -1610,7 +1610,8 @@ function patchSeedItems() {
         model:        seed.model,
         url:          seed.url     || it.url   || '',
         notes:        seed.notes   || it.notes || '',
-        photo:        seed.photoUrl || it.photo || null,
+        // Clear any broken http URL stored as photo; image patch will set base64
+        photo:        (it.photo && it.photo.startsWith('data:')) ? it.photo : null,
         lastModifiedBy:     'seed-patch',
         lastModifiedByName: 'Seed Patch',
         lastModifiedAt:     now
@@ -1619,41 +1620,91 @@ function patchSeedItems() {
     });
     Promise.all(promises)
       .then(() => window._db.setPatchFlag())
-      .then(() => window._db.setImagePatchFlag()) // mark image patch done too
       .then(() => console.log('Seed patch complete.'))
       .catch(err => console.error('Seed patch error:', err));
   }).catch(err => console.error('Could not check patch flag:', err));
 }
 
-/* ── Apply image-only patch for devices already text-patched ── */
+/* ── Fetch a URL in the browser, trying direct then CORS proxy ── */
+async function fetchImageAsBase64(url) {
+  const MAX_PX = 800;   // max longest dimension
+  const QUALITY = 0.82;
+
+  async function tryFetch(src) {
+    const res = await fetch(src);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const blob = await res.blob();
+    return blob;
+  }
+
+  async function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(blob);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let w = img.naturalWidth, h = img.naturalHeight;
+        if (Math.max(w, h) > MAX_PX) {
+          if (w >= h) { h = Math.round(h * MAX_PX / w); w = MAX_PX; }
+          else        { w = Math.round(w * MAX_PX / h); h = MAX_PX; }
+        }
+        const cvs = document.createElement('canvas');
+        cvs.width = w; cvs.height = h;
+        cvs.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(cvs.toDataURL('image/jpeg', QUALITY));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image decode failed')); };
+      img.src = url;
+    });
+  }
+
+  // Try direct fetch first, then CORS proxy
+  let blob;
+  try {
+    blob = await tryFetch(url);
+  } catch (e) {
+    console.warn(`Direct fetch failed for ${url}: ${e.message} — trying proxy`);
+    blob = await tryFetch(`https://corsproxy.io/?url=${encodeURIComponent(url)}`);
+  }
+  return blobToBase64(blob);
+}
+
+/* ── Apply image patch: fetch each seed image in the browser, compress,
+   store as base64 in Firebase. Uses flag seedImagePatchV2Done.         ── */
 function patchSeedImages() {
   window._db.getImagePatchFlag().then(done => {
-    if (done) { console.log('Image patch already done — skipping.'); return; }
+    if (done) { console.log('Image patch v2 already done — skipping.'); return; }
     const byInvnum = {};
     SEED_ITEMS.forEach(s => { byInvnum[s.invnum] = s; });
-    // Only update items that have no photo yet or still have old base64 placeholder
-    const toUpdate = items.filter(it => byInvnum[it.invnum] && !it.photo);
+    // Target all seed items that have a photoUrl defined — replace broken URLs and nulls
+    const toUpdate = items.filter(it => byInvnum[it.invnum] && byInvnum[it.invnum].photoUrl);
     if (!toUpdate.length) {
-      // All have photos; mark done
       window._db.setImagePatchFlag().catch(console.error);
-      console.log('Image patch: all items already have photos.');
       return;
     }
-    console.log(`Patching photos for ${toUpdate.length} seed items…`);
+    console.log(`Image patch v2: fetching ${toUpdate.length} device photos…`);
     const now = new Date().toISOString();
-    const promises = toUpdate.map(it => {
+    const promises = toUpdate.map(async it => {
       const seed = byInvnum[it.invnum];
+      let base64 = null;
+      try {
+        base64 = await fetchImageAsBase64(seed.photoUrl);
+        console.log(`✓ Fetched image for ${seed.invnum}`);
+      } catch(err) {
+        console.warn(`✗ Could not fetch image for ${seed.invnum}: ${err.message}`);
+      }
+      if (!base64) return Promise.resolve(); // skip — no image available
       return window._db.save(Object.assign({}, it, {
-        photo: seed.photoUrl || it.photo || null,
-        lastModifiedBy: 'image-patch',
+        photo: base64,
+        lastModifiedBy: 'image-patch-v2',
         lastModifiedByName: 'Image Patch',
         lastModifiedAt: now
       }));
     });
     Promise.all(promises)
       .then(() => window._db.setImagePatchFlag())
-      .then(() => console.log('Image patch complete.'))
-      .catch(err => console.error('Image patch error:', err));
+      .then(() => console.log('Image patch v2 complete.'))
+      .catch(err => console.error('Image patch v2 error:', err));
   }).catch(err => console.error('Could not check image patch flag:', err));
 }
 

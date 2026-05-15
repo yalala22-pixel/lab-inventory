@@ -147,7 +147,20 @@ label:first-child{margin-top:0}
 .search-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:18px;pointer-events:none}
 .search-wrap input{padding-left:38px}
 
-/* ── Login screen ── */
+/* ── Manuals ── */
+.manual-item{display:flex;align-items:center;gap:10px;padding:10px 12px;
+  background:var(--bg);border-radius:var(--r-md);margin-top:8px;
+  border:.5px solid var(--border-l)}
+.manual-icon{font-size:22px;color:var(--info);flex-shrink:0}
+.manual-info{flex:1;min-width:0}
+.manual-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.manual-meta{font-size:12px;color:var(--text3);margin-top:2px}
+.upload-progress{height:4px;border-radius:2px;background:var(--border);margin-top:8px;overflow:hidden;display:none}
+.upload-progress-bar{height:100%;background:var(--info);border-radius:2px;width:0%;transition:width 0.2s}
+.manual-upload-btn{width:100%;padding:12px;border:1.5px dashed var(--border);border-radius:var(--r-md);
+  background:var(--bg);color:var(--text2);font-size:15px;font-family:var(--font);
+  cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px}
+.manual-upload-btn:active{opacity:.7}
 #login-screen{
   display:none;position:fixed;inset:0;z-index:300;
   background:var(--bg);flex-direction:column;align-items:center;justify-content:center;
@@ -304,7 +317,7 @@ label:first-child{margin-top:0}
 
 <button class="fab" id="add-btn">+</button>
 <div style="position:fixed;bottom:10px;left:16px;font-size:14px;color:var(--text3);
-  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.114</div>
+  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.115</div>
 </div>
 
 <!-- FULLSCREEN QR OVERLAY -->
@@ -371,6 +384,16 @@ label:first-child{margin-top:0}
   <button class="btn btn-sm" id="remove-photo-btn" style="margin-top:8px;display:none">
     <i class="ti ti-trash"></i> Remove photo
   </button>
+  <label>Manuals &amp; documents <span style="font-weight:400;color:var(--text3)">(PDF, Word, etc. — any size)</span></label>
+  <div id="manuals-list-edit"></div>
+  <div class="upload-progress" id="upload-progress">
+    <div class="upload-progress-bar" id="upload-progress-bar"></div>
+  </div>
+  <div id="upload-status" style="font-size:13px;color:var(--text2);margin-top:6px;display:none"></div>
+  <button type="button" class="manual-upload-btn" id="manual-upload-btn">
+    <i class="ti ti-upload" style="font-size:20px"></i> Tap to attach a manual or document
+  </button>
+  <input type="file" id="f-manual-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip" style="display:none" multiple>
   <div style="display:flex;gap:8px;margin-top:18px">
     <button class="btn btn-primary" style="flex:1" id="save-btn"><i class="ti ti-check"></i> Save</button>
     <button class="btn btn-danger btn-sm" id="delete-btn" style="display:none"><i class="ti ti-trash"></i></button>
@@ -530,8 +553,119 @@ function migrateLegacyData() {
 let items = [], selected = new Set(), editingId = null;
 let stream = null, scanning = false, pendingPhoto = null;
 let searchQuery = '', selectedMM = 20;
+let pendingManuals = []; // manuals attached during current edit session
 const videoEl = document.getElementById('video');
 let canvasEl = null, ctxEl = null;
+
+/* ══════════════════════════════════════════════════
+   CLOUDINARY CONFIG
+   ══════════════════════════════════════════════════ */
+const CLOUDINARY_CLOUD  = 'dgwd5feo3';
+const CLOUDINARY_PRESET = 'hpl-manuals';
+const CLOUDINARY_URL    = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/raw/upload`;
+
+function formatBytes(bytes) {
+  if (!bytes) return '';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+/* Upload a single file to Cloudinary — returns a manual metadata object */
+function uploadManual(file) {
+  return new Promise((resolve, reject) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', CLOUDINARY_PRESET);
+    fd.append('public_id', `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', CLOUDINARY_URL);
+
+    xhr.upload.onprogress = e => {
+      if (e.lengthComputable) {
+        const pct = Math.round(e.loaded / e.total * 100);
+        document.getElementById('upload-progress-bar').style.width = pct + '%';
+        document.getElementById('upload-status').textContent = `Uploading ${file.name}… ${pct}%`;
+      }
+    };
+
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        const res = JSON.parse(xhr.responseText);
+        resolve({
+          name:       file.name,
+          url:        res.secure_url,
+          bytes:      res.bytes,
+          public_id:  res.public_id,
+          uploadedAt: new Date().toISOString(),
+          uploadedBy: window._currentUser ? window._currentUser.email : 'unknown'
+        });
+      } else {
+        reject(new Error('Upload failed: ' + xhr.responseText));
+      }
+    };
+    xhr.onerror = () => reject(new Error('Network error during upload'));
+    xhr.send(fd);
+  });
+}
+
+/* Render the manuals list inside the edit form */
+function renderManualsEdit() {
+  const el = document.getElementById('manuals-list-edit');
+  if (!pendingManuals.length) { el.innerHTML = ''; return; }
+  el.innerHTML = pendingManuals.map((m, i) => `
+    <div class="manual-item">
+      <i class="ti ti-file-description manual-icon"></i>
+      <div class="manual-info">
+        <div class="manual-name">${esc(m.name)}</div>
+        <div class="manual-meta">${formatBytes(m.bytes)} · ${m.uploadedBy}</div>
+      </div>
+      <button class="btn btn-sm btn-danger" onclick="removeManual(${i})" style="flex-shrink:0">
+        <i class="ti ti-trash"></i>
+      </button>
+    </div>`).join('');
+}
+
+function removeManual(idx) {
+  pendingManuals.splice(idx, 1);
+  renderManualsEdit();
+}
+
+/* Handle file selection → upload each file */
+document.getElementById('f-manual-input').addEventListener('change', async e => {
+  const files = Array.from(e.target.files); if (!files.length) return;
+  const progress = document.getElementById('upload-progress');
+  const statusEl = document.getElementById('upload-status');
+  const bar      = document.getElementById('upload-progress-bar');
+  progress.style.display = 'block';
+  statusEl.style.display = 'block';
+  document.getElementById('manual-upload-btn').style.opacity = '0.5';
+  document.getElementById('manual-upload-btn').style.pointerEvents = 'none';
+
+  for (const file of files) {
+    bar.style.width = '0%';
+    try {
+      const manual = await uploadManual(file);
+      pendingManuals.push(manual);
+      renderManualsEdit();
+      statusEl.textContent = `✓ ${file.name} uploaded`;
+    } catch(err) {
+      console.error(err);
+      statusEl.textContent = `✗ Failed to upload ${file.name}: ${err.message}`;
+    }
+  }
+
+  progress.style.display = 'none';
+  setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+  document.getElementById('manual-upload-btn').style.opacity = '';
+  document.getElementById('manual-upload-btn').style.pointerEvents = '';
+  e.target.value = '';
+});
+
+document.getElementById('manual-upload-btn').addEventListener('click', () => {
+  document.getElementById('f-manual-input').click();
+});
 
 /* ── Sync badge ── */
 function setSyncBadge(state, text) {
@@ -645,6 +779,12 @@ function resetForm() {
   document.getElementById('photo-placeholder').style.display = 'flex';
   document.getElementById('remove-photo-btn').style.display = 'none';
   document.getElementById('f-photo-input').value = '';
+  // Reset manuals
+  pendingManuals = [];
+  renderManualsEdit();
+  document.getElementById('upload-progress').style.display = 'none';
+  document.getElementById('upload-status').style.display = 'none';
+  document.getElementById('f-manual-input').value = '';
 }
 
 function openAdd() {
@@ -672,6 +812,9 @@ function openEdit(id) {
     btn.style.display = 'inline-flex';
     btn.innerHTML = `<i class="ti ti-trash"></i> Remove photo (${kb} KB)`;
   }
+  // Load existing manuals
+  pendingManuals = it.manuals ? [...it.manuals] : [];
+  renderManualsEdit();
   document.getElementById('delete-btn').style.display = 'inline-flex';
   openModal('add-modal');
 }
@@ -814,6 +957,7 @@ document.getElementById('save-btn').addEventListener('click', () => {
     notes:        document.getElementById('f-notes').value.trim(),
     added:        (ex && ex.added) || now.toISOString().slice(0, 10),
     photo:        pendingPhoto !== undefined ? pendingPhoto : (ex && ex.photo) || null,
+    manuals:      pendingManuals.length ? pendingManuals : (ex && ex.manuals) || [],
     // Audit trail
     lastModifiedBy:   window._currentUser ? window._currentUser.email : 'unknown',
     lastModifiedByName: window._currentUser ? (window._currentUser.displayName || window._currentUser.email) : 'unknown',
@@ -874,7 +1018,27 @@ function showDetail(id) {
     ['Notes',                  it.notes    || '—']
   ];
 
-  // Format the last-modified audit line
+  // Manuals section
+  let manualsRow = '';
+  if (it.manuals && it.manuals.length) {
+    const manualItems = it.manuals.map(m => {
+      const dt = m.uploadedAt ? new Date(m.uploadedAt).toLocaleDateString([], {year:'numeric',month:'short',day:'numeric'}) : '';
+      return `<div class="manual-item">
+        <i class="ti ti-file-description manual-icon"></i>
+        <div class="manual-info">
+          <div class="manual-name">${esc(m.name)}</div>
+          <div class="manual-meta">${formatBytes(m.bytes)}${dt ? ' · ' + dt : ''}${m.uploadedBy ? ' · ' + esc(m.uploadedBy) : ''}</div>
+        </div>
+        <a href="${esc(m.url)}" target="_blank" class="btn btn-sm" style="flex-shrink:0">
+          <i class="ti ti-download"></i>
+        </a>
+      </div>`;
+    }).join('');
+    manualsRow = `<div class="detail-section">
+      <div class="detail-label">Manuals &amp; documents</div>
+      ${manualItems}
+    </div>`;
+  }
   let auditRow = '';
   if (it.lastModifiedBy) {
     const dt = it.lastModifiedAt ? new Date(it.lastModifiedAt) : null;
@@ -895,6 +1059,7 @@ function showDetail(id) {
       <div class="detail-value">${esc(v)}</div>
     </div>`).join('')}
     ${urlRow}
+    ${manualsRow}
     ${auditRow}
     <div style="display:flex;gap:8px;margin-top:12px">
       <button class="btn btn-sm" onclick="openEdit('${it.id}');closeModal('detail-modal')">

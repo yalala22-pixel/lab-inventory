@@ -431,6 +431,12 @@ label:first-child{margin-top:0}
 <!-- ═══════════════════════════════════════════════════
      FIREBASE  (ES module — must be type="module")
      ═══════════════════════════════════════════════════ -->
+<script>
+// Set up a promise that resolves when the Firebase ES module finishes loading.
+// This avoids a race: the module is async, so by the time it fires
+// 'firebase-ready', the main script's addEventListener may not have run yet.
+window._firebaseReady = new Promise(res => { window._firebaseReadyResolve = res; });
+</script>
 <script type="module">
 import { initializeApp }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -523,6 +529,9 @@ onValue(ref(db, 'presence'), snap => {
   window.dispatchEvent(new CustomEvent('presence-changed', { detail: count }));
 });
 
+// Signal boot complete via both a promise (for code that runs after us)
+// and an event (for listeners already registered before us).
+if (window._firebaseReadyResolve) window._firebaseReadyResolve();
 window.dispatchEvent(new Event('firebase-ready'));
 </script>
 
@@ -1385,7 +1394,7 @@ function showScanResult(it, id) {
    ══════════════════════════════════════════════════ */
 document.getElementById('google-sign-in-btn').addEventListener('click', () => {
   document.getElementById('login-error').style.display = 'none';
-  if (window._auth) window._auth.signIn();
+  window._firebaseReady.then(() => window._auth.signIn());
 });
 
 window.addEventListener('auth-error', e => {
@@ -1518,7 +1527,10 @@ function runSeedImport() {
   }).catch(err => console.error('Could not check seed flag:', err));
 }
 
-
+/* ══════════════════════════════════════════════════
+   QR FULLSCREEN OVERLAY
+   ══════════════════════════════════════════════════ */
+function showQR(id) {
   const it = items.find(x => x.id === id); if (!it) return;
   const overlay = document.getElementById('qr-overlay');
   const codeEl  = document.getElementById('qr-overlay-code');
@@ -1554,7 +1566,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeQR(); }
 /* ══════════════════════════════════════════════════
    BOOT: wait for Firebase, then subscribe
    ══════════════════════════════════════════════════ */
-window.addEventListener('firebase-ready', () => {
+window._firebaseReady.then(() => {
   // Migrate any old localStorage text data first
   migrateLegacyData();
 

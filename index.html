@@ -317,7 +317,7 @@ label:first-child{margin-top:0}
 
 <button class="fab" id="add-btn">+</button>
 <div style="position:fixed;bottom:10px;left:16px;font-size:14px;color:var(--text3);
-  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.116</div>
+  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.117</div>
 </div>
 
 <!-- FULLSCREEN QR OVERLAY -->
@@ -358,12 +358,26 @@ label:first-child{margin-top:0}
   <input type="text" id="f-setup" placeholder="e.g. Raman microscopy setup" autocomplete="off">
   <label>Category</label>
   <select id="f-category">
-    <option>Laser system</option><option>Laser diode</option><option>3D stage / positioner</option>
-    <option>Spectrometer</option><option>Cryostat</option><option>Microscope</option>
-    <option>Optical power meter</option><option>Lock-in amplifier</option><option>Oscilloscope</option>
-    <option>Photodetector / APD</option><option>Camera / CCD</option>
-    <option>Beam splitter / optics</option><option>Optical fiber equipment</option>
-    <option>Vacuum system</option><option>Electronics / DAQ</option><option>Other</option>
+    <option>Cryostat / cryogenic system</option>
+    <option>Laser system (pulsed)</option>
+    <option>Laser system (CW)</option>
+    <option>Laser diode</option>
+    <option>OPO / OPA / parametric source</option>
+    <option>Optical table / breadboard</option>
+    <option>3D stage / positioner</option>
+    <option>Spectrometer</option>
+    <option>Microscope</option>
+    <option>Camera / CCD / sCMOS</option>
+    <option>Photodetector / APD / PMT</option>
+    <option>Spatial light modulator</option>
+    <option>Oscilloscope</option>
+    <option>Signal generator / pulse generator</option>
+    <option>Lock-in amplifier / preamplifier</option>
+    <option>Vacuum system / pump</option>
+    <option>Thin film deposition</option>
+    <option>Electronics / DAQ / power supply</option>
+    <option>Computer / IT equipment</option>
+    <option>Lab furniture / fume hood / other</option>
   </select>
   <label>Status</label>
   <select id="f-status">
@@ -372,6 +386,8 @@ label:first-child{margin-top:0}
   </select>
   <label>Responsible person</label>
   <input type="text" id="f-person" placeholder="e.g. Dr. Nagy Anna" autocomplete="off">
+  <label>Purchase date</label>
+  <input type="date" id="f-purchasedate">
   <label>Notes</label>
   <textarea id="f-notes" rows="3" placeholder="Optional notes…"></textarea>
   <label>Photo <span style="font-weight:400;color:var(--text3)">(compressed &amp; synced to all devices)</span></label>
@@ -444,6 +460,12 @@ const provider = new GoogleAuthProvider();
 window._db = {
   save(item)   { return set(ref(db, 'items/' + item.id), item); },
   delete(id)   { return remove(ref(db, 'items/' + id)); },
+  getSeedFlag() {
+    return new Promise((resolve, reject) => {
+      onValue(ref(db, 'meta/seedImportDone'), snap => resolve(snap.val() === true), reject, { onlyOnce: true });
+    });
+  },
+  setSeedFlag() { return set(ref(db, 'meta/seedImportDone'), true); },
   subscribe(cb, onErr) {
     return onValue(ref(db, 'items'), snap => {
       const val = snap.val();
@@ -686,12 +708,39 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 const ICONS = {
-  'Laser system':'ti-ripple','Laser diode':'ti-bolt','3D stage / positioner':'ti-3d-rotate',
-  'Spectrometer':'ti-wave-sine','Cryostat':'ti-snowflake','Microscope':'ti-microscope',
-  'Optical power meter':'ti-gauge','Lock-in amplifier':'ti-activity','Oscilloscope':'ti-chart-line',
-  'Photodetector / APD':'ti-eye','Camera / CCD':'ti-camera','Beam splitter / optics':'ti-prism',
-  'Optical fiber equipment':'ti-topology-star','Vacuum system':'ti-circle-dashed',
-  'Electronics / DAQ':'ti-cpu','Other':'ti-tool'
+  // New categories
+  'Cryostat / cryogenic system':        'ti-snowflake',
+  'Laser system (pulsed)':              'ti-ripple',
+  'Laser system (CW)':                  'ti-sun',
+  'Laser diode':                        'ti-bolt',
+  'OPO / OPA / parametric source':      'ti-arrows-split-2',
+  'Optical table / breadboard':         'ti-layout-board',
+  '3D stage / positioner':              'ti-3d-rotate',
+  'Spectrometer':                       'ti-wave-sine',
+  'Microscope':                         'ti-microscope',
+  'Camera / CCD / sCMOS':              'ti-camera',
+  'Photodetector / APD / PMT':          'ti-eye',
+  'Spatial light modulator':            'ti-brand-apple',
+  'Oscilloscope':                       'ti-chart-line',
+  'Signal generator / pulse generator': 'ti-activity',
+  'Lock-in amplifier / preamplifier':   'ti-wave-square',
+  'Vacuum system / pump':               'ti-circle-dashed',
+  'Thin film deposition':               'ti-layers',
+  'Electronics / DAQ / power supply':   'ti-cpu',
+  'Computer / IT equipment':            'ti-device-laptop',
+  'Lab furniture / fume hood / other':  'ti-tool',
+  // Legacy category keys — kept so existing items still get an icon
+  'Laser system':           'ti-ripple',
+  'Cryostat':               'ti-snowflake',
+  'Optical power meter':    'ti-gauge',
+  'Lock-in amplifier':      'ti-activity',
+  'Photodetector / APD':    'ti-eye',
+  'Camera / CCD':           'ti-camera',
+  'Beam splitter / optics': 'ti-prism',
+  'Optical fiber equipment':'ti-topology-star',
+  'Vacuum system':          'ti-circle-dashed',
+  'Electronics / DAQ':      'ti-cpu',
+  'Other':                  'ti-tool'
 };
 
 function mkbadge(s) {
@@ -708,7 +757,7 @@ function render() {
   const q = searchQuery.toLowerCase();
   const list = q
     ? items.filter(it => [it.name,it.category,it.location,it.setup,it.manufacturer,
-        it.invnum,it.model,it.serial,it.person].some(f => (f||'').toLowerCase().includes(q)))
+        it.invnum,it.model,it.serial,it.person,it.purchaseDate].some(f => (f||'').toLowerCase().includes(q)))
     : items;
 
   const el = document.getElementById('items-list');
@@ -778,7 +827,8 @@ const FF = ['name','invnum','manufacturer','model','serial','url','location','se
 
 function resetForm() {
   FF.forEach(f => document.getElementById('f-' + f).value = '');
-  document.getElementById('f-category').value = 'Laser system';
+  document.getElementById('f-purchasedate').value = '';
+  document.getElementById('f-category').value = 'Cryostat / cryogenic system';
   document.getElementById('f-status').value = 'available';
   pendingPhoto = null;
   document.getElementById('photo-preview').style.display = 'none';
@@ -805,7 +855,8 @@ function openEdit(id) {
   editingId = id; resetForm();
   document.getElementById('modal-title').textContent = 'Edit device';
   FF.forEach(f => document.getElementById('f-' + f).value = it[f] || '');
-  document.getElementById('f-category').value = it.category || 'Other';
+  document.getElementById('f-purchasedate').value = it.purchaseDate || '';
+  document.getElementById('f-category').value = it.category || 'Lab furniture / fume hood / other';
   document.getElementById('f-status').value = it.status || 'available';
   // Photo comes from Firebase item — set as pending so it's preserved on save
   pendingPhoto = it.photo || null;
@@ -960,6 +1011,7 @@ document.getElementById('save-btn').addEventListener('click', () => {
     category:     document.getElementById('f-category').value,
     status:       document.getElementById('f-status').value,
     person:       document.getElementById('f-person').value.trim(),
+    purchaseDate: document.getElementById('f-purchasedate').value || '',
     notes:        document.getElementById('f-notes').value.trim(),
     added:        (ex && ex.added) || now.toISOString().slice(0, 10),
     photo:        pendingPhoto !== undefined ? pendingPhoto : (ex && ex.photo) || null,
@@ -1020,6 +1072,9 @@ function showDetail(id) {
     ['Name of setup',          it.setup    || '—'],
     ['Status',                 it.status],
     ['Responsible',            it.person   || '—'],
+    ['Purchase date',          it.purchaseDate
+      ? new Date(it.purchaseDate).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})
+      : '—'],
     ['Date added',             it.added    || '—'],
     ['Notes',                  it.notes    || '—']
   ];
@@ -1386,9 +1441,84 @@ window.addEventListener('auth-changed', e => {
 });
 
 /* ══════════════════════════════════════════════════
-   BOOT: wait for Firebase, then subscribe
+   ONE-SHOT SEED IMPORT
+   Writes the first 10 items from the Hybrid Photonics
+   register into Firebase exactly once, gated by a
+   /meta/seedImportDone flag in the database.
+   Safe to call repeatedly — no-ops after first run.
    ══════════════════════════════════════════════════ */
-function showQR(id) {
+const SEED_ITEMS = [
+  { invnum:'000003945', name:'Montana Cryostation C2 (closed-cycle cryostat) #1',
+    manufacturer:'Montana Instruments', model:'Cryostation C2',
+    category:'Cryostat / cryogenic system', purchaseDate:'2017-12-21' },
+  { invnum:'000002391', name:'Montana Cryostation C2 (closed-cycle cryostat) #2',
+    manufacturer:'Montana Instruments', model:'Cryostation C2',
+    category:'Cryostat / cryogenic system', purchaseDate:'2016-10-10' },
+  { invnum:'000001413', name:'Libra-F-1K-230-HE+ Femtosecond Amplifier System',
+    manufacturer:'Coherent', model:'Libra-F-1K-230-HE+',
+    category:'Laser system (pulsed)', purchaseDate:'2015-07-15' },
+  { invnum:'000002342', name:'M-RS4000 Double Optical Table System',
+    manufacturer:'Newport', model:'M-RS4000',
+    category:'Optical table / breadboard', purchaseDate:'2016-07-05' },
+  { invnum:'000004694', name:'SpectromagPT Cryostat',
+    manufacturer:'Oxford Instruments', model:'SpectromagPT',
+    category:'Cryostat / cryogenic system', purchaseDate:'2018-07-04' },
+  { invnum:'000001397', name:'Chameleon Compact OPO-Vis',
+    manufacturer:'Coherent', model:'Chameleon Compact OPO-Vis',
+    category:'OPO / OPA / parametric source', purchaseDate:'2015-07-15' },
+  { invnum:'000001396', name:'Chameleon Ultra II Femtosecond Laser',
+    manufacturer:'Coherent', model:'Chameleon Ultra II',
+    category:'Laser system (pulsed)', purchaseDate:'2015-07-15' },
+  { invnum:'000001144', name:'mPG 101 Maskless Lithography System',
+    manufacturer:'Heidelberg Instruments', model:'mPG 101',
+    category:'Thin film deposition', purchaseDate:'2015-05-13' },
+  { invnum:'000003416', name:'SolsTiS 4000 SRX XF Tunable CW Laser',
+    manufacturer:'M Squared Lasers', model:'SolsTiS 4000 SRX XF',
+    category:'Laser system (CW)', purchaseDate:'2017-04-05' },
+  { invnum:'000004650', name:'PICOSTAR CCD Image Registration System',
+    manufacturer:'LaVision', model:'PICOSTAR',
+    category:'Camera / CCD / sCMOS', purchaseDate:'2018-04-06' },
+];
+
+function runSeedImport() {
+  // Check the flag first — only proceed if not already done
+  window._db.getSeedFlag().then(done => {
+    if (done) { console.log('Seed import already done — skipping.'); return; }
+    console.log('Running one-shot seed import…');
+    const now = new Date().toISOString();
+    const promises = SEED_ITEMS.map(seed => {
+      const item = {
+        id:           uid(),
+        name:         seed.name,
+        invnum:       seed.invnum,
+        manufacturer: seed.manufacturer,
+        model:        seed.model,
+        serial:       '',
+        url:          '',
+        location:     '',
+        setup:        '',
+        category:     seed.category,
+        status:       'in-use',
+        person:       'Mael Brossard',
+        purchaseDate: seed.purchaseDate,
+        notes:        '',
+        photo:        null,
+        manuals:      [],
+        added:        seed.purchaseDate,
+        lastModifiedBy:     'seed-import',
+        lastModifiedByName: 'Seed Import',
+        lastModifiedAt:     now
+      };
+      return window._db.save(item);
+    });
+    Promise.all(promises)
+      .then(() => window._db.setSeedFlag())
+      .then(() => console.log('Seed import complete — 10 items written.'))
+      .catch(err => console.error('Seed import error:', err));
+  }).catch(err => console.error('Could not check seed flag:', err));
+}
+
+
   const it = items.find(x => x.id === id); if (!it) return;
   const overlay = document.getElementById('qr-overlay');
   const codeEl  = document.getElementById('qr-overlay-code');
@@ -1435,8 +1565,12 @@ window.addEventListener('firebase-ready', () => {
       items = newItems;
       render();
       setSyncBadge('synced', 'Live sync ✓');
-      // After first load, migrate any localStorage photos into Firebase
-      if (firstLoad) { firstLoad = false; migrateLegacyPhotos(); }
+      if (firstLoad) {
+        firstLoad = false;
+        migrateLegacyPhotos();
+        // Run the one-shot seed import (no-ops if already done)
+        runSeedImport();
+      }
     },
     err => {
       console.error('Firebase listener error:', err);

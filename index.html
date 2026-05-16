@@ -317,7 +317,7 @@ label:first-child{margin-top:0}
 
 <button class="fab" id="add-btn">+</button>
 <div style="position:fixed;bottom:10px;left:16px;font-size:14px;color:var(--text3);
-  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.117</div>
+  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.123</div>
 </div>
 
 <!-- FULLSCREEN QR OVERLAY -->
@@ -377,7 +377,7 @@ label:first-child{margin-top:0}
     <option>Thin film deposition</option>
     <option>Electronics / DAQ / power supply</option>
     <option>Computer / IT equipment</option>
-    <option>Lab furniture / fume hood / other</option>
+    <option>Cleanroom & lab support</option>
   </select>
   <label>Status</label>
   <select id="f-status">
@@ -755,7 +755,7 @@ const ICONS = {
   'Thin film deposition':               'ti-layers',
   'Electronics / DAQ / power supply':   'ti-cpu',
   'Computer / IT equipment':            'ti-device-laptop',
-  'Lab furniture / fume hood / other':  'ti-tool',
+  'Cleanroom & lab support':  'ti-tool',
   // Legacy category keys — kept so existing items still get an icon
   'Laser system':           'ti-ripple',
   'Cryostat':               'ti-snowflake',
@@ -883,7 +883,7 @@ function openEdit(id) {
   document.getElementById('modal-title').textContent = 'Edit device';
   FF.forEach(f => document.getElementById('f-' + f).value = it[f] || '');
   document.getElementById('f-purchasedate').value = it.purchaseDate || '';
-  document.getElementById('f-category').value = it.category || 'Lab furniture / fume hood / other';
+  document.getElementById('f-category').value = it.category || 'Cleanroom & lab support';
   document.getElementById('f-status').value = it.status || 'available';
   // Photo comes from Firebase item — set as pending so it's preserved on save
   pendingPhoto = it.photo || null;
@@ -1556,7 +1556,7 @@ const SEED_ITEMS_2 = [
   { invnum:'000001415', name:'Coherent Vitara-T Ultrashort Ti:Sa Oscillator', manufacturer:'Coherent', model:'Vitara-T', category:'Laser system (pulsed)', purchaseDate:'2015-07-15' },
   { invnum:'FA003681', name:'Newport M-RS4000 Custom Non-Magnetic Optical Table', manufacturer:'Newport', model:'M-RS4000', category:'Optical table / breadboard', purchaseDate:'2019-07-11' },
   { invnum:'000000961', name:'JEOL JCM-6000 NeoScope II Scanning Electron Microscope', manufacturer:'JEOL', model:'JCM-6000 NeoScope II', category:'Microscope', purchaseDate:'2015-04-29' },
-  { invnum:'000003648', name:'Otsuka Electronics Goniophotometer with 20″ Integrating Sphere', manufacturer:'Otsuka Electronics', model:'GS-1000', category:'Lab furniture / fume hood / other', purchaseDate:'2017-08-28' },
+  { invnum:'000003648', name:'Otsuka Electronics Goniophotometer with 20″ Integrating Sphere', manufacturer:'Otsuka Electronics', model:'GS-1000', category:'Cleanroom & lab support', purchaseDate:'2017-08-28' },
   { invnum:'000001406', name:'Coherent MBR-110 CW Ring Ti:Sa Laser with Wideband Isolator', manufacturer:'Coherent', model:'MBR-110', category:'Laser system (CW)', purchaseDate:'2015-07-15' },
   { invnum:'000001395', name:'Coherent MBR-110 CW Ring Ti:Sa Laser #2', manufacturer:'Coherent', model:'MBR-110', category:'Laser system (CW)', purchaseDate:'2015-07-15' },
   { invnum:'000001401', name:'Coherent Mira HP-D Femtosecond Ti:Sa Oscillator', manufacturer:'Coherent', model:'Mira HP-D', category:'Laser system (pulsed)', purchaseDate:'2015-07-15' },
@@ -1570,13 +1570,13 @@ const SEED_ITEMS_2 = [
   { invnum:'000001405', name:'Coherent Verdi G20 DPSS Pump Laser (Mira/MBR adapter) #1', manufacturer:'Coherent', model:'Verdi G20', category:'Laser system (CW)', purchaseDate:'2015-07-15' },
   { invnum:'000001402', name:'Coherent Verdi G20 DPSS Pump Laser (Mira/MBR adapter) #2', manufacturer:'Coherent', model:'Verdi G20', category:'Laser system (CW)', purchaseDate:'2015-07-15' },
   { invnum:'000001414', name:'Coherent OPerA Solo Tunable fs OPA', manufacturer:'Coherent', model:'OPerA Solo', category:'OPO / OPA / parametric source', purchaseDate:'2015-07-15' },
-  { invnum:'000001209', name:'QE/IPCE Spectral Sensitivity Measurement System', manufacturer:'', model:'', category:'Lab furniture / fume hood / other', purchaseDate:'2015-06-30' },
-  { invnum:'000001141', name:'KLA-Tencor D-600 Stylus Profilometer', manufacturer:'KLA-Tencor', model:'D-600', category:'Lab furniture / fume hood / other', purchaseDate:'2015-04-17' },
-  { invnum:'000000732', name:'TSI SMPS 3938L88 Scanning Mobility Particle Sizer', manufacturer:'TSI', model:'SMPS 3938L88', category:'Lab furniture / fume hood / other', purchaseDate:'2014-12-17' },
+  { invnum:'000001209', name:'QE/IPCE Spectral Sensitivity Measurement System', manufacturer:'', model:'', category:'Cleanroom & lab support', purchaseDate:'2015-06-30' },
+  { invnum:'000001141', name:'KLA-Tencor D-600 Stylus Profilometer', manufacturer:'KLA-Tencor', model:'D-600', category:'Cleanroom & lab support', purchaseDate:'2015-04-17' },
+  { invnum:'000000732', name:'TSI SMPS 3938L88 Scanning Mobility Particle Sizer', manufacturer:'TSI', model:'SMPS 3938L88', category:'Cleanroom & lab support', purchaseDate:'2014-12-17' },
   { invnum:'000003293', name:'Princeton Instruments ProEM-HS:1024BX3 EMCCD Camera', manufacturer:'Princeton Instruments', model:'ProEM-HS:1024BX3', category:'Camera / CCD / sCMOS', purchaseDate:'2017-05-19' },
   { invnum:'FA007863', name:'Spectra-Physics Millennia eV 10 W 532 nm CW DPSS Pump Laser', manufacturer:'Spectra-Physics', model:'Millennia eV 10W', category:'Laser system (CW)', purchaseDate:'2020-03-31' },
   { invnum:'000001418', name:'Coherent Verdi G18 DPSS Pump Laser (Mira/MBR adapter)', manufacturer:'Coherent', model:'Verdi G18', category:'Laser system (CW)', purchaseDate:'2015-07-15' },
-  { invnum:'000003646', name:'Otsuka Electronics QE-2000 Quantum Efficiency Measurement System', manufacturer:'Otsuka Electronics', model:'QE-2000', category:'Lab furniture / fume hood / other', purchaseDate:'2017-08-28' },
+  { invnum:'000003646', name:'Otsuka Electronics QE-2000 Quantum Efficiency Measurement System', manufacturer:'Otsuka Electronics', model:'QE-2000', category:'Cleanroom & lab support', purchaseDate:'2017-08-28' },
   { invnum:'000001011', name:'Yokogawa AQ6373 Optical Spectrum Analyzer', manufacturer:'Yokogawa', model:'AQ6373', category:'Spectrometer', purchaseDate:'2015-03-18' },
   { invnum:'000001411', name:'Coherent OPA 9450 Tunable Femtosecond OPA', manufacturer:'Coherent', model:'OPA 9450', category:'OPO / OPA / parametric source', purchaseDate:'2015-07-15' },
   { invnum:'000001412', name:'Coherent OPA 9850 Tunable Femtosecond OPA', manufacturer:'Coherent', model:'OPA 9850', category:'OPO / OPA / parametric source', purchaseDate:'2015-07-15' },
@@ -1614,17 +1614,17 @@ const SEED_ITEMS_2 = [
   { invnum:'000001187', name:'Holoeye PLUTO-NIR-015-C Phase-Only SLM #2', manufacturer:'Holoeye', model:'PLUTO-NIR-015-C', category:'Spatial light modulator', purchaseDate:'2015-04-27' },
   { invnum:'000002942', name:'Hinds Instruments PEM-100 Photoelastic Modulator + Controller #1', manufacturer:'Hinds Instruments', model:'PEM-100', category:'Spatial light modulator', purchaseDate:'2017-02-08' },
   { invnum:'000002943', name:'Hinds Instruments PEM-100 Photoelastic Modulator + Controller #2', manufacturer:'Hinds Instruments', model:'PEM-100', category:'Spatial light modulator', purchaseDate:'2017-02-08' },
-  { invnum:'000002470', name:'SHVEN-H1600 Chemical Fume Hood', manufacturer:'', model:'SHVEN-H1600', category:'Lab furniture / fume hood / other', purchaseDate:'2016-11-15' },
+  { invnum:'000002470', name:'SHVEN-H1600 Chemical Fume Hood', manufacturer:'', model:'SHVEN-H1600', category:'Cleanroom & lab support', purchaseDate:'2016-11-15' },
   { invnum:'FA018859', name:'Keysight MSO8104 2 GHz Mixed Signal Oscilloscope 4+16-Ch', manufacturer:'Keysight', model:'MSO8104', category:'Oscilloscope', purchaseDate:'2022-12-31' },
-  { invnum:'000000768', name:'Sheet Resistance Measurement System for Thin Films', manufacturer:'', model:'', category:'Lab furniture / fume hood / other', purchaseDate:'2014-10-20' },
+  { invnum:'000000768', name:'Sheet Resistance Measurement System for Thin Films', manufacturer:'', model:'', category:'Cleanroom & lab support', purchaseDate:'2014-10-20' },
   { invnum:'000003058', name:'VariSpec Liquid Crystal Tunable Bandpass Filter', manufacturer:'PerkinElmer', model:'VariSpec', category:'Spatial light modulator', purchaseDate:'2017-02-03' },
   { invnum:'000001010', name:'Linkam THMS350V Cryo/Thermo Stage for Optical Microscopes', manufacturer:'Linkam Scientific', model:'THMS350V', category:'3D stage / positioner', purchaseDate:'2015-03-11' },
   { invnum:'000003949', name:'Ocean Optics QE Pro High-Sensitivity Scientific Spectrometer', manufacturer:'Ocean Optics', model:'QE Pro', category:'Spectrometer', purchaseDate:'2017-12-12' },
   { invnum:'000002416', name:'Keysight DSOX3054T 4-Channel 500 MHz Oscilloscope', manufacturer:'Keysight', model:'DSOX3054T', category:'Oscilloscope', purchaseDate:'2016-10-20' },
-  { invnum:'000000958', name:'RMS-EL-Z Sheet Resistance Measurement System', manufacturer:'', model:'RMS-EL-Z', category:'Lab furniture / fume hood / other', purchaseDate:'2015-01-01' },
+  { invnum:'000000958', name:'RMS-EL-Z Sheet Resistance Measurement System', manufacturer:'', model:'RMS-EL-Z', category:'Cleanroom & lab support', purchaseDate:'2015-01-01' },
   { invnum:'000002946', name:'Diener Zepto Benchtop Plasma Cleaner', manufacturer:'Diener Electronic', model:'Zepto', category:'Thin film deposition', purchaseDate:'2017-02-10' },
-  { invnum:'000002900', name:'Laminar Flow Clean Workstation with Air Purification #1', manufacturer:'', model:'1SV-12-24', category:'Lab furniture / fume hood / other', purchaseDate:'2017-01-13' },
-  { invnum:'000002901', name:'Laminar Flow Clean Workstation with Air Purification #2', manufacturer:'', model:'1SV-12-24', category:'Lab furniture / fume hood / other', purchaseDate:'2017-01-13' },
+  { invnum:'000002900', name:'Laminar Flow Clean Workstation with Air Purification #1', manufacturer:'', model:'1SV-12-24', category:'Cleanroom & lab support', purchaseDate:'2017-01-13' },
+  { invnum:'000002901', name:'Laminar Flow Clean Workstation with Air Purification #2', manufacturer:'', model:'1SV-12-24', category:'Cleanroom & lab support', purchaseDate:'2017-01-13' },
   { invnum:'FA012483', name:'Thorlabs NanoMax 6-Axis Flexure Stage Platform', manufacturer:'Thorlabs', model:'NanoMax 6-Axis', category:'3D stage / positioner', purchaseDate:'2021-03-31' },
   { invnum:'000005471', name:'Keysight DSOX3052T 2-Channel 500 MHz Oscilloscope', manufacturer:'Keysight', model:'DSOX3052T', category:'Oscilloscope', purchaseDate:'2018-10-31' },
   { invnum:'000002437', name:'Excelitas SPCM-AQRH-16-FC Single Photon Counting Module #1', manufacturer:'Excelitas Technologies', model:'SPCM-AQRH-16-FC', category:'Photodetector / APD / PMT', purchaseDate:'2016-10-28' },
@@ -1637,17 +1637,17 @@ const SEED_ITEMS_2 = [
   { invnum:'000002966', name:'Stanford Research SR865A 4 MHz Dual-Phase Lock-in Amplifier', manufacturer:'Stanford Research Systems', model:'SR865A', category:'Lock-in amplifier / preamplifier', purchaseDate:'2017-02-22' },
   { invnum:'000001567', name:'Physik Instrumente Z-Axis Piezo Stage with Controller', manufacturer:'Physik Instrumente', model:'Z-stage', category:'3D stage / positioner', purchaseDate:'2015-08-19' },
   { invnum:'000002467', name:'Laurell WS-650Mz-23NPPB Spin Coater', manufacturer:'Laurell Technologies', model:'WS-650Mz-23NPPB', category:'Thin film deposition', purchaseDate:'2016-11-15' },
-  { invnum:'000002852', name:'MilliporeSigma Water Purification System + 30 L PE Tank', manufacturer:'MilliporeSigma', model:'Milli-Q', category:'Lab furniture / fume hood / other', purchaseDate:'2016-12-21' },
+  { invnum:'000002852', name:'MilliporeSigma Water Purification System + 30 L PE Tank', manufacturer:'MilliporeSigma', model:'Milli-Q', category:'Cleanroom & lab support', purchaseDate:'2016-12-21' },
   { invnum:'000001439', name:'Becker & Hickl Hybrid PMT Detector Head for Zeiss LSM #1', manufacturer:'Becker & Hickl', model:'HPM-100', category:'Photodetector / APD / PMT', purchaseDate:'2015-10-23' },
   { invnum:'000001440', name:'Becker & Hickl Hybrid PMT Detector Head for Zeiss LSM #2', manufacturer:'Becker & Hickl', model:'HPM-100', category:'Photodetector / APD / PMT', purchaseDate:'2015-10-23' },
   { invnum:'000002958', name:'PicoQuant PDL 800-D Picosecond Diode Laser Controller', manufacturer:'PicoQuant', model:'PDL 800-D', category:'Electronics / DAQ / power supply', purchaseDate:'2017-02-15' },
   { invnum:'000004486', name:'Newport GuideStar II Active Beam Steering System', manufacturer:'Newport', model:'GuideStar II', category:'Electronics / DAQ / power supply', purchaseDate:'2018-02-12' },
-  { invnum:'000001005', name:'ELGA PURELAB Flex 3 Water Purification System', manufacturer:'ELGA LabWater', model:'PURELAB Flex 3', category:'Lab furniture / fume hood / other', purchaseDate:'2015-02-27' },
+  { invnum:'000001005', name:'ELGA PURELAB Flex 3 Water Purification System', manufacturer:'ELGA LabWater', model:'PURELAB Flex 3', category:'Cleanroom & lab support', purchaseDate:'2015-02-27' },
   { invnum:'000001445', name:'Becker & Hickl Hybrid PMT Detector Head for Zeiss LSM #3', manufacturer:'Becker & Hickl', model:'HPM-100', category:'Photodetector / APD / PMT', purchaseDate:'2015-10-23' },
   { invnum:'000002957', name:'PicoQuant LDH-D Picosecond Pulsed Diode Laser', manufacturer:'PicoQuant', model:'LDH-D Series', category:'Laser system (CW)', purchaseDate:'2017-02-15' },
   { invnum:'000003704', name:'Linkam THMS350EV Vacuum Cryo/Heating Stage', manufacturer:'Linkam Scientific', model:'THMS350EV', category:'3D stage / positioner', purchaseDate:'2017-10-11' },
   { invnum:'000002162', name:'Coherent LabMax-TO Laser Power / Energy Meter #1', manufacturer:'Coherent', model:'LabMax-TO', category:'Electronics / DAQ / power supply', purchaseDate:'2015-07-13' },
-  { invnum:'000003157', name:'Lab Equipment Rack with Shelf and Ladder', manufacturer:'', model:'', category:'Lab furniture / fume hood / other', purchaseDate:'2017-01-07' },
+  { invnum:'000003157', name:'Lab Equipment Rack with Shelf and Ladder', manufacturer:'', model:'', category:'Cleanroom & lab support', purchaseDate:'2017-01-07' },
   { invnum:'000002351', name:'Pfeiffer HiCube 80 Eco Turbo Pumping Station DN40 KF #1', manufacturer:'Pfeiffer Vacuum', model:'HiCube 80 Eco', category:'Vacuum system / pump', purchaseDate:'2016-09-12' },
   { invnum:'000002352', name:'Pfeiffer HiCube 80 Eco Turbo Pumping Station DN40 KF #2', manufacturer:'Pfeiffer Vacuum', model:'HiCube 80 Eco', category:'Vacuum system / pump', purchaseDate:'2016-09-12' },
   { invnum:'FA027246', name:'RSTVAK SVP 300 Scroll Vacuum Pump', manufacturer:'RSTVAK', model:'SVP 300', category:'Vacuum system / pump', purchaseDate:'2025-09-30' },
@@ -1675,7 +1675,7 @@ const SEED_ITEMS_2 = [
   { invnum:'000001449', name:'PicoQuant τ-SPAD 80% Coupling Efficiency SPAD Module #1', manufacturer:'PicoQuant', model:'τ-SPAD 80%', category:'Photodetector / APD / PMT', purchaseDate:'2015-10-23' },
   { invnum:'000001448', name:'PicoQuant τ-SPAD 80% Coupling Efficiency SPAD Module #2', manufacturer:'PicoQuant', model:'τ-SPAD 80%', category:'Photodetector / APD / PMT', purchaseDate:'2015-10-23' },
   { invnum:'000002011', name:'Ocean Optics FLAME-S Miniature Fibre Spectrometer', manufacturer:'Ocean Optics', model:'FLAME-S', category:'Spectrometer', purchaseDate:'2016-02-15' },
-  { invnum:'FA024852', name:'Fire-Resistant Safety Cabinet for Flammable Liquids 90 min', manufacturer:'Sfera', model:'LVZh-1', category:'Lab furniture / fume hood / other', purchaseDate:'2024-12-31' },
+  { invnum:'FA024852', name:'Fire-Resistant Safety Cabinet for Flammable Liquids 90 min', manufacturer:'Sfera', model:'LVZh-1', category:'Cleanroom & lab support', purchaseDate:'2024-12-31' },
   { invnum:'000001441', name:'Zeiss Beam Splitter Adapter for Confocal Port Detectors', manufacturer:'Zeiss', model:'HFT Adapter', category:'Electronics / DAQ / power supply', purchaseDate:'2015-10-23' },
   { invnum:'000004439', name:'Rigol MSO2024B 200 MHz 4-Ch Mixed Signal Oscilloscope', manufacturer:'Rigol', model:'MSO2024B', category:'Oscilloscope', purchaseDate:'2018-03-07' },
   { invnum:'000005474', name:'Stanford Research SR560 Low-Noise Voltage Preamplifier', manufacturer:'Stanford Research Systems', model:'SR560', category:'Lock-in amplifier / preamplifier', purchaseDate:'2018-10-31' },
@@ -1685,14 +1685,14 @@ const SEED_ITEMS_2 = [
   { invnum:'000002417', name:'Keysight 33511B 1-Ch 20 MHz Waveform Generator', manufacturer:'Keysight', model:'33511B', category:'Signal generator / pulse generator', purchaseDate:'2016-10-20' },
   { invnum:'000004434', name:'Keithley 2182A Nanovoltmeter 2-Channel', manufacturer:'Keithley', model:'2182A Nanovoltmeter', category:'Lock-in amplifier / preamplifier', purchaseDate:'2018-03-07' },
   { invnum:'FA017423', name:'Eaton 9SX 5000i RT3U 5 kVA Rack UPS #2', manufacturer:'Eaton', model:'9SX 5000i RT3U', category:'Electronics / DAQ / power supply', purchaseDate:'2022-03-31' },
-  { invnum:'000002165', name:'Soleil-Babinet Polarization Compensator 365–800 nm', manufacturer:'', model:'Soleil-Babinet Comp.', category:'Lab furniture / fume hood / other', purchaseDate:'2015-08-19' },
+  { invnum:'000002165', name:'Soleil-Babinet Polarization Compensator 365–800 nm', manufacturer:'', model:'Soleil-Babinet Comp.', category:'Cleanroom & lab support', purchaseDate:'2015-08-19' },
   { invnum:'FA011366', name:'Eaton 9SX 5000i 5 kVA Tower UPS #1', manufacturer:'Eaton', model:'9SX 5000i', category:'Electronics / DAQ / power supply', purchaseDate:'2020-09-30' },
   { invnum:'000002371', name:'Piezomechanik SVR 150/1 Single-Ch Piezo Amplifier #1', manufacturer:'Piezomechanik', model:'SVR 150/1', category:'Electronics / DAQ / power supply', purchaseDate:'2016-08-25' },
   { invnum:'000002372', name:'Piezomechanik SVR 150/1 Single-Ch Piezo Amplifier #2', manufacturer:'Piezomechanik', model:'SVR 150/1', category:'Electronics / DAQ / power supply', purchaseDate:'2016-08-25' },
-  { invnum:'FA013514', name:'SMC HECR002-A5-EFP Thermoelectric Chiller', manufacturer:'SMC', model:'HECR002-A5-EFP', category:'Lab furniture / fume hood / other', purchaseDate:'2021-03-31' },
+  { invnum:'FA013514', name:'SMC HECR002-A5-EFP Thermoelectric Chiller', manufacturer:'SMC', model:'HECR002-A5-EFP', category:'Cleanroom & lab support', purchaseDate:'2021-03-31' },
   { invnum:'000003469', name:'Mitutoyo Plan Apo VIS Microscope Objective #1', manufacturer:'Mitutoyo', model:'Plan Apo', category:'Microscope', purchaseDate:'2017-06-29' },
   { invnum:'000003470', name:'Mitutoyo Plan Apo VIS Microscope Objective #2', manufacturer:'Mitutoyo', model:'Plan Apo', category:'Microscope', purchaseDate:'2017-06-29' },
-  { invnum:'000001125', name:'Elma Elmasonic S 100H Ultrasonic Cleaner', manufacturer:'Elma', model:'Elmasonic S 100H', category:'Lab furniture / fume hood / other', purchaseDate:'2015-04-01' },
+  { invnum:'000001125', name:'Elma Elmasonic S 100H Ultrasonic Cleaner', manufacturer:'Elma', model:'Elmasonic S 100H', category:'Cleanroom & lab support', purchaseDate:'2015-04-01' },
   { invnum:'000001242', name:'Newport ESP301 3-Axis Motion Controller #1', manufacturer:'Newport', model:'ESP301-1G', category:'3D stage / positioner', purchaseDate:'2015-05-15' },
   { invnum:'000001243', name:'Newport ESP301 3-Axis Motion Controller #2', manufacturer:'Newport', model:'ESP301-1G', category:'3D stage / positioner', purchaseDate:'2015-05-15' },
   { invnum:'000001566', name:'Thorlabs BBD202 Dual-Axis DC Servo Motor Controller', manufacturer:'Thorlabs', model:'BBD202', category:'3D stage / positioner', purchaseDate:'2015-08-19' },
@@ -1710,11 +1710,11 @@ const SEED_ITEMS_2 = [
   { invnum:'FA006622', name:'Thorlabs HNL100LB 10 mW 632.8 nm Polarized HeNe Laser', manufacturer:'Thorlabs', model:'HNL100LB', category:'Laser system (CW)', purchaseDate:'2020-02-13' },
   { invnum:'FA006621', name:'Thorlabs HRS015B 15 mW 632.8 nm Stabilized HeNe Laser', manufacturer:'Thorlabs', model:'HRS015B', category:'Laser system (CW)', purchaseDate:'2020-02-13' },
   { invnum:'FA016779', name:'Olympus SZ61-TR Trinocular Stereo Microscope', manufacturer:'Olympus', model:'SZ61-TR', category:'Microscope', purchaseDate:'2022-09-30' },
-  { invnum:'FA025821', name:'CICO ISO 5 Cleanroom Vacuum Cleaner 10 L', manufacturer:'CICO', model:'Cleanroom Vacuum', category:'Lab furniture / fume hood / other', purchaseDate:'2024-12-31' },
+  { invnum:'FA025821', name:'CICO ISO 5 Cleanroom Vacuum Cleaner 10 L', manufacturer:'CICO', model:'Cleanroom Vacuum', category:'Cleanroom & lab support', purchaseDate:'2024-12-31' },
   { invnum:'000002743', name:'Stanford Research SIM960 100 kHz Analog PID Controller #1', manufacturer:'Stanford Research Systems', model:'SIM960', category:'Lock-in amplifier / preamplifier', purchaseDate:'2016-12-26' },
   { invnum:'000002744', name:'Stanford Research SIM960 100 kHz Analog PID Controller #2', manufacturer:'Stanford Research Systems', model:'SIM960', category:'Lock-in amplifier / preamplifier', purchaseDate:'2016-12-26' },
   { invnum:'000005698', name:'Apple MacBook Pro 13" Touch Bar Intel i5 2018', manufacturer:'Apple', model:'MacBook Pro 13"', category:'Computer / IT equipment', purchaseDate:'2018-12-19' },
-  { invnum:'000001127', name:'SD-160 Laboratory Hot Plate', manufacturer:'', model:'SD-160', category:'Lab furniture / fume hood / other', purchaseDate:'2015-04-01' },
+  { invnum:'000001127', name:'SD-160 Laboratory Hot Plate', manufacturer:'', model:'SD-160', category:'Cleanroom & lab support', purchaseDate:'2015-04-01' },
   { invnum:'000002967', name:'Keysight 33511B 1-Ch 20 MHz Waveform Generator #1', manufacturer:'Keysight', model:'33511B', category:'Signal generator / pulse generator', purchaseDate:'2017-02-22' },
   { invnum:'000002968', name:'Keysight 33511B 1-Ch 20 MHz Waveform Generator #2', manufacturer:'Keysight', model:'33511B', category:'Signal generator / pulse generator', purchaseDate:'2017-02-22' },
   { invnum:'000002969', name:'Keysight 33511B 1-Ch 20 MHz Waveform Generator #3', manufacturer:'Keysight', model:'33511B', category:'Signal generator / pulse generator', purchaseDate:'2017-02-22' },
@@ -1723,7 +1723,7 @@ const SEED_ITEMS_2 = [
   { invnum:'000001519', name:'USB 2.0 Colour CCD Camera 1280×1024 #2', manufacturer:'', model:'CCD 1280×1024', category:'Camera / CCD / sCMOS', purchaseDate:'2015-08-19' },
   { invnum:'000001520', name:'USB 2.0 Colour CCD Camera 1280×1024 #3', manufacturer:'', model:'CCD 1280×1024', category:'Camera / CCD / sCMOS', purchaseDate:'2015-08-19' },
   { invnum:'000001521', name:'USB 2.0 Colour CCD Camera 1280×1024 #4', manufacturer:'', model:'CCD 1280×1024', category:'Camera / CCD / sCMOS', purchaseDate:'2015-08-19' },
-  { invnum:'000003000', name:'Mettler-Toledo ME204 Analytical Balance 220 g / 0.1 mg', manufacturer:'Mettler-Toledo', model:'ME204', category:'Lab furniture / fume hood / other', purchaseDate:'2017-01-07' },
+  { invnum:'000003000', name:'Mettler-Toledo ME204 Analytical Balance 220 g / 0.1 mg', manufacturer:'Mettler-Toledo', model:'ME204', category:'Cleanroom & lab support', purchaseDate:'2017-01-07' },
   { invnum:'FA004319', name:'New Focus 1024 High-Speed Photodetector', manufacturer:'New Focus', model:'1024', category:'Photodetector / APD / PMT', purchaseDate:'2019-12-31' },
   { invnum:'FA026236', name:'Deepcool Matrexx 55 V3 Desktop PC', manufacturer:'', model:'Desktop PC', category:'Computer / IT equipment', purchaseDate:'2025-06-30' },
   { invnum:'FA016443', name:'Apple iPad Pro 12.9" Wi-Fi 512 GB', manufacturer:'Apple', model:'iPad Pro 12.9"', category:'Computer / IT equipment', purchaseDate:'2021-12-31' },
@@ -1742,7 +1742,7 @@ const SEED_ITEMS_2 = [
   { invnum:'000002163', name:'Coherent LabMax-TO Laser Power / Energy Meter #2', manufacturer:'Coherent', model:'LabMax-TO', category:'Electronics / DAQ / power supply', purchaseDate:'2015-07-13' },
   { invnum:'FA023417', name:'Lenovo IdeaPad Gaming 3 Intel i5-12450H Laptop #1', manufacturer:'Lenovo', model:'IdeaPad Gaming 3', category:'Computer / IT equipment', purchaseDate:'2023-12-31' },
   { invnum:'FA023418', name:'Lenovo IdeaPad Gaming 3 Intel i5-12450H Laptop #2', manufacturer:'Lenovo', model:'IdeaPad Gaming 3', category:'Computer / IT equipment', purchaseDate:'2023-12-31' },
-  { invnum:'000002471', name:'MOS-PT900D Laboratory Washer / Dryer', manufacturer:'', model:'MOS-PT900D', category:'Lab furniture / fume hood / other', purchaseDate:'2016-11-15' },
+  { invnum:'000002471', name:'MOS-PT900D Laboratory Washer / Dryer', manufacturer:'', model:'MOS-PT900D', category:'Cleanroom & lab support', purchaseDate:'2016-11-15' },
 ];
 
 function runSeedImport() {

@@ -1,1925 +1,347 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="HPL Inventory">
-<title>Hybrid Photonics Labs Inventory</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>University of Science &amp; Strategic Research</title>
+<meta name="description" content="Established in 2026, the University of Science &amp; Strategic Research is a research institution in Moscow advancing fundamental science across nine interdisciplinary directions." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Unbounded:wght@500;600;700&display=swap">
 <style>
-:root {
-  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-  --bg:#f2f2f7;--card:#fff;--border:#e0e0e5;--border-l:#ebebef;
-  --text:#1c1c1e;--text2:#6c6c70;--text3:#aeaeb2;--accent:#1a1a1a;--info:#007aff;
-  --ok-bg:#d4edda;--ok-t:#1a7a3c;--warn-bg:#fff3cd;--warn-t:#856404;
-  --err-bg:#f8d7da;--err-t:#842029;--r-sm:8px;--r-md:10px;--r-lg:14px;
-}
-@media(prefers-color-scheme:dark){:root{
-  --bg:#1c1c1e;--card:#2c2c2e;--border:#3a3a3c;--border-l:#3a3a3c;
-  --text:#fff;--text2:#aeaeb2;--text3:#636366;--accent:#fff;--info:#0a84ff;
-  --ok-bg:#0d3320;--ok-t:#4cd964;--warn-bg:#3d2e00;--warn-t:#ffd60a;
-  --err-bg:#3d0a0e;--err-t:#ff453a;
-}}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:16px}
-.app{max-width:480px;margin:0 auto;padding-bottom:90px}
-
-/* ── Topbar ── */
-.topbar{background:var(--card);border-bottom:.5px solid var(--border);padding:14px 16px;
-  display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
-.topbar-title{font-size:19px;font-weight:700;flex:1;line-height:1.2}
-.topbar-sub{font-size:14px;color:var(--text2);margin-top:1px}
-.sync-badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;
-  padding:3px 9px;border-radius:99px;font-weight:600;white-space:nowrap;margin-top:3px}
-.sync-badge.synced {background:var(--ok-bg); color:var(--ok-t)}
-.sync-badge.syncing{background:var(--warn-bg);color:var(--warn-t)}
-.sync-badge.offline{background:var(--err-bg); color:var(--err-t)}
-.sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
-
-/* ── Tabs ── */
-.tab-bar{display:flex;border-bottom:.5px solid var(--border);background:var(--card);
-  position:sticky;top:61px;z-index:9}
-.tab{flex:1;padding:13px 2px;font-size:15px;text-align:center;border:none;
-  background:none;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;font-family:var(--font)}
-.tab.active{color:var(--text);border-bottom:2px solid var(--text);font-weight:600}
-
-/* ── Views ── */
-.view{display:none;padding:16px}.view.active{display:block}
-
-/* ── Buttons ── */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;
-  border-radius:var(--r-md);border:.5px solid var(--border);background:var(--card);
-  font-size:15px;cursor:pointer;color:var(--text);font-family:var(--font)}
-.btn:active{opacity:.7}
-.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-@media(prefers-color-scheme:dark){.btn-primary{color:#000}}
-.btn-danger{color:var(--err-t);border-color:var(--err-t)}
-.btn-sm{padding:8px 14px;font-size:14px}
-
-/* ── Form ── */
-input,select,textarea{width:100%;padding:12px 13px;border:.5px solid var(--border);
-  border-radius:var(--r-md);font-size:16px;font-family:var(--font);
-  background:var(--card);color:var(--text);outline:none;-webkit-appearance:none}
-input:focus,select:focus,textarea:focus{border-color:var(--info)}
-label{font-size:14px;color:var(--text2);display:block;margin-bottom:6px;margin-top:16px;font-weight:500}
-label:first-child{margin-top:0}
-.two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
-.two-col label{margin-top:0}
-
-/* ── Cards ── */
-.card{background:var(--card);border:.5px solid var(--border-l);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:10px}
-.card-row{display:flex;align-items:center;gap:12px}
-.item-icon{width:46px;height:46px;border-radius:var(--r-md);background:var(--bg);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
-.item-icon img{width:46px;height:46px;object-fit:cover}
-.item-name{font-size:16px;font-weight:600}
-.item-meta{font-size:14px;color:var(--text2);margin-top:3px}
-.actions{display:flex;gap:8px;margin-top:12px;border-top:.5px solid var(--border-l);padding-top:12px;flex-wrap:wrap}
-
-/* ── Badges ── */
-.badge{display:inline-block;padding:4px 10px;border-radius:99px;font-size:13px;font-weight:600;white-space:nowrap}
-.badge-ok{background:var(--ok-bg);color:var(--ok-t)}
-.badge-warn{background:var(--warn-bg);color:var(--warn-t)}
-.badge-out{background:var(--err-bg);color:var(--err-t)}
-
-/* ── FAB ── */
-.fab{position:fixed;bottom:24px;right:20px;width:60px;height:60px;border-radius:50%;
-  background:var(--accent);color:#fff;border:none;font-size:30px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;z-index:20;
-  box-shadow:0 4px 16px rgba(0,0,0,.25)}
-@media(prefers-color-scheme:dark){.fab{color:#000}}
-
-/* ── Modals ── */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:flex-end}
-.modal-bg.open{display:flex}
-.modal{background:var(--card);border-radius:20px 20px 0 0;padding:22px 16px 44px;
-  width:100%;max-height:92vh;overflow-y:auto}
-.modal-header{display:flex;align-items:center;margin-bottom:20px}
-.modal-title{font-size:18px;font-weight:600;flex:1}
-.modal-close{background:none;border:none;font-size:26px;cursor:pointer;color:var(--text2);line-height:1;padding:4px}
-
-/* ── Detail ── */
-.detail-section{margin-bottom:14px}
-.detail-label{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:4px;font-weight:600}
-.detail-value{font-size:16px}
-.qr-wrap{display:flex;justify-content:center;margin:14px 0}
-.detail-photo{width:100%;height:180px;object-fit:cover;border-radius:var(--r-lg);margin-bottom:14px}
-
-/* ── Print ── */
-.print-sel-bar{display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:14px;padding:12px 14px;background:var(--card);
-  border-radius:var(--r-md);font-size:15px;border:.5px solid var(--border-l)}
-.print-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.print-card{background:var(--card);border:.5px solid var(--border);border-radius:var(--r-md);padding:14px 10px;text-align:center;cursor:pointer}
-.print-card.selected{border:2.5px solid var(--text)}
-.print-card .pname{font-size:14px;font-weight:600;margin-top:8px;word-break:break-word}
-.print-card .pmeta{font-size:12px;color:var(--text2);margin-top:3px}
-.size-row{display:flex;gap:8px;margin-bottom:14px}
-.size-btn{flex:1;padding:10px 4px;border-radius:var(--r-md);border:.5px solid var(--border);
-  background:var(--card);font-size:14px;cursor:pointer;color:var(--text);font-family:var(--font);text-align:center}
-.size-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-@media(prefers-color-scheme:dark){.size-btn.active{color:#000}}
-
-/* ── Scan ── */
-.scan-area{background:var(--card);border-radius:var(--r-lg);padding:28px 16px;text-align:center;margin-bottom:16px;border:.5px solid var(--border-l)}
-#video-wrap{display:none;border-radius:var(--r-lg);overflow:hidden;margin-bottom:12px;position:relative}
-#video-wrap video{width:100%;display:block;object-fit:cover;background:#000}
-.scan-crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:200px;height:200px;border:2.5px solid rgba(255,255,255,.9);border-radius:12px;pointer-events:none}
-#scan-result{display:none}
-.notice{padding:12px 14px;border-radius:var(--r-md);background:var(--warn-bg);color:var(--warn-t);font-size:14px;margin-bottom:12px;display:none}
-
-/* ── Photo ── */
-.photo-placeholder{width:100%;height:110px;border:1.5px dashed var(--border);
-  border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;
-  flex-direction:column;gap:6px;color:var(--text2);font-size:14px;margin-top:8px;cursor:pointer;background:var(--bg)}
-.photo-preview-img{width:100%;height:150px;object-fit:cover;border-radius:var(--r-md);display:block;margin-top:8px}
-
-/* ── Misc ── */
-.empty-state{text-align:center;padding:48px 16px;color:var(--text2);font-size:16px;line-height:1.6}
-.empty-state i{font-size:40px;display:block;margin:0 auto 12px}
-.search-wrap{margin-bottom:14px;position:relative}
-.search-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:18px;pointer-events:none}
-.search-wrap input{padding-left:38px}
-
-/* ── Manuals ── */
-.manual-item{display:flex;align-items:center;gap:10px;padding:10px 12px;
-  background:var(--bg);border-radius:var(--r-md);margin-top:8px;
-  border:.5px solid var(--border-l)}
-.manual-icon{font-size:22px;color:var(--info);flex-shrink:0}
-.manual-info{flex:1;min-width:0}
-.manual-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.manual-meta{font-size:12px;color:var(--text3);margin-top:2px}
-.upload-progress{height:4px;border-radius:2px;background:var(--border);margin-top:8px;overflow:hidden;display:none}
-.upload-progress-bar{height:100%;background:var(--info);border-radius:2px;width:0%;transition:width 0.2s}
-.manual-upload-btn{width:100%;padding:12px;border:1.5px dashed var(--border);border-radius:var(--r-md);
-  background:var(--bg);color:var(--text2);font-size:15px;font-family:var(--font);
-  cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px}
-.manual-upload-btn:active{opacity:.7}
-#login-screen{
-  display:none;position:fixed;inset:0;z-index:300;
-  background:var(--bg);flex-direction:column;align-items:center;justify-content:center;
-  padding:32px 24px;text-align:center;gap:0;
-}
-#login-screen.visible{display:flex}
-.login-logo{font-size:56px;margin-bottom:18px;line-height:1}
-.login-title{font-size:24px;font-weight:700;color:var(--text);margin-bottom:8px}
-.login-sub{font-size:16px;color:var(--text2);margin-bottom:40px;line-height:1.5}
-.google-btn{
-  display:inline-flex;align-items:center;gap:12px;
-  padding:14px 28px;border-radius:var(--r-lg);
-  background:var(--card);border:1.5px solid var(--border);
-  font-size:17px;font-weight:600;cursor:pointer;color:var(--text);
-  font-family:var(--font);box-shadow:0 2px 8px rgba(0,0,0,.08);
-}
-.google-btn:active{opacity:.75}
-.google-btn svg{width:24px;height:24px;flex-shrink:0}
-.login-error{font-size:14px;color:var(--err-t);margin-top:18px;display:none}
-
-/* ── User avatar in topbar ── */
-.user-btn{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:4px 10px 4px 4px;border-radius:99px;
-  border:.5px solid var(--border);background:var(--card);
-  cursor:pointer;font-size:13px;color:var(--text2);font-family:var(--font);
-}
-.user-avatar{
-  width:30px;height:30px;border-radius:50%;object-fit:cover;
-  background:var(--bg);display:flex;align-items:center;justify-content:center;
-  font-size:13px;font-weight:700;color:#fff;flex-shrink:0;
-}
-.last-modified{
-  font-size:13px;color:var(--text3);margin-top:12px;
-  padding:10px 12px;background:var(--bg);border-radius:var(--r-sm);
-  border:.5px solid var(--border-l);line-height:1.6;
-}
+  :root{
+    --ink:#0E1B2C; --ink-2:#1B2A40;
+    --paper:#F4EFE6; --paper-2:#ECE5D6;
+    --copper:oklch(0.66 0.12 55); --copper-ink:oklch(0.42 0.10 55);
+    --rule:rgba(14,27,44,0.14); --muted:rgba(14,27,44,0.62);
+    --serif:"Spectral","Iowan Old Style",Georgia,serif;
+    --sans:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-0.01em;margin:0}
+  p{margin:0}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+  header.site{position:sticky;top:0;z-index:20;background:rgba(244,239,230,0.86);backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);border-bottom:1px solid var(--rule)}
+  header.site .wrap{display:flex;align-items:center;justify-content:space-between;padding:18px 32px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand .logo{width:46px;height:46px}
+  .brand .wm{display:flex;flex-direction:column;line-height:1.05}
+  .brand .wm .name{font-family:var(--serif);font-size:18px;font-weight:600}
+  .brand .wm .tag{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+  nav.primary{display:flex;align-items:center;gap:30px;font-size:14px;font-weight:500}
+  nav.primary a{opacity:0.78}
+  nav.primary a:hover{opacity:1}
+  .lang-toggle{display:inline-flex;align-items:center;gap:6px;margin-left:18px;padding:6px 10px;border:1px solid var(--rule);border-radius:999px;font-family:var(--mono);font-size:11px;letter-spacing:0.08em}
+  .lang-opt{background:transparent;border:0;padding:2px 4px;color:var(--ink);opacity:0.55;cursor:pointer;font-family:inherit;font-size:inherit;letter-spacing:inherit;transition:opacity 0.15s,color 0.15s}
+  .lang-opt:hover{opacity:0.85}
+  .lang-opt.is-active{opacity:1;color:var(--copper-ink);font-weight:500}
+  .lang-sep{opacity:0.35}
+  .hero{padding:84px 0 72px}
+  .hero .wrap{display:grid;grid-template-columns:1.15fr 1fr;gap:64px;align-items:end}
+  .hero h1{font-size:clamp(48px,6.2vw,92px);line-height:0.98;letter-spacing:-0.025em;font-weight:400}
+  html[lang="ru"] .hero h1{font-size:clamp(38px,4.6vw,64px)}
+  .hero h1 em{font-style:italic;color:var(--copper-ink)}
+  .hero .lede{max-width:520px;margin-top:28px;font-size:18px;line-height:1.55}
+  .young-flag{display:inline-flex;align-items:center;gap:10px;margin-bottom:28px;padding:7px 12px;border:1px solid var(--rule);border-radius:999px;color:var(--copper-ink);font-family:var(--mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase}
+  .young-flag .dot{width:6px;height:6px;border-radius:50%;background:var(--copper);animation:pulse 1.8s ease-out infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 var(--copper)}70%{box-shadow:0 0 0 7px rgba(0,0,0,0)}100%{box-shadow:0 0 0 0 rgba(0,0,0,0)}}
+  .hero-photo{aspect-ratio:1/1;border-radius:2px;overflow:hidden;border:1px solid var(--rule);background:var(--paper-2)}
+  .hero-photo img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+  section.block{padding:96px 0}
+  section[id]{scroll-margin-top:88px}
+  .section-head{margin-bottom:56px}
+  .section-head h2{font-size:clamp(32px,3.6vw,46px);letter-spacing:-0.02em;line-height:1.06;font-weight:400;margin-bottom:24px}
+  .section-head .desc{color:var(--ink);font-size:18px;line-height:1.55;max-width:640px}
+  .section-head .desc.wide{max-width:none}
+  .research{display:grid;grid-template-columns:repeat(12,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule)}
+  .r-card{background:var(--paper);color:var(--ink);padding:28px 24px;display:flex;flex-direction:column;gap:14px;min-height:280px;transition:background 0.2s,color 0.2s}
+  .r-card:hover{background:var(--ink);color:var(--paper)}
+  .r-card.span-4{grid-column:span 4}
+  .r-num{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;color:var(--muted);transition:color 0.2s}
+  .r-card:hover .r-num,.r-card:hover .r-sub{color:rgba(244,239,230,0.7)}
+  .r-card h3{font-size:24px;line-height:1.1;letter-spacing:-0.01em;font-weight:500}
+  .r-sub{font-size:13.5px;color:var(--muted);line-height:1.55;flex:1;transition:color 0.2s}
+  .about-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:64px;align-items:start}
+  .about-photo{aspect-ratio:1/1;border-radius:2px;overflow:hidden;border:1px solid var(--rule);background:var(--paper-2)}
+  .about-photo img{width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
+  #about-img{scroll-margin-top:130px}
+  .join{background:var(--ink);color:var(--paper);padding:120px 0 64px;border-top:1px solid var(--ink-2)}
+  .join-head{margin-bottom:72px}
+  .join-head h2{font-family:var(--serif);font-size:clamp(40px,4.8vw,68px);line-height:1.02;letter-spacing:-0.02em;font-weight:400;margin-bottom:24px}
+  .join-desc{color:rgba(244,239,230,0.78);font-size:18px;line-height:1.55}
+  .roles{list-style:none;padding:0;margin:0;border-top:1px solid rgba(244,239,230,0.16)}
+  .role{display:grid;grid-template-columns:170px minmax(0,1.4fr) minmax(0,1fr) 32px;gap:32px;align-items:center;padding:28px 0;border-bottom:1px solid rgba(244,239,230,0.16);position:relative;transition:padding-left 0.25s}
+  .role:hover{padding-left:14px}
+  .role-link{position:absolute;inset:0;z-index:2;text-indent:-9999px;overflow:hidden}
+  .role::before{content:"";position:absolute;left:0;top:0;bottom:0;width:0;background:var(--copper);transition:width 0.25s}
+  .role:hover::before{width:4px}
+  .role-kind{font-family:var(--mono);font-size:11px;letter-spacing:0.12em;color:rgba(244,239,230,0.55);text-transform:uppercase}
+  .role-title{font-family:var(--serif);font-size:24px;line-height:1.2;letter-spacing:-0.005em}
+  .role-meta{font-size:13.5px;color:rgba(244,239,230,0.65);display:flex;gap:10px;align-items:center}
+  .role-arrow{width:32px;height:32px;border:1px solid rgba(244,239,230,0.4);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;transition:transform 0.2s,background 0.2s}
+  .role:hover .role-arrow{transform:translate(2px,-2px);background:var(--copper);border-color:var(--copper)}
+  .join-cta{margin-top:64px;display:grid;grid-template-columns:1fr auto;gap:48px;align-items:center;padding-top:48px;border-top:1px solid rgba(244,239,230,0.16)}
+  .join-cta-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:0.12em;color:rgba(244,239,230,0.55);text-transform:uppercase;margin-bottom:10px}
+  .join-cta-headline{font-family:var(--serif);font-size:32px;line-height:1.1;letter-spacing:-0.01em;font-weight:400}
+  .join-cta-sub{margin-top:8px;color:rgba(244,239,230,0.7)}
+  .join-cta-btn{display:inline-flex;align-items:center;gap:12px;padding:18px 24px;background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:13px;letter-spacing:0.06em;transition:background 0.2s,transform 0.2s}
+  .join-cta-btn:hover{background:var(--copper);transform:translateY(-1px)}
+  footer.site{background:var(--ink);color:var(--paper);padding:48px 0 36px}
+  .foot-mast{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+  .foot-mast svg{width:48px;height:48px}
+  .foot-nm{font-family:var(--serif);font-size:20px;line-height:1.1}
+  .foot-tag{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(244,239,230,0.5);margin-top:4px}
+  footer address{font-style:normal;font-size:13px;line-height:1.6;color:rgba(244,239,230,0.7);margin-bottom:40px}
+  .foot-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:24px;border-top:1px solid rgba(244,239,230,0.14);font-family:var(--mono);font-size:10.5px;letter-spacing:0.1em;color:rgba(244,239,230,0.5);text-transform:uppercase}
+  @media(max-width:960px){
+    .hero .wrap,.about-grid,.join-cta{grid-template-columns:1fr}
+    .r-card.span-4{grid-column:span 12}
+    .role{grid-template-columns:1fr auto;gap:8px}
+    .role-kind,.role-meta{grid-column:1/-1}
+    header.site .wrap,.wrap{padding-left:20px;padding-right:20px}
+  }
 </style>
 </head>
 <body>
-<!-- LOGIN SCREEN -->
-<div id="login-screen" class="visible">
-  <div class="login-logo"><i class="ti ti-microscope"></i></div>
-  <div class="login-title">Hybrid Photonics Labs<br>Inventory</div>
-  <div class="login-sub">Sign in with your Google account<br>to access the lab inventory.</div>
-  <button class="google-btn" id="google-sign-in-btn">
-    <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-      <path fill="none" d="M0 0h48v48H0z"/>
-    </svg>
-    Sign in with Google
-  </button>
-  <div class="login-error" id="login-error"></div>
-</div>
 
-<div class="app">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="logo-crest" viewBox="0 0 100 100">
+      <g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M50 8 L84 18 L84 50 C84 70 70 84 50 92 C30 84 16 70 16 50 L16 18 Z"/>
+        <path d="M50 13 L79 21.5 L79 50 C79 67.5 67 80 50 87.2 C33 80 21 67.5 21 50 L21 21.5 Z" stroke-width="0.7"/>
+        <line x1="21" y1="55" x2="79" y2="55" stroke-width="0.7"/>
+        <circle cx="50" cy="40" r="5" fill="currentColor"/>
+        <ellipse cx="50" cy="40" rx="14" ry="5"/>
+        <ellipse cx="50" cy="40" rx="14" ry="5" transform="rotate(60 50 40)"/>
+        <ellipse cx="50" cy="40" rx="14" ry="5" transform="rotate(120 50 40)"/>
+        <text x="50" y="71" text-anchor="middle" font-family="Unbounded,sans-serif" font-weight="600" font-size="8.6" letter-spacing="0.2" fill="currentColor" stroke="none">USSR</text>
+      </g>
+    </symbol>
+  </defs>
+</svg>
 
-<!-- Topbar -->
-<div class="topbar">
-  <i class="ti ti-microscope" style="font-size:26px"></i>
-  <div style="flex:1;min-width:0">
-    <div class="topbar-title">Hybrid Photonics Labs Inventory</div>
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-      <div class="topbar-sub" id="item-count">Loading…</div>
-      <div class="sync-badge syncing" id="sync-badge">
-        <span class="sync-dot"></span><span id="sync-text">Connecting…</span>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="#">
+      <span class="logo"><svg viewBox="0 0 100 100"><use href="#logo-crest"/></svg></span>
+      <span class="wm">
+        <span class="name" data-i18n="brand_name">University of Science<br>&amp; Strategic Research</span>
+        <span class="tag" data-i18n="brand_tag">Established 2026 &middot; Moscow</span>
+      </span>
+    </a>
+    <nav class="primary">
+      <a href="#research" data-i18n="nav_research">Research</a>
+      <a href="#about-img" data-i18n="nav_about">About</a>
+      <a href="#join" data-i18n="nav_join">Join us</a>
+      <a href="contact.html" data-i18n="nav_contact">Contact</a>
+      <div class="lang-toggle" role="group">
+        <button type="button" class="lang-opt is-active" data-lang="en">EN</button>
+        <span class="lang-sep">/</span>
+        <button type="button" class="lang-opt" data-lang="ru">RU</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <div class="young-flag"><span class="dot"></span><span data-i18n="hero_flag">Moscow &middot; Open hiring across all directions</span></div>
+      <h1>
+        <span data-i18n="hero_h1_a">Inquiry without</span><br>
+        <em data-i18n="hero_h1_b">borders.</em> <span data-i18n="hero_h1_c">Strategy with</span><br>
+        <em data-i18n="hero_h1_d">consequence.</em>
+      </h1>
+      <p class="lede" data-i18n="hero_lede">Established in 2026, the University of Science &amp; Strategic Research is an independent research institution in Moscow.</p>
+    </div>
+    <div>
+      <div class="hero-photo">
+        <img src="images/hero-students.jpg" alt="Students on campus" />
       </div>
     </div>
   </div>
-  <button class="user-btn" id="user-btn" style="display:none" title="Sign out">
-    <div class="user-avatar" id="user-avatar"></div>
-    <span id="user-name" style="max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
-  </button>
-  <div id="online-badge" style="display:none;align-items:center;gap:5px;
-    font-size:13px;color:var(--text2);font-family:var(--font);
-    padding:4px 10px;border-radius:99px;border:.5px solid var(--border);
-    background:var(--card);white-space:nowrap">
-    <span style="width:8px;height:8px;border-radius:50%;background:#34c759;display:inline-block;flex-shrink:0"></span>
-    <span id="online-count">1</span>
-  </div>
-</div>
+</section>
 
-<!-- Tabs -->
-<div class="tab-bar">
-  <button class="tab active" data-view="items"><i class="ti ti-list"></i> Items</button>
-  <button class="tab" data-view="print"><i class="ti ti-printer"></i> Print</button>
-  <button class="tab" data-view="scan"><i class="ti ti-scan"></i> Scan</button>
-</div>
-
-<!-- ITEMS -->
-<div class="view active" id="view-items">
-  <div class="search-wrap">
-    <i class="ti ti-search"></i>
-    <input type="search" id="search-input" placeholder="Search by name, category, location…">
-  </div>
-  <div id="items-list">
-    <div class="empty-state"><i class="ti ti-loader"></i>Connecting to database…</div>
-  </div>
-</div>
-
-<!-- PRINT -->
-<div class="view" id="view-print">
-  <div class="print-sel-bar">
-    <span id="sel-count">0 selected</span>
-    <div style="display:flex;gap:6px">
-      <button class="btn btn-sm" id="sel-all-btn">Select all</button>
-      <button class="btn btn-sm btn-primary" id="print-btn"><i class="ti ti-download"></i> Download PDF</button>
+<section class="block" id="research">
+  <div class="wrap">
+    <div class="section-head">
+      <h2><span data-i18n="research_h2_a">Nine directions, one question:</span> <em style="font-style:italic;color:var(--copper-ink)" data-i18n="research_h2_b">what comes next?</em></h2>
+      <p class="desc wide" data-i18n="research_desc">Our research directions are not departments.</p>
     </div>
+    <div class="research" id="research-grid"></div>
   </div>
-  <div style="margin-bottom:12px">
-    <div style="font-size:14px;color:var(--text2);margin-bottom:7px;font-weight:500">QR code size on label</div>
-    <div class="size-row">
-      <button class="size-btn active" data-mm="20">20 × 20 mm</button>
-      <button class="size-btn" data-mm="30">30 × 30 mm</button>
-      <button class="size-btn" data-mm="40">40 × 40 mm</button>
-    </div>
-  </div>
-  <div class="print-grid" id="print-grid"></div>
-  <div id="print-empty" class="empty-state" style="display:none">
-    <i class="ti ti-printer"></i>Add devices first to print QR labels.
-  </div>
-</div>
+</section>
 
-<!-- SCAN -->
-<div class="view" id="view-scan">
-  <div class="notice" id="https-notice">
-    ⚠️ Camera requires HTTPS. Host this file on GitHub Pages or another secure server to enable scanning.
-  </div>
-  <div class="scan-area">
-    <div id="scan-icon-wrap">
-      <i class="ti ti-qrcode" style="font-size:52px;display:block;margin:0 auto 10px"></i>
-      <div style="font-size:16px;font-weight:600;margin-bottom:6px">Scan a QR label</div>
-      <div style="font-size:15px;color:var(--text2)">Point your rear camera at a device's QR code</div>
-      <button class="btn btn-primary" style="margin-top:18px" id="start-scan-btn">
-        <i class="ti ti-camera"></i> Open Camera
-      </button>
-    </div>
-  </div>
-  <div id="video-wrap">
-    <video id="video" playsinline muted></video>
-    <div class="scan-crosshair"></div>
-  </div>
-  <div id="scan-status" style="font-size:15px;color:var(--text2);text-align:center;margin-bottom:8px;display:none">
-    Hold the QR code steady inside the box
-  </div>
-  <div id="scan-result"></div>
-  <div style="text-align:center;margin-top:8px;display:none" id="stop-wrap">
-    <button class="btn btn-sm" id="stop-scan-btn"><i class="ti ti-x"></i> Stop Camera</button>
-  </div>
-</div>
-
-<button class="fab" id="add-btn">+</button>
-<div style="position:fixed;bottom:10px;left:16px;font-size:14px;color:var(--text3);
-  font-family:var(--font);letter-spacing:0.04em;pointer-events:none;z-index:19;">v0.124</div>
-</div>
-
-<!-- FULLSCREEN QR OVERLAY -->
-<div id="qr-overlay" onclick="closeQR()" style="
-  display:none;position:fixed;inset:0;z-index:200;
-  background:#000;
-  flex-direction:column;align-items:center;justify-content:center;gap:20px;
-  cursor:pointer;">
-  <div id="qr-overlay-code" style="background:#fff;padding:18px;border-radius:12px;line-height:0"></div>
-  <div id="qr-overlay-name" style="color:#fff;font-size:18px;font-weight:600;
-    text-align:center;padding:0 24px;max-width:360px;line-height:1.3"></div>
-  <div style="color:rgba(255,255,255,0.45);font-size:15px">Tap anywhere to close</div>
-</div>
-
-<!-- ADD/EDIT MODAL -->
-<div class="modal-bg" id="add-modal">
-<div class="modal">
-  <div class="modal-header">
-    <span class="modal-title" id="modal-title">Add device</span>
-    <button class="modal-close" id="close-modal-btn">✕</button>
-  </div>
-  <input type="hidden" id="edit-id">
-  <label>Name *</label>
-  <input type="text" id="f-name" placeholder="e.g. Ti:Sapphire Laser System" autocomplete="off">
-  <label>Skoltech inventory number</label>
-  <input type="text" id="f-invnum" placeholder="e.g. SKT-2024-0042" autocomplete="off">
-  <label>Manufacturer</label>
-  <input type="text" id="f-manufacturer" placeholder="e.g. Coherent" autocomplete="off">
-  <div class="two-col">
-    <div><label>Model</label><input type="text" id="f-model" placeholder="e.g. Mira 900" autocomplete="off"></div>
-    <div><label>Serial no.</label><input type="text" id="f-serial" placeholder="e.g. SN-00421" autocomplete="off"></div>
-  </div>
-  <label>Manufacturer webpage</label>
-  <input type="url" id="f-url" placeholder="https://...">
-  <label>Location</label>
-  <input type="text" id="f-location" placeholder="e.g. Lab 3, Optical Table B" autocomplete="off">
-  <label>Name of setup</label>
-  <input type="text" id="f-setup" placeholder="e.g. Raman microscopy setup" autocomplete="off">
-  <label>Category</label>
-  <select id="f-category">
-    <option>Cryostat / cryogenic system</option>
-    <option>Laser system (pulsed)</option>
-    <option>Laser system (CW)</option>
-    <option>Laser diode</option>
-    <option>OPO / OPA / parametric source</option>
-    <option>Optical table / breadboard</option>
-    <option>3D stage / positioner</option>
-    <option>Spectrometer</option>
-    <option>Microscope</option>
-    <option>Camera / CCD / sCMOS</option>
-    <option>Photodetector / APD / PMT</option>
-    <option>Spatial light modulator</option>
-    <option>Oscilloscope</option>
-    <option>Signal generator / pulse generator</option>
-    <option>Lock-in amplifier / preamplifier</option>
-    <option>Vacuum system / pump</option>
-    <option>Thin film deposition</option>
-    <option>Electronics / DAQ / power supply</option>
-    <option>Computer / IT equipment</option>
-    <option>Cleanroom & lab support</option>
-  </select>
-  <label>Status</label>
-  <select id="f-status">
-    <option value="available">Available</option><option value="in-use">In Use</option>
-    <option value="maintenance">Maintenance</option><option value="out-of-order">Out of Order</option>
-  </select>
-  <label>Responsible person</label>
-  <input type="text" id="f-person" placeholder="e.g. Dr. Nagy Anna" autocomplete="off">
-  <label>Purchase date</label>
-  <input type="date" id="f-purchasedate">
-  <label>Notes</label>
-  <textarea id="f-notes" rows="3" placeholder="Optional notes…"></textarea>
-  <label>Photo <span style="font-weight:400;color:var(--text3)">(compressed &amp; synced to all devices)</span></label>
-  <div class="photo-placeholder" id="photo-placeholder" onclick="document.getElementById('f-photo-input').click()">
-    <i class="ti ti-camera" style="font-size:26px"></i>
-    <span>Tap to take or choose a photo</span>
-  </div>
-  <img id="photo-preview" class="photo-preview-img" style="display:none" alt="Device photo">
-  <input type="file" id="f-photo-input" accept="image/*" capture="environment" style="display:none">
-  <button class="btn btn-sm" id="remove-photo-btn" style="margin-top:8px;display:none">
-    <i class="ti ti-trash"></i> Remove photo
-  </button>
-  <label>Manuals &amp; documents <span style="font-weight:400;color:var(--text3)">(PDF, Word, etc. — any size)</span></label>
-  <div id="manuals-list-edit"></div>
-  <div class="upload-progress" id="upload-progress">
-    <div class="upload-progress-bar" id="upload-progress-bar"></div>
-  </div>
-  <div id="upload-status" style="font-size:13px;color:var(--text2);margin-top:6px;display:none"></div>
-  <button type="button" class="manual-upload-btn" id="manual-upload-btn">
-    <i class="ti ti-upload" style="font-size:20px"></i> Tap to attach a manual or document
-  </button>
-  <input type="file" id="f-manual-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip" style="display:none" multiple>
-  <div style="display:flex;gap:8px;margin-top:18px">
-    <button class="btn btn-primary" style="flex:1" id="save-btn"><i class="ti ti-check"></i> Save</button>
-    <button class="btn btn-danger btn-sm" id="delete-btn" style="display:none"><i class="ti ti-trash"></i></button>
-  </div>
-</div>
-</div>
-
-<!-- DETAIL MODAL -->
-<div class="modal-bg" id="detail-modal">
-<div class="modal">
-  <div class="modal-header">
-    <span class="modal-title" id="detail-title">Device detail</span>
-    <button class="modal-close" id="close-detail-btn">✕</button>
-  </div>
-  <div id="detail-body"></div>
-</div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════
-     FIREBASE  (ES module — must be type="module")
-     ═══════════════════════════════════════════════════ -->
-<script>
-// Set up a promise that resolves when the Firebase ES module finishes loading.
-// This avoids a race: the module is async, so by the time it fires
-// 'firebase-ready', the main script's addEventListener may not have run yet.
-window._firebaseReady = new Promise(res => { window._firebaseReadyResolve = res; });
-</script>
-<script type="module">
-import { initializeApp }
-  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getDatabase, ref, set, onValue, remove, onDisconnect, serverTimestamp }
-  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import {
-  getAuth, GoogleAuthProvider, signInWithPopup,
-  signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-
-const firebaseConfig = {
-  apiKey:            "AIzaSyCWgGlxIj815RWnpq2_R6LgiO33SOeAAx0",
-  authDomain:        "laboratory-inventory-ba448.firebaseapp.com",
-  databaseURL:       "https://laboratory-inventory-ba448-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId:         "laboratory-inventory-ba448",
-  storageBucket:     "laboratory-inventory-ba448.firebasestorage.app",
-  messagingSenderId: "254370239509",
-  appId:             "1:254370239509:web:9565f56889cb81a7866a1c"
-};
-
-const fbApp  = initializeApp(firebaseConfig);
-const db     = getDatabase(fbApp);
-const auth   = getAuth(fbApp);
-const provider = new GoogleAuthProvider();
-
-/* ── Expose DB + Auth operations to the main script ── */
-window._db = {
-  save(item)   { return set(ref(db, 'items/' + item.id), item); },
-  delete(id)   { return remove(ref(db, 'items/' + id)); },
-  resetAll()   { return Promise.all([remove(ref(db, 'items')), remove(ref(db, 'meta'))]); },
-  getSeedFlag() {
-    return new Promise((resolve, reject) => {
-      onValue(ref(db, 'meta/seedV2Done'), snap => resolve(snap.val() === true), reject, { onlyOnce: true });
-    });
-  },
-  setSeedFlag() { return set(ref(db, 'meta/seedV2Done'), true); },
-  subscribe(cb, onErr) {
-    return onValue(ref(db, 'items'), snap => {
-      const val = snap.val();
-      const arr = val ? Object.values(val) : [];
-      arr.sort((a, b) => ((b.added || '') > (a.added || '') ? 1 : -1));
-      cb(arr);
-    }, onErr);
-  }
-};
-
-window._auth = {
-  signIn() {
-    // Try popup first; if blocked (mobile), fall back to redirect
-    signInWithPopup(auth, provider).catch(err => {
-      if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
-        signInWithRedirect(auth, provider);
-      } else {
-        console.error('Sign-in error:', err);
-        window.dispatchEvent(new CustomEvent('auth-error', { detail: err.message }));
-      }
-    });
-  },
-  signOut() { signOut(auth); }
-};
-
-// Handle redirect result (for mobile where popup was blocked)
-getRedirectResult(auth).catch(err => console.warn('Redirect result error:', err));
-
-// Presence tracking — writes user to /presence/<uid> on login,
-// onDisconnect removes it automatically when tab closes or network drops
-let presenceRef = null;
-onAuthStateChanged(auth, user => {
-  window._currentUser = user || null;
-  window.dispatchEvent(new CustomEvent('auth-changed', { detail: user }));
-
-  // Clean up previous presence entry
-  if (presenceRef) { remove(presenceRef).catch(()=>{}); presenceRef = null; }
-
-  if (user) {
-    presenceRef = ref(db, 'presence/' + user.uid);
-    const presenceData = {
-      email:       user.email,
-      displayName: user.displayName || user.email,
-      lastSeen:    serverTimestamp()
-    };
-    set(presenceRef, presenceData).catch(console.error);
-    // Auto-remove when tab closes / network drops
-    onDisconnect(presenceRef).remove().catch(console.error);
-  }
-});
-
-// Subscribe to presence count — expose via window for main script
-onValue(ref(db, 'presence'), snap => {
-  const count = snap.val() ? Object.keys(snap.val()).length : 0;
-  window.dispatchEvent(new CustomEvent('presence-changed', { detail: count }));
-});
-
-// Signal boot complete via both a promise (for code that runs after us)
-// and an event (for listeners already registered before us).
-if (window._firebaseReadyResolve) window._firebaseReadyResolve();
-window.dispatchEvent(new Event('firebase-ready'));
-</script>
-
-<!-- ═══════════════════════════════════════════════════
-     MAIN APP SCRIPT
-     ═══════════════════════════════════════════════════ -->
-<script>
-/* ── Legacy localStorage photo migration (runs once, then cleans up) ──
-   Old versions stored photos in localStorage. On first boot we push them
-   into Firebase as part of the item, then remove the local copies.        */
-function migrateLegacyPhotos() {
-  const prefix = 'hpl-photo-';
-  let migrated = 0;
-  for (let i = localStorage.length - 1; i >= 0; i--) {
-    const key = localStorage.key(i);
-    if (!key || !key.startsWith(prefix)) continue;
-    const id = key.slice(prefix.length);
-    const photo = localStorage.getItem(key);
-    if (!photo) { localStorage.removeItem(key); continue; }
-    // Find matching item and push photo into Firebase
-    const it = items.find(x => x.id === id);
-    if (it && !it.photo) {
-      window._db.save({ ...it, photo }).catch(console.error);
-    }
-    localStorage.removeItem(key);
-    migrated++;
-  }
-  if (migrated) console.log(`Migrated ${migrated} photos from localStorage to Firebase.`);
-}
-
-/* ── Migrate legacy data from old localStorage key ── */
-function migrateLegacyData() {
-  const LS = 'optics-lab-v1';
-  try {
-    const raw = localStorage.getItem(LS);
-    if (!raw) return;
-    const legacy = JSON.parse(raw);
-    if (!Array.isArray(legacy) || !legacy.length) return;
-    console.log(`Migrating ${legacy.length} items from localStorage to Firebase…`);
-    legacy.forEach(it => {
-      // photo is part of the item — save() now includes it in Firebase
-      window._db.save(it).catch(e => console.error('Migration write error:', e));
-    });
-    localStorage.removeItem(LS);
-    console.log('Migration complete.');
-  } catch(e) { console.error('Migration error:', e); }
-}
-
-/* ── State ── */
-let items = [], selected = new Set(), editingId = null;
-let stream = null, scanning = false, pendingPhoto = null;
-let searchQuery = '', selectedMM = 20;
-let pendingManuals = []; // manuals attached during current edit session
-const videoEl = document.getElementById('video');
-let canvasEl = null, ctxEl = null;
-
-/* ══════════════════════════════════════════════════
-   CLOUDINARY CONFIG
-   ══════════════════════════════════════════════════ */
-const CLOUDINARY_CLOUD  = 'dgwd5feo3';
-const CLOUDINARY_PRESET = 'hpl-manuals';
-const CLOUDINARY_URL    = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/raw/upload`;
-
-function formatBytes(bytes) {
-  if (!bytes) return '';
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-}
-
-/* Upload a single file to Cloudinary — returns a manual metadata object */
-function uploadManual(file) {
-  return new Promise((resolve, reject) => {
-    const fd = new FormData();
-    fd.append('file', file);
-    fd.append('upload_preset', CLOUDINARY_PRESET);
-    fd.append('access_mode', 'public');
-    fd.append('public_id', `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`);
-
-    // Use 'auto' resource type so Cloudinary handles images, PDFs, docs etc correctly
-    const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/auto/upload`;
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', uploadUrl);
-
-    xhr.upload.onprogress = e => {
-      if (e.lengthComputable) {
-        const pct = Math.round(e.loaded / e.total * 100);
-        document.getElementById('upload-progress-bar').style.width = pct + '%';
-        document.getElementById('upload-status').textContent = `Uploading ${file.name}… ${pct}%`;
-      }
-    };
-
-    xhr.onload = () => {
-      if (xhr.status === 200) {
-        const res = JSON.parse(xhr.responseText);
-        // Build a direct public URL — works for images, PDFs, raw files
-        const url = res.secure_url;
-        resolve({
-          name:          file.name,
-          url:           url,
-          resource_type: res.resource_type,
-          bytes:         res.bytes,
-          public_id:     res.public_id,
-          uploadedAt:    new Date().toISOString(),
-          uploadedBy:    window._currentUser ? window._currentUser.email : 'unknown'
-        });
-      } else {
-        reject(new Error('Upload failed (' + xhr.status + '): ' + xhr.responseText));
-      }
-    };
-    xhr.onerror = () => reject(new Error('Network error during upload'));
-    xhr.send(fd);
-  });
-}
-
-/* Render the manuals list inside the edit form */
-function renderManualsEdit() {
-  const el = document.getElementById('manuals-list-edit');
-  if (!pendingManuals.length) { el.innerHTML = ''; return; }
-  el.innerHTML = pendingManuals.map((m, i) => `
-    <div class="manual-item">
-      <i class="ti ti-file-description manual-icon"></i>
-      <div class="manual-info">
-        <div class="manual-name">${esc(m.name)}</div>
-        <div class="manual-meta">${formatBytes(m.bytes)} · ${m.uploadedBy}</div>
+<section class="block" id="about">
+  <div class="wrap">
+    <div class="about-grid">
+      <div class="section-head" style="margin-bottom:0">
+        <h2><span data-i18n="about_h2_a">A university built around</span><br><em style="font-style:italic;color:var(--copper-ink)" data-i18n="about_h2_b">questions worth asking.</em></h2>
+        <p class="desc" style="margin-top:24px" data-i18n="about_desc">The University of Science &amp; Strategic Research was founded in Moscow.</p>
       </div>
-      <button class="btn btn-sm btn-danger" onclick="removeManual(${i})" style="flex-shrink:0">
-        <i class="ti ti-trash"></i>
-      </button>
-    </div>`).join('');
-}
-
-function removeManual(idx) {
-  pendingManuals.splice(idx, 1);
-  renderManualsEdit();
-}
-
-/* Handle file selection → upload each file */
-document.getElementById('f-manual-input').addEventListener('change', async e => {
-  const files = Array.from(e.target.files); if (!files.length) return;
-  const progress = document.getElementById('upload-progress');
-  const statusEl = document.getElementById('upload-status');
-  const bar      = document.getElementById('upload-progress-bar');
-  progress.style.display = 'block';
-  statusEl.style.display = 'block';
-  document.getElementById('manual-upload-btn').style.opacity = '0.5';
-  document.getElementById('manual-upload-btn').style.pointerEvents = 'none';
-
-  for (const file of files) {
-    bar.style.width = '0%';
-    try {
-      const manual = await uploadManual(file);
-      pendingManuals.push(manual);
-      renderManualsEdit();
-      statusEl.textContent = `✓ ${file.name} uploaded`;
-    } catch(err) {
-      console.error(err);
-      statusEl.textContent = `✗ Failed to upload ${file.name}: ${err.message}`;
-    }
-  }
-
-  progress.style.display = 'none';
-  setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
-  document.getElementById('manual-upload-btn').style.opacity = '';
-  document.getElementById('manual-upload-btn').style.pointerEvents = '';
-  e.target.value = '';
-});
-
-document.getElementById('manual-upload-btn').addEventListener('click', () => {
-  document.getElementById('f-manual-input').click();
-});
-
-/* ── Sync badge ── */
-function setSyncBadge(state, text) {
-  const b = document.getElementById('sync-badge');
-  const t = document.getElementById('sync-text');
-  b.className = 'sync-badge ' + state;
-  t.textContent = text;
-}
-
-/* ── Helpers ── */
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-const ICONS = {
-  // New categories
-  'Cryostat / cryogenic system':        'ti-snowflake',
-  'Laser system (pulsed)':              'ti-ripple',
-  'Laser system (CW)':                  'ti-sun',
-  'Laser diode':                        'ti-bolt',
-  'OPO / OPA / parametric source':      'ti-arrows-split-2',
-  'Optical table / breadboard':         'ti-layout-board',
-  '3D stage / positioner':              'ti-3d-rotate',
-  'Spectrometer':                       'ti-wave-sine',
-  'Microscope':                         'ti-microscope',
-  'Camera / CCD / sCMOS':              'ti-camera',
-  'Photodetector / APD / PMT':          'ti-eye',
-  'Spatial light modulator':            'ti-brand-apple',
-  'Oscilloscope':                       'ti-chart-line',
-  'Signal generator / pulse generator': 'ti-activity',
-  'Lock-in amplifier / preamplifier':   'ti-wave-square',
-  'Vacuum system / pump':               'ti-circle-dashed',
-  'Thin film deposition':               'ti-layers',
-  'Electronics / DAQ / power supply':   'ti-cpu',
-  'Computer / IT equipment':            'ti-device-laptop',
-  'Cleanroom & lab support':  'ti-tool',
-  // Legacy category keys — kept so existing items still get an icon
-  'Laser system':           'ti-ripple',
-  'Cryostat':               'ti-snowflake',
-  'Optical power meter':    'ti-gauge',
-  'Lock-in amplifier':      'ti-activity',
-  'Photodetector / APD':    'ti-eye',
-  'Camera / CCD':           'ti-camera',
-  'Beam splitter / optics': 'ti-prism',
-  'Optical fiber equipment':'ti-topology-star',
-  'Vacuum system':          'ti-circle-dashed',
-  'Electronics / DAQ':      'ti-cpu',
-  'Other':                  'ti-tool'
-};
-
-function mkbadge(s) {
-  if (s==='available')  return '<span class="badge badge-ok">Available</span>';
-  if (s==='in-use')     return '<span class="badge badge-warn">In Use</span>';
-  if (s==='maintenance')return '<span class="badge badge-warn">Maintenance</span>';
-  return '<span class="badge badge-out">Out of Order</span>';
-}
-
-/* ── Render items ── */
-function render() {
-  const n = items.length;
-  document.getElementById('item-count').textContent = n + ' device' + (n !== 1 ? 's' : '');
-  const q = searchQuery.toLowerCase();
-  const list = q
-    ? items.filter(it => [it.name,it.category,it.location,it.setup,it.manufacturer,
-        it.invnum,it.model,it.serial,it.person,it.purchaseDate].some(f => (f||'').toLowerCase().includes(q)))
-    : items;
-
-  const el = document.getElementById('items-list');
-  if (!list.length) {
-    el.innerHTML = '<div class="empty-state"><i class="ti ti-package-off"></i>' +
-      (q ? 'No results for "' + esc(q) + '".' : 'No devices yet.<br>Tap + to add your first device.') +
-      '</div>';
-  } else {
-    el.innerHTML = list.map(it => {
-      const ic = ICONS[it.category] || 'ti-tool';
-      const thumb = it.photo
-        ? `<img src="${it.photo}" style="width:42px;height:42px;object-fit:cover;border-radius:var(--r-md)" alt="">`
-        : `<i class="ti ${ic}" style="font-size:20px"></i>`;
-      const meta = [it.category, it.manufacturer, it.setup].filter(Boolean).join(' · ');
-      const inv = it.invnum ? `<div style="font-size:13px;color:var(--text3);margin-top:3px">${esc(it.invnum)}</div>` : '';
-      return `<div class="card"><div class="card-row">
-        <div class="item-icon">${thumb}</div>
-        <div style="flex:1;min-width:0">
-          <div class="item-name">${esc(it.name)}</div>
-          <div class="item-meta">${esc(meta)}</div>${inv}
-        </div>${mkbadge(it.status)}
-      </div><div class="actions">
-        <button class="btn btn-sm" onclick="showDetail('${it.id}')"><i class="ti ti-info-circle"></i> Details</button>
-        <button class="btn btn-sm" onclick="openEdit('${it.id}')"><i class="ti ti-edit"></i> Edit</button>
-        <button class="btn btn-sm" onclick="showQR('${it.id}')"><i class="ti ti-qrcode"></i> QR</button>
-      </div></div>`;
-    }).join('');
-  }
-  renderPrint();
-}
-
-/* ── Render print grid ── */
-function renderPrint() {
-  const grid = document.getElementById('print-grid');
-  const empty = document.getElementById('print-empty');
-  if (!items.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-  grid.innerHTML = items.map(it => {
-    const ic = ICONS[it.category] || 'ti-tool';
-    const sel = selected.has(it.id) ? 'selected' : '';
-    const photo = it.photo || null;
-    const thumb = photo
-      ? `<img src="${photo}" style="width:38px;height:38px;object-fit:cover;border-radius:6px;margin:0 auto;display:block" alt="">`
-      : `<i class="ti ${ic}" style="font-size:26px;color:var(--text2)"></i>`;
-    return `<div class="print-card ${sel}" onclick="toggleSel('${it.id}')">
-      ${thumb}
-      <div class="pname">${esc(it.name)}</div>
-      <div class="pmeta">${esc(it.invnum || it.location || it.category)}</div>
-    </div>`;
-  }).join('');
-  document.getElementById('sel-count').textContent = selected.size + ' selected';
-}
-
-function toggleSel(id) { selected.has(id) ? selected.delete(id) : selected.add(id); renderPrint(); }
-
-/* ── QR size selector ── */
-document.querySelectorAll('.size-btn').forEach(b => {
-  b.addEventListener('click', () => {
-    document.querySelectorAll('.size-btn').forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    selectedMM = parseInt(b.dataset.mm);
-  });
-});
-
-/* ── Form helpers ── */
-const FF = ['name','invnum','manufacturer','model','serial','url','location','setup','person','notes'];
-
-function resetForm() {
-  FF.forEach(f => document.getElementById('f-' + f).value = '');
-  document.getElementById('f-purchasedate').value = '';
-  document.getElementById('f-category').value = 'Cryostat / cryogenic system';
-  document.getElementById('f-status').value = 'available';
-  pendingPhoto = null;
-  document.getElementById('photo-preview').style.display = 'none';
-  document.getElementById('photo-placeholder').style.display = 'flex';
-  document.getElementById('remove-photo-btn').style.display = 'none';
-  document.getElementById('f-photo-input').value = '';
-  // Reset manuals
-  pendingManuals = [];
-  renderManualsEdit();
-  document.getElementById('upload-progress').style.display = 'none';
-  document.getElementById('upload-status').style.display = 'none';
-  document.getElementById('f-manual-input').value = '';
-}
-
-function openAdd() {
-  editingId = null; resetForm();
-  document.getElementById('modal-title').textContent = 'Add device';
-  document.getElementById('delete-btn').style.display = 'none';
-  openModal('add-modal');
-}
-
-function openEdit(id) {
-  const it = items.find(x => x.id === id); if (!it) return;
-  editingId = id; resetForm();
-  document.getElementById('modal-title').textContent = 'Edit device';
-  FF.forEach(f => document.getElementById('f-' + f).value = it[f] || '');
-  document.getElementById('f-purchasedate').value = it.purchaseDate || '';
-  document.getElementById('f-category').value = it.category || 'Cleanroom & lab support';
-  document.getElementById('f-status').value = it.status || 'available';
-  // Photo comes from Firebase item — set as pending so it's preserved on save
-  pendingPhoto = it.photo || null;
-  if (pendingPhoto) {
-    document.getElementById('photo-preview').src = pendingPhoto;
-    document.getElementById('photo-preview').style.display = 'block';
-    document.getElementById('photo-placeholder').style.display = 'none';
-    const kb = Math.round(pendingPhoto.length * 0.75 / 1024);
-    const btn = document.getElementById('remove-photo-btn');
-    btn.style.display = 'inline-flex';
-    btn.innerHTML = `<i class="ti ti-trash"></i> Remove photo (${kb} KB)`;
-  }
-  // Load existing manuals
-  pendingManuals = it.manuals ? [...it.manuals] : [];
-  renderManualsEdit();
-  document.getElementById('delete-btn').style.display = 'inline-flex';
-  openModal('add-modal');
-}
-
-/* ── Photo compression ──────────────────────────────────────────────────────
-   Guarantees the base64 result is under MAX_BYTES (Firebase node limit).
-   Strategy:
-     1. Resize so longest edge ≤ MAX_PX
-     2. Encode as JPEG at starting quality
-     3. If still too large, reduce quality in steps until it fits
-     4. As a last resort, halve the pixel dimensions and retry
-   ─────────────────────────────────────────────────────────────────────── */
-const MAX_BYTES  = 900 * 1024;   // 900 KB base64 ≈ ~675 KB binary — safe under 1 MB Firebase node limit
-const MAX_PX     = 1280;         // max longest dimension in pixels
-const QUAL_START = 0.82;
-const QUAL_STEP  = 0.07;
-const QUAL_MIN   = 0.25;
-
-function compressImage(file) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const reader = new FileReader();
-    reader.onerror = reject;
-    reader.onload = ev => {
-      img.onerror = reject;
-      img.onload = () => {
-        const result = _compress(img, MAX_PX, QUAL_START);
-        resolve(result);
-      };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-function _compress(img, maxPx, startQual) {
-  // Step 1: scale down
-  let w = img.width, h = img.height;
-  if (Math.max(w, h) > maxPx) {
-    if (w >= h) { h = Math.round(h * maxPx / w); w = maxPx; }
-    else        { w = Math.round(w * maxPx / h); h = maxPx; }
-  }
-  const cvs = document.createElement('canvas');
-  cvs.width = w; cvs.height = h;
-  cvs.getContext('2d').drawImage(img, 0, 0, w, h);
-
-  // Step 2: iterative quality reduction
-  let qual = startQual, b64 = '';
-  while (qual >= QUAL_MIN) {
-    b64 = cvs.toDataURL('image/jpeg', qual);
-    if (b64.length <= MAX_BYTES) return b64;
-    qual = Math.round((qual - QUAL_STEP) * 100) / 100;
-  }
-
-  // Step 3: last resort — halve pixel dimensions and retry
-  if (maxPx > 320) return _compress(img, Math.round(maxPx / 2), QUAL_START);
-
-  // Absolute fallback — return whatever we have (very small image by now)
-  return b64;
-}
-
-/* ── Photo upload handler ── */
-document.getElementById('f-photo-input').addEventListener('change', async e => {
-  const file = e.target.files[0]; if (!file) return;
-
-  // Show a compressing indicator
-  const placeholder = document.getElementById('photo-placeholder');
-  const origHTML = placeholder.innerHTML;
-  placeholder.innerHTML = '<i class="ti ti-loader" style="font-size:24px"></i><span>Compressing…</span>';
-
-  try {
-    const compressed = await compressImage(file);
-    const kb = Math.round(compressed.length * 0.75 / 1024); // approx binary size
-    pendingPhoto = compressed;
-    document.getElementById('photo-preview').src = pendingPhoto;
-    document.getElementById('photo-preview').style.display = 'block';
-    placeholder.style.display = 'none';
-    document.getElementById('remove-photo-btn').style.display = 'inline-flex';
-    document.getElementById('remove-photo-btn').textContent = `✕ Remove photo (${kb} KB)`;
-  } catch(err) {
-    console.error('Compression error:', err);
-    placeholder.innerHTML = origHTML;
-    alert('Could not process the photo. Please try a different image.');
-  }
-});
-
-document.getElementById('remove-photo-btn').addEventListener('click', () => {
-  pendingPhoto = null;
-  document.getElementById('photo-preview').style.display = 'none';
-  document.getElementById('photo-placeholder').style.display = 'flex';
-  const btn = document.getElementById('remove-photo-btn');
-  btn.style.display = 'none';
-  btn.innerHTML = '<i class="ti ti-trash"></i> Remove photo';
-  document.getElementById('f-photo-input').value = '';
-});
-
-/* ── Modal helpers ── */
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-/* ── Event listeners ── */
-document.getElementById('add-btn').addEventListener('click', openAdd);
-// Presence badge update
-window.addEventListener('presence-changed', e => {
-  const count = e.detail;
-  const badge = document.getElementById('online-badge');
-  const countEl = document.getElementById('online-count');
-  if (count > 0) {
-    countEl.textContent = count + ' online';
-    badge.style.display = 'inline-flex';
-  } else {
-    badge.style.display = 'none';
-  }
-});
-document.getElementById('close-modal-btn').addEventListener('click', () => closeModal('add-modal'));
-document.getElementById('close-detail-btn').addEventListener('click', () => closeModal('detail-modal'));
-document.getElementById('add-modal').addEventListener('click', e => { if (e.target === document.getElementById('add-modal')) closeModal('add-modal'); });
-document.getElementById('detail-modal').addEventListener('click', e => { if (e.target === document.getElementById('detail-modal')) closeModal('detail-modal'); });
-document.getElementById('search-input').addEventListener('input', e => { searchQuery = e.target.value; render(); });
-
-/* ── Save device ── */
-document.getElementById('save-btn').addEventListener('click', () => {
-  const name = document.getElementById('f-name').value.trim();
-  if (!name) { document.getElementById('f-name').focus(); return; }
-  const ex = editingId ? items.find(x => x.id === editingId) : null;
-  const id = editingId || uid();
-  const now = new Date();
-  const data = {
-    id, name,
-    invnum:       document.getElementById('f-invnum').value.trim(),
-    manufacturer: document.getElementById('f-manufacturer').value.trim(),
-    model:        document.getElementById('f-model').value.trim(),
-    serial:       document.getElementById('f-serial').value.trim(),
-    url:          document.getElementById('f-url').value.trim(),
-    location:     document.getElementById('f-location').value.trim(),
-    setup:        document.getElementById('f-setup').value.trim(),
-    category:     document.getElementById('f-category').value,
-    status:       document.getElementById('f-status').value,
-    person:       document.getElementById('f-person').value.trim(),
-    purchaseDate: document.getElementById('f-purchasedate').value || '',
-    notes:        document.getElementById('f-notes').value.trim(),
-    added:        (ex && ex.added) || now.toISOString().slice(0, 10),
-    photo:        pendingPhoto !== undefined ? pendingPhoto : (ex && ex.photo) || null,
-    manuals:      pendingManuals.length ? pendingManuals : (ex && ex.manuals) || [],
-    // Audit trail
-    lastModifiedBy:   window._currentUser ? window._currentUser.email : 'unknown',
-    lastModifiedByName: window._currentUser ? (window._currentUser.displayName || window._currentUser.email) : 'unknown',
-    lastModifiedAt:   now.toISOString()
-  };
-
-  setSyncBadge('syncing', 'Saving…');
-  window._db.save(data)
-    .then(() => setSyncBadge('synced', 'Synced'))
-    .catch(err => { console.error(err); setSyncBadge('offline', 'Save failed'); });
-
-  closeModal('add-modal');
-});
-
-/* ── Delete device ── */
-document.getElementById('delete-btn').addEventListener('click', () => {
-  if (!editingId) return;
-  if (!confirm('Delete this device?')) return;
-  const id = editingId;
-  setSyncBadge('syncing', 'Deleting…');
-  window._db.delete(id)
-    .then(() => setSyncBadge('synced', 'Synced'))
-    .catch(err => { console.error(err); setSyncBadge('offline', 'Delete failed'); });
-  closeModal('add-modal');
-});
-
-/* ── Tabs ── */
-document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchView(t.dataset.view)));
-function switchView(v) {
-  document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-  document.getElementById('view-' + v).classList.add('active');
-  document.querySelector('.tab[data-view="' + v + '"]').classList.add('active');
-  if (v !== 'scan') stopScan();
-}
-
-/* ── Detail modal ── */
-function showDetail(id) {
-  const it = items.find(x => x.id === id); if (!it) return;
-  document.getElementById('detail-title').textContent = it.name;
-  const photo = it.photo || null;
-  const photoRow = photo ? `<img src="${photo}" class="detail-photo" alt="Photo of ${esc(it.name)}">` : '';
-  const urlRow = it.url
-    ? `<div class="detail-section"><div class="detail-label">Manufacturer webpage</div>
-       <div class="detail-value"><a href="${esc(it.url)}" target="_blank"
-       style="color:var(--info);word-break:break-all">${esc(it.url)}</a></div></div>` : '';
-  const fields = [
-    ['Skoltech inventory no.', it.invnum   || '—'],
-    ['Manufacturer',           it.manufacturer || '—'],
-    ['Model',                  it.model    || '—'],
-    ['Serial no.',             it.serial   || '—'],
-    ['Category',               it.category],
-    ['Location',               it.location || '—'],
-    ['Name of setup',          it.setup    || '—'],
-    ['Status',                 it.status],
-    ['Responsible',            it.person   || '—'],
-    ['Purchase date',          it.purchaseDate
-      ? new Date(it.purchaseDate).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})
-      : '—'],
-    ['Date added',             it.added    || '—'],
-    ['Notes',                  it.notes    || '—']
-  ];
-
-  // Manuals section
-  let manualsRow = '';
-  if (it.manuals && it.manuals.length) {
-    const manualItems = it.manuals.map(m => {
-      const dt = m.uploadedAt ? new Date(m.uploadedAt).toLocaleDateString([], {year:'numeric',month:'short',day:'numeric'}) : '';
-      return `<div class="manual-item">
-        <i class="ti ti-file-description manual-icon"></i>
-        <div class="manual-info">
-          <div class="manual-name">${esc(m.name)}</div>
-          <div class="manual-meta">${formatBytes(m.bytes)}${dt ? ' · ' + dt : ''}${m.uploadedBy ? ' · ' + esc(m.uploadedBy) : ''}</div>
+      <div id="about-img">
+        <div class="about-photo">
+          <img src="assets/about-researchers.jpg" alt="Researchers at work" loading="lazy" />
         </div>
-        <a href="${esc(m.url)}" target="_blank" class="btn btn-sm" style="flex-shrink:0">
-          <i class="ti ti-download"></i>
-        </a>
-      </div>`;
-    }).join('');
-    manualsRow = `<div class="detail-section">
-      <div class="detail-label">Manuals &amp; documents</div>
-      ${manualItems}
-    </div>`;
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="join" id="join">
+  <div class="wrap">
+    <div class="join-head">
+      <h2><span data-i18n="join_h2_a">Making the world better,</span> <em style="font-style:italic;color:var(--copper)" data-i18n="join_h2_b">one problem at a time.</em></h2>
+      <p class="join-desc" data-i18n="join_desc">We are recruiting researchers, engineers, scholars and strategists from every country.</p>
+    </div>
+    <ul class="roles" id="roles-list"></ul>
+    <div class="join-cta">
+      <div>
+        <div class="join-cta-eyebrow" data-i18n="cta_eyebrow">Not finding the right role?</div>
+        <div class="join-cta-headline" data-i18n="cta_headline">Write to us anyway.</div>
+        <div class="join-cta-sub" data-i18n="cta_sub">We are still defining many positions.</div>
+      </div>
+      <a class="join-cta-btn" href="contact.html">
+        <span data-i18n="cta_btn">Open contact form</span>
+        <svg width="14" height="14" viewBox="0 0 10 10"><path d="M2 8 L8 2 M8 2 H4 M8 2 V6" stroke="currentColor" fill="none" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="foot-mast">
+      <svg viewBox="0 0 100 100"><use href="#logo-crest"/></svg>
+      <div>
+        <div class="foot-nm" data-i18n="brand_name">University of Science<br>&amp; Strategic Research</div>
+        <div class="foot-tag" data-i18n="brand_tag">Established 2026 &middot; Moscow</div>
+      </div>
+    </div>
+    <address>
+      <span data-i18n="footer_addr_l1">Leninsky Prospekt 14</span><br>
+      <span data-i18n="footer_addr_l2">Moscow, Russia</span>
+    </address>
+    <div class="foot-bottom">
+      <div data-i18n="footer_copy">&copy; MMXXVI &mdash; University of Science &amp; Strategic Research</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const STRINGS = {
+  en: {
+    brand_name: "University of Science<br>&amp; Strategic Research",
+    brand_tag: "Established 2026 &middot; Moscow",
+    nav_research: "Research", nav_about: "About", nav_join: "Join us", nav_contact: "Contact",
+    hero_flag: "Moscow &middot; Open hiring across all directions",
+    hero_h1_a: "Inquiry without", hero_h1_b: "borders.", hero_h1_c: "Strategy with", hero_h1_d: "consequence.",
+    hero_lede: "Established in 2026, the University of Science & Strategic Research is an independent research institution in Moscow dedicated to advancing fundamental science and translating discovery into policy, technology and public good. Across nine interdisciplinary research directions, our scholars pursue questions worth a decade — from foundation models and quantum information to genomics, climate science and the governance of frontier technology — under one roof in central Moscow.",
+    research_h2_a: "Nine directions, one question:", research_h2_b: "what comes next?",
+    research_desc: "Our research directions are not departments — they are problem-shaped, interdisciplinary standing programs that bring together physicists, biologists, economists and engineers around questions worth a decade of effort. Each direction is led by a small steering group of senior researchers who set the agenda, recruit talent and commission cross-cutting work; the structure is meant to keep us close to the science and far from the org chart.",
+    about_h2_a: "A university built around", about_h2_b: "questions worth asking.",
+    about_desc: "The University of Science & Strategic Research was founded in Moscow to bring fundamental inquiry and strategic study under a single roof. Our purpose is to pursue scientific questions of the longest horizon — the structure of matter, the architecture of mind, the limits of computation, the future of the planet — while cultivating the strategic literacy needed to act on what we find.",
+    join_h2_a: "Making the world better,", join_h2_b: "one problem at a time.",
+    join_desc: "We are recruiting researchers, engineers, scholars and strategists from every country, at every career stage. If our research directions align with your work, we would like to hear from you. Hiring is open year-round, across all nine directions.",
+    cta_eyebrow: "Not finding the right role?", cta_headline: "Write to us anyway.",
+    cta_sub: "We are still defining many positions. Talent will always find a place with us.",
+    cta_btn: "Open contact form",
+    footer_addr_l1: "Leninsky Prospekt 14", footer_addr_l2: "Moscow, Russia",
+    footer_copy: "&copy; MMXXVI — University of Science &amp; Strategic Research",
+  },
+  ru: {
+    brand_name: "Университет науки<br>и стратегических исследований",
+    brand_tag: "Основан в 2026 &middot; Москва",
+    nav_research: "Исследования", nav_about: "Об университете", nav_join: "Карьера", nav_contact: "Контакты",
+    hero_flag: "Москва &middot; Открытый набор по всем направлениям",
+    hero_h1_a: "Исследования без", hero_h1_b: "границ.", hero_h1_c: "Стратегия с", hero_h1_d: "последствиями.",
+    hero_lede: "Основанный в 2026 году, Университет науки и стратегических исследований — независимое научное учреждение в Москве. По девяти междисциплинарным направлениям наши исследователи работают над вопросами, достойными десятилетия.",
+    research_h2_a: "Девять направлений, один вопрос:", research_h2_b: "что дальше?",
+    research_desc: "Наши исследовательские направления — не кафедры, а постоянные междисциплинарные программы, объединяющие физиков, биологов, экономистов и инженеров.",
+    about_h2_a: "Университет вокруг", about_h2_b: "вопросов, достойных ответа.",
+    about_desc: "Университет науки и стратегических исследований был основан в Москве, чтобы объединить фундаментальные исследования и стратегическое мышление под одной крышей.",
+    join_h2_a: "Делаем мир лучше,", join_h2_b: "по одной задаче за раз.",
+    join_desc: "Мы приглашаем исследователей, инженеров, учёных и стратегов из любой страны и на любом этапе карьеры.",
+    cta_eyebrow: "Не нашли подходящую позицию?", cta_headline: "Напишите нам.",
+    cta_sub: "Мы ещё определяем многие позиции. Талантливые люди всегда найдут место у нас.",
+    cta_btn: "Открыть форму контакта",
+    footer_addr_l1: "Ленинский проспект, 14", footer_addr_l2: "Москва, Россия",
+    footer_copy: "&copy; MMXXVI — Университет науки и стратегических исследований",
   }
-  let auditRow = '';
-  if (it.lastModifiedBy) {
-    const dt = it.lastModifiedAt ? new Date(it.lastModifiedAt) : null;
-    const dtStr = dt ? dt.toLocaleString([], {
-      year:'numeric', month:'short', day:'numeric',
-      hour:'2-digit', minute:'2-digit'
-    }) : '—';
-    auditRow = `<div class="last-modified">
-      <i class="ti ti-clock-edit" style="font-size:14px;vertical-align:-1px"></i>
-      Last modified by <strong>${esc(it.lastModifiedBy)}</strong><br>${dtStr}
-    </div>`;
-  }
-  document.getElementById('detail-body').innerHTML = `
-    ${photoRow}
-    <div class="qr-wrap" id="detail-qr-wrap"></div>
-    ${fields.map(([l,v]) => `<div class="detail-section">
-      <div class="detail-label">${l}</div>
-      <div class="detail-value">${esc(v)}</div>
-    </div>`).join('')}
-    ${urlRow}
-    ${manualsRow}
-    ${auditRow}
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button class="btn btn-sm" onclick="openEdit('${it.id}');closeModal('detail-modal')">
-        <i class="ti ti-edit"></i> Edit
-      </button>
-    </div>`;
-  openModal('detail-modal');
-  setTimeout(() => {
-    const el = document.getElementById('detail-qr-wrap'); if (!el) return;
-    el.innerHTML = '';
-    const w = document.createElement('div'); el.appendChild(w);
-    new QRCode(w, { text: 'labitem:' + it.id, width: 110, height: 110, correctLevel: QRCode.CorrectLevel.M });
-  }, 50);
-}
+};
 
-/* ── PDF print ── */
-document.getElementById('sel-all-btn').addEventListener('click', () => {
-  if (selected.size === items.length) selected.clear(); else items.forEach(it => selected.add(it.id));
-  renderPrint();
-});
-document.getElementById('print-btn').addEventListener('click', () => {
-  const tp = items.filter(it => selected.has(it.id));
-  if (!tp.length) { alert('Select at least one device to print.'); return; }
-  printLabels(tp, selectedMM);
-});
+const DIRECTIONS = {
+  en: [
+    { tag: "Computational", title: "Artificial Intelligence & Machine Learning", sub: "Foundation models, alignment, mechanistic interpretability, and AI for the sciences." },
+    { tag: "Physical",      title: "Quantum Information",                        sub: "Superconducting qubits, error correction, quantum sensing, and post-quantum cryptography." },
+    { tag: "Earth Systems", title: "Climate & Atmospheric Science",              sub: "Carbon removal, regional downscaling, geophysical risk, and adaptation engineering." },
+    { tag: "Life",          title: "Genomics & Synthetic Biology",               sub: "Single-cell atlases, gene editing, mRNA platforms, and engineered living systems." },
+    { tag: "Cognitive",     title: "Neuroscience & Brain Computation",           sub: "Connectomics, neural prosthetics, mental health biomarkers, and theories of cognition." },
+    { tag: "Materials",     title: "Advanced Materials & Energy",                sub: "Solid-state batteries, perovskites, room-temperature superconductors, and metamaterials." },
+    { tag: "Policy",        title: "Strategic & Security Studies",               sub: "Geoeconomics, defense innovation, and the governance of frontier tech." },
+    { tag: "Society",       title: "Behavioral & Economic Sciences",             sub: "Market design, causal inference at scale, labor economics, and decision science." },
+    { tag: "Frontier",      title: "Space & Planetary Sciences",                 sub: "Exoplanet atmospheres, in-situ resource utilization, and small-body sample return." },
+  ],
+  ru: [
+    { tag: "Вычислительные", title: "Искусственный интеллект и машинное обучение", sub: "Базовые модели, выравнивание, механистическая интерпретируемость и ИИ для науки." },
+    { tag: "Физические",     title: "Квантовая информация",                        sub: "Сверхпроводящие кубиты, коррекция ошибок, квантовые сенсоры и постквантовая криптография." },
+    { tag: "Системы Земли",  title: "Климат и наука об атмосфере",                 sub: "Удаление углерода, геофизические риски и инженерия адаптации." },
+    { tag: "Жизнь",          title: "Геномика и синтетическая биология",           sub: "Атласы одиночных клеток, редактирование генов, мРНК-платформы." },
+    { tag: "Когнитивные",    title: "Нейронаука и вычисления мозга",               sub: "Коннектомика, нейропротезы, биомаркеры психического здоровья." },
+    { tag: "Материалы",      title: "Передовые материалы и энергетика",            sub: "Твёрдотельные батареи, перовскиты, сверхпроводники при комнатной температуре." },
+    { tag: "Политика",       title: "Стратегические исследования и безопасность",  sub: "Геоэкономика, оборонные инновации и регулирование передовых технологий." },
+    { tag: "Общество",       title: "Поведенческие и экономические науки",         sub: "Дизайн рынков, причинно-следственный вывод, экономика труда." },
+    { tag: "Фронтир",        title: "Космические и планетарные науки",             sub: "Атмосферы экзопланет, использование ресурсов in-situ и доставка образцов." },
+  ]
+};
 
-function printLabels(tp, mm) {
-  const printBtn = document.getElementById('print-btn');
-  const origHTML = printBtn.innerHTML;
-  printBtn.innerHTML = '<i class="ti ti-loader"></i> Generating…';
-  printBtn.disabled = true;
+const NUMS = ["I","II","III","IV","V","VI","VII","VIII","IX"];
 
-  const marginMM = 10, gapMM = 3, labelMM = mm;
-  const nameFontMM = Math.max(2.5, mm * 0.22);
-  const invFontMM  = Math.max(2.0, mm * 0.17);
-  const textGapMM  = 1.0;
-  const labelHMM   = labelMM + textGapMM + nameFontMM + 1.5;
-  const usableW    = 210 - marginMM * 2;
-  const cols       = Math.max(1, Math.floor((usableW + gapMM) / (labelMM + gapMM)));
-  const qrSize     = Math.max(128, mm * 12);
-  const qrURLs     = {};
+const ROLES = {
+  en: [
+    { kind: "Faculty",      title: "Assistant / Associate / Full Professor",  dir: "All nine research directions",        type: "Tenure-track · Open rank" },
+    { kind: "Postdoctoral", title: "USSR Junior Fellows Programme",            dir: "Self-directed",                       type: "3-year · Independent funding" },
+    { kind: "Research",     title: "Research Scientists & Senior Engineers",   dir: "World class facilities",              type: "Permanent · Industry-competitive" },
+    { kind: "Doctoral",     title: "PhD Programme — Direct Entry",       dir: "Cohort of 120 across all directions", type: "5-year · Full stipend" },
+    { kind: "Visiting",     title: "Visiting Scholar & Sabbatical Programme",  dir: "3 to 12 months",                      type: "Open to all career stages" },
+  ],
+  ru: [
+    { kind: "Профессура",    title: "Ассистент / Доцент / Профессор",  dir: "Все направления", type: "Бессрочный · Любой ранг" },
+    { kind: "Постдокторант", title: "Программа младших научных сотрудников USSR", dir: "Свободный выбор", type: "3 года · Независимый грант" },
+    { kind: "Исследователь", title: "Научные сотрудники и старшие инженеры", dir: "Мировые лаборатории", type: "Постоянный · Высокая зарплата" },
+    { kind: "Аспирантура",   title: "Программа PhD — прямой набор",  dir: "Набор 120 человек", type: "5 лет · Полная стипендия" },
+    { kind: "Приглашённые",  title: "Программа приглашённых учёных и творческих отпусков", dir: "От 3 до 12 месяцев", type: "Для всех этапов карьеры" },
+  ]
+};
 
-  const tmp = document.createElement('div');
-  tmp.style.cssText = 'position:fixed;left:-9999px;top:0;visibility:hidden;pointer-events:none';
-  document.body.appendChild(tmp);
+let lang = (() => { try { return localStorage.getItem("ussr-lang") || "en"; } catch { return "en"; } })();
 
-  const promises = tp.map(it => new Promise(resolve => {
-    const wrap = document.createElement('div'); tmp.appendChild(wrap);
-    new QRCode(wrap, { text: 'labitem:' + it.id, width: qrSize, height: qrSize, correctLevel: QRCode.CorrectLevel.H });
-    setTimeout(() => {
-      const canvas = wrap.querySelector('canvas');
-      const img    = wrap.querySelector('img');
-      if (canvas) qrURLs[it.id] = canvas.toDataURL('image/png');
-      else if (img && img.src) qrURLs[it.id] = img.src;
-      resolve();
-    }, 500);
-  }));
-
-  Promise.all(promises).then(() => {
-    document.body.removeChild(tmp);
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    doc.setFont('helvetica', 'bold');
-    let col = 0, row = 0;
-    tp.forEach((it, idx) => {
-      const x = marginMM + col * (labelMM + gapMM);
-      const y = marginMM + row * (labelHMM + gapMM);
-      const src = qrURLs[it.id];
-      if (src) doc.addImage(src, 'PNG', x, y, labelMM, labelMM);
-      doc.setDrawColor(180); doc.setLineWidth(0.2); doc.rect(x, y, labelMM, labelHMM);
-      const maxW = labelMM - 1;
-      doc.setFontSize(nameFontMM * 2.835); doc.setTextColor(0);
-      const lines = doc.splitTextToSize(it.name || '', maxW);
-      doc.text(lines[0] + (lines.length > 1 ? '…' : ''), x + labelMM / 2, y + labelMM + textGapMM + nameFontMM, { align: 'center' });
-      if (it.invnum) {
-        doc.setFontSize(invFontMM * 2.835); doc.setTextColor(80);
-        const iLines = doc.splitTextToSize(it.invnum, maxW);
-        doc.text(iLines[0], x + labelMM / 2, y + labelMM + textGapMM + nameFontMM + invFontMM + 0.5, { align: 'center' });
-      }
-      col++;
-      if (col >= cols) {
-        col = 0; row++;
-        const nextY = marginMM + row * (labelHMM + gapMM) + labelHMM;
-        if (nextY > 297 - marginMM && idx < tp.length - 1) { doc.addPage(); row = 0; }
-      }
-    });
-    doc.save(`qr-labels-${mm}mm-${new Date().toISOString().slice(0,10)}.pdf`);
-    printBtn.innerHTML = origHTML; printBtn.disabled = false;
-  }).catch(err => {
-    console.error('PDF error:', err);
-    alert('PDF generation failed. Please try again.');
-    printBtn.innerHTML = origHTML; printBtn.disabled = false;
+function setLang(l) {
+  lang = l;
+  try { localStorage.setItem("ussr-lang", l); } catch {}
+  document.documentElement.lang = l;
+  const s = STRINGS[l] || STRINGS.en;
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    if (s[el.dataset.i18n] !== undefined) el.innerHTML = s[el.dataset.i18n];
   });
+  const dirs = DIRECTIONS[l] || DIRECTIONS.en;
+  document.getElementById("research-grid").innerHTML = dirs.map((d,i) =>
+    `<article class="r-card span-4"><div class="r-num">${NUMS[i]} &middot; ${d.tag}</div><h3>${d.title}</h3><p class="r-sub">${d.sub}</p></article>`
+  ).join("");
+  const roles = ROLES[l] || ROLES.en;
+  document.getElementById("roles-list").innerHTML = roles.map((r,i) =>
+    `<li class="role"><a class="role-link" href="contact.html" aria-label="${r.title}"></a><div class="role-kind">${String(i+1).padStart(2,"0")} / ${r.kind}</div><div class="role-title">${r.title}</div><div class="role-meta"><span>${r.dir}</span><span style="opacity:.5">&middot;</span><span>${r.type}</span></div><span class="role-arrow"><svg width="14" height="14" viewBox="0 0 10 10"><path d="M2 8 L8 2 M8 2 H4 M8 2 V6" stroke="currentColor" fill="none" stroke-width="1.2" stroke-linecap="round"/></svg></span></li>`
+  ).join("");
+  document.querySelectorAll(".lang-opt").forEach(b => b.classList.toggle("is-active", b.dataset.lang === l));
 }
 
-/* ══════════════════════════════════════════════════
-   QR SCANNING
-   Primary:  BarcodeDetector API (native, hardware-accelerated — Android Chrome)
-   Fallback: jsQR (pure JS canvas — works everywhere else)
-   ══════════════════════════════════════════════════ */
-if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-  document.getElementById('https-notice').style.display = 'block';
-}
-
-document.getElementById('start-scan-btn').addEventListener('click', startScan);
-document.getElementById('stop-scan-btn').addEventListener('click', stopScan);
-
-let barcodeDetector = null;
-let useNativeDetector = false;
-
-async function initDetector() {
-  if ('BarcodeDetector' in window) {
-    try {
-      const formats = await BarcodeDetector.getSupportedFormats();
-      if (formats.includes('qr_code')) {
-        barcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
-        useNativeDetector = true;
-        console.log('✓ Using native BarcodeDetector API');
-        return;
-      }
-    } catch(e) { console.warn('BarcodeDetector init failed:', e); }
-  }
-  useNativeDetector = false;
-  console.log('ℹ Falling back to jsQR');
-}
-
-async function startScan() {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    showScanError('Camera API not available. This page must be served over HTTPS.'); return;
-  }
-  stopScan();
-  await initDetector();
-  try {
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: false
-      });
-    } catch(e) {
-      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-    }
-    videoEl.srcObject = stream;
-    const pp = videoEl.play();
-    if (pp !== undefined) pp.catch(e => console.warn('play() suppressed:', e));
-    if (videoEl.readyState < 2) {
-      await new Promise(res => {
-        const done = () => { videoEl.removeEventListener('loadedmetadata', done); res(); };
-        videoEl.addEventListener('loadedmetadata', done);
-        setTimeout(res, 4000);
-      });
-    }
-    try { await videoEl.play(); } catch(e) {}
-    document.getElementById('video-wrap').style.display = 'block';
-    document.getElementById('scan-status').style.display = 'block';
-    document.getElementById('stop-wrap').style.display = 'block';
-    document.getElementById('scan-result').style.display = 'none';
-    document.getElementById('scan-status').textContent =
-      useNativeDetector ? 'Hold the QR code steady inside the box' : 'Scanning… hold QR code steady';
-    canvasEl = document.createElement('canvas');
-    ctxEl = canvasEl.getContext('2d', { willReadFrequently: true });
-    scanning = true;
-    requestAnimationFrame(scanLoop);
-  } catch(err) {
-    let msg = 'Could not access camera.';
-    if (err.name === 'NotAllowedError')  msg = 'Camera permission denied. Tap the camera icon in the address bar and allow access.';
-    if (err.name === 'NotFoundError')    msg = 'No camera found on this device.';
-    if (err.name === 'NotReadableError') msg = 'Camera is in use by another app. Close it and try again.';
-    showScanError(msg);
-  }
-}
-
-async function scanLoop() {
-  if (!scanning) return;
-
-  if (videoEl.readyState === videoEl.HAVE_ENOUGH_DATA) {
-    try {
-      let result = null;
-
-      if (useNativeDetector && barcodeDetector) {
-        // PRIMARY: pass video element directly — no canvas, no pixel copying
-        const barcodes = await barcodeDetector.detect(videoEl);
-        if (barcodes.length > 0) result = barcodes[0].rawValue;
-      } else {
-        // FALLBACK: jsQR via canvas
-        canvasEl.width  = videoEl.videoWidth;
-        canvasEl.height = videoEl.videoHeight;
-        ctxEl.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
-        const imageData = ctxEl.getImageData(0, 0, canvasEl.width, canvasEl.height);
-        const code = jsQR(imageData.data, imageData.width, imageData.height, {
-          inversionAttempts: 'attemptBoth'
-        });
-        if (code) result = code.data;
-      }
-
-      if (result) {
-        stopScan();
-        if (result.startsWith('labitem:')) {
-          const id = result.replace('labitem:', '');
-          const it = items.find(x => x.id === id);
-          if (it) { showDetail(it.id); }
-          else    { showScanResult(null, id); }
-        } else {
-          showScanResult(null, result);
-        }
-        return;
-      }
-    } catch(e) { console.warn('Scan error:', e); }
-  }
-
-  requestAnimationFrame(scanLoop);
-}
-
-function stopScan() {
-  scanning = false;
-  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-  videoEl.srcObject = null;
-  document.getElementById('video-wrap').style.display = 'none';
-  document.getElementById('scan-status').style.display = 'none';
-  document.getElementById('stop-wrap').style.display = 'none';
-}
-
-function showScanError(msg) {
-  document.getElementById('scan-icon-wrap').innerHTML =
-    `<i class="ti ti-alert-circle" style="font-size:40px;color:var(--err-t);display:block;margin:0 auto 10px"></i>
-     <div style="font-size:15px;font-weight:600;margin-bottom:6px">Camera unavailable</div>
-     <div style="font-size:15px;color:var(--text2);margin-bottom:16px">${msg}</div>
-     <button class="btn btn-sm" onclick="location.reload()"><i class="ti ti-refresh"></i> Reload page</button>`;
-}
-
-function showScanResult(it, id) {
-  const res = document.getElementById('scan-result'); res.style.display = 'block';
-  if (!it) {
-    const foreign = !String(id).match(/^[a-z0-9]{8,}$/);
-    const msg = foreign
-      ? `QR code detected but not a registered device.<br><small style="color:var(--text3)">${esc(String(id).slice(0,60))}</small>`
-      : `No device found for ID: <small style="color:var(--text3)">${esc(String(id))}</small>`;
-    res.innerHTML = `<div class="card"><div style="color:var(--err-t);margin-bottom:10px">
-      <i class="ti ti-alert-circle"></i> ${msg}</div>
-      <button class="btn btn-sm" onclick="startScan()"><i class="ti ti-scan"></i> Scan again</button></div>`;
-    return;
-  }
-  const ic = ICONS[it.category] || 'ti-tool';
-  const thumb = it.photo
-    ? `<img src="${it.photo}" style="width:42px;height:42px;object-fit:cover;border-radius:var(--r-md)" alt="">`
-    : `<i class="ti ${ic}" style="font-size:20px"></i>`;
-  res.innerHTML = `<div class="card"><div class="card-row" style="margin-bottom:10px">
-    <div class="item-icon">${thumb}</div>
-    <div style="flex:1;min-width:0">
-      <div class="item-name">${esc(it.name)}</div>
-      <div class="item-meta">${esc(it.manufacturer||it.category)}${it.setup?' · '+esc(it.setup):''}</div>
-      ${it.invnum?`<div style="font-size:13px;color:var(--text3)">${esc(it.invnum)}</div>`:''}
-    </div>${mkbadge(it.status)}</div>
-    <div class="actions">
-      <button class="btn btn-sm" onclick="showDetail('${it.id}')"><i class="ti ti-info-circle"></i> Details</button>
-      <button class="btn btn-sm" onclick="openEdit('${it.id}')"><i class="ti ti-edit"></i> Edit</button>
-      <button class="btn btn-sm" onclick="startScan()"><i class="ti ti-scan"></i> Scan again</button>
-    </div></div>`;
-}
-
-/* ══════════════════════════════════════════════════
-   AUTHENTICATION UI
-   ══════════════════════════════════════════════════ */
-document.getElementById('google-sign-in-btn').addEventListener('click', () => {
-  document.getElementById('login-error').style.display = 'none';
-  window._firebaseReady.then(() => window._auth.signIn());
-});
-
-window.addEventListener('auth-error', e => {
-  const el = document.getElementById('login-error');
-  el.textContent = 'Sign-in failed: ' + e.detail;
-  el.style.display = 'block';
-});
-
-// Shown when user taps their avatar — shows sign-out option
-document.getElementById('user-btn').addEventListener('click', () => {
-  const user = window._currentUser;
-  if (!user) return;
-  if (confirm(`Signed in as ${user.email}\n\nSign out?`)) {
-    if (window._auth) window._auth.signOut();
-  }
-});
-
-window.addEventListener('auth-changed', e => {
-  const user = e.detail;
-  const loginScreen = document.getElementById('login-screen');
-  const userBtn     = document.getElementById('user-btn');
-  const avatarEl    = document.getElementById('user-avatar');
-  const nameEl      = document.getElementById('user-name');
-
-  if (user) {
-    // Hide login, show app
-    loginScreen.classList.remove('visible');
-
-    // Build avatar: photo if available, else coloured initials
-    if (user.photoURL) {
-      avatarEl.innerHTML = `<img src="${user.photoURL}" style="width:28px;height:28px;border-radius:50%;object-fit:cover" referrerpolicy="no-referrer">`;
-    } else {
-      const initials = (user.displayName || user.email || '?')
-        .split(/\s+|@/).filter(Boolean).slice(0,2).map(s => s[0].toUpperCase()).join('');
-      const hue = [...user.email].reduce((h, c) => h + c.charCodeAt(0), 0) % 360;
-      avatarEl.style.cssText = `width:28px;height:28px;border-radius:50%;display:flex;align-items:center;
-        justify-content:center;font-size:11px;font-weight:700;color:#fff;
-        background:hsl(${hue},55%,45%);flex-shrink:0`;
-      avatarEl.textContent = initials;
-    }
-
-    const firstName = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
-    nameEl.textContent = firstName;
-    userBtn.style.display = 'inline-flex';
-    document.getElementById('online-badge').style.display = 'inline-flex';
-
-  } else {
-    // Show login screen, hide app UI
-    loginScreen.classList.add('visible');
-    userBtn.style.display = 'none';
-    document.getElementById('online-badge').style.display = 'none';
-  }
-});
-
-/* ══════════════════════════════════════════════════
-   ONE-SHOT SEED IMPORT
-   Writes the first 10 items from the Hybrid Photonics
-   register into Firebase exactly once, gated by a
-   /meta/seedImportDone flag in the database.
-   Safe to call repeatedly — no-ops after first run.
-   ══════════════════════════════════════════════════ */
-const SEED_ITEMS = [
-  { invnum:'000003945',
-    name:'Montana Cryostation C2 (closed-cycle cryostat) #1',
-    manufacturer:'Montana Instruments', model:'Cryostation C2',
-    category:'Cryostat / cryogenic system', purchaseDate:'2017-12-21',
-    url:'https://www.montanainstruments.com/cryostation-s200',
-    photoUrl:'https://cdn.prod.website-files.com/6115ef37c56b3bf5014508e5/6579d83a9fc5d8e1e2506e77_CA200_SystemOnly.7_1280X960_300DPI.png',
-    notes:'Cryogen-free closed-cycle optical cryostat, 3.2–350 K range. Low-vibration design with five wide-aperture optical ports and 28 electrical feedthroughs. Automated cooldown and temperature control via built-in software.' },
-  { invnum:'000002391',
-    name:'Montana Cryostation C2 (closed-cycle cryostat) #2',
-    manufacturer:'Montana Instruments', model:'Cryostation C2',
-    category:'Cryostat / cryogenic system', purchaseDate:'2016-10-10',
-    url:'https://www.montanainstruments.com/cryostation-s200',
-    photoUrl:'https://cdn.prod.website-files.com/6115ef37c56b3bf5014508e5/6579d83a9fc5d8e1e2506e77_CA200_SystemOnly.7_1280X960_300DPI.png',
-    notes:'Cryogen-free closed-cycle optical cryostat, 3.2–350 K range. Low-vibration design with five wide-aperture optical ports and 28 electrical feedthroughs. Automated cooldown and temperature control via built-in software.' },
-  { invnum:'000001413',
-    name:'Libra-F-1K-230-HE+ Femtosecond Amplifier System',
-    manufacturer:'Coherent', model:'Libra-F-1K-230-HE+',
-    category:'Laser system (pulsed)', purchaseDate:'2015-07-15',
-    url:'https://www.coherent.com/lasers/amplifiers',
-    photoUrl:'https://www.coherent.com/content/dam/coherent/site/en/images/photography/lasers/products-lasers-ultrafast-amplifiers.jpg',
-    notes:'One-box Ti:Sapphire regenerative amplifier. Output: >1 mJ/pulse at 1 kHz, 800 nm, <100 fs pulse width. Integrated seed oscillator and Evolution pump. M² < 1.3. Used to pump OPAs for ultrafast spectroscopy.' },
-  { invnum:'000002342',
-    name:'M-RS4000 Double Optical Table System',
-    manufacturer:'Newport', model:'M-RS4000',
-    category:'Optical table / breadboard', purchaseDate:'2016-07-05',
-    url:'https://www.newport.com/f/tuned-damped-top-performance-optical-tables',
-    photoUrl:'https://api.p1.mks.com/medias/sys_master/DefaultCelumAssetsFolder/hb4/h54/9902425473054/VC-RS4000_800w/VC-RS4000-800w.jpg',
-    notes:'Research-grade optical table with tuned mass damping (TMD). Trussed honeycomb steel core, M6 metric holes on 25 mm grid. Six precision tuned dampers target structural resonances from 25–525 Hz for interferometry-grade stability.' },
-  { invnum:'000004694',
-    name:'SpectromagPT Magneto-Optical Cryostat',
-    manufacturer:'Oxford Instruments', model:'SpectromagPT',
-    category:'Cryostat / cryogenic system', purchaseDate:'2018-07-04',
-    url:'https://nanoscience.oxinst.com/products/cryofree-magnets/spectromagpt',
-    photoUrl:'https://nanoscience.oxinst.com/assets/uploads/Oxford_Instruments_SpectromagPT_product.jpg',
-    notes:'Cryofree split-pair horizontal-field superconducting magnet system. 7 T field, 1.6–300 K temperature range. Optical access parallel and perpendicular to field. Quick top-loading sample exchange without warming up.' },
-  { invnum:'000001397',
-    name:'Chameleon Compact OPO-Vis',
-    manufacturer:'Coherent', model:'Chameleon Compact OPO-Vis',
-    category:'OPO / OPA / parametric source', purchaseDate:'2015-07-15',
-    url:'https://www.coherent.com/lasers/laser/chameleon-compact-opo-and-mpx',
-    photoUrl:'https://www.coherent.com/content/dam/coherent/site/en/products/lasers/ultrafast-oscillators/chameleon-family/chameleon-ultra/IMG_ChameleonUltraFamily_850x850_0915.jpg',
-    notes:'Automated hands-free OPO pumped by Chameleon Ultra II. OPO-Vis adds frequency doubling of both pump and OPO outputs, enabling continuous tuning from 340–1600 nm. No manual adjustment needed during tuning.' },
-  { invnum:'000001396',
-    name:'Chameleon Ultra II Femtosecond Ti:Sapphire Laser',
-    manufacturer:'Coherent', model:'Chameleon Ultra II',
-    category:'Laser system (pulsed)', purchaseDate:'2015-07-15',
-    url:'https://www.coherent.com/lasers/oscillators/chameleon-ultra',
-    photoUrl:'https://www.coherent.com/content/dam/coherent/site/en/products/lasers/ultrafast-oscillators/chameleon-family/chameleon-ultra/IMG_ChameleonUltraFamily_850x850_0915.jpg',
-    notes:'Mode-locked Ti:Sapphire oscillator, 690–1080 nm tuning range, >3.5 W average power, 80 MHz repetition rate, ~140 fs pulses. Hands-free automated tuning. Primary pump for the Chameleon Compact OPO-Vis.' },
-  { invnum:'000001144',
-    name:'mPG 101 Maskless Laser Lithography System',
-    manufacturer:'Heidelberg Instruments', model:'µPG 101',
-    category:'Thin film deposition', purchaseDate:'2015-05-13',
-    url:'https://heidelberg-instruments.com/core-technologies/maskless-laser-lithography/',
-    photoUrl:'https://heidelberg-instruments.com/wp-content/uploads/2024/09/Product_image_uMLA-2025_840x740.webp',
-    notes:'Compact direct-write laser lithography system for rapid prototyping without photomasks. 375 nm diode laser, minimum feature size ~0.8 µm, substrate sizes up to 5"×5". Used for MEMS, integrated optics, and microfluidics patterning.' },
-  { invnum:'000003416',
-    name:'SolsTiS 4000 SRX XF Tunable CW Ti:Sapphire Laser',
-    manufacturer:'M Squared Lasers', model:'SolsTiS 4000 SRX XF',
-    category:'Laser system (CW)', purchaseDate:'2017-04-05',
-    url:'https://m2lasers.com/solstis.html',
-    photoUrl:'https://m2lasers.com/images/solstis-laser.jpg',
-    notes:'Ultra-narrow linewidth (<100 kHz) CW Ti:Sapphire laser, tunable 700–1000 nm, >4 W output. Integrated reference cavity (SRX) for frequency stabilisation. TeraScan option enables mode-hop-free sweeps >1 THz. Ideal for atomic/molecular spectroscopy.' },
-  { invnum:'000004650',
-    name:'PICOSTAR Intensified CCD Camera System',
-    manufacturer:'LaVision', model:'PicoStar HR',
-    category:'Camera / CCD / sCMOS', purchaseDate:'2018-04-06',
-    url:'https://www.lavision.de/en/products/cameras/intensified-cameras/',
-    photoUrl:'https://www.lavision.de/en/img/products/cameras/picostar-hr.jpg',
-    notes:'Time-gated intensified CCD camera with <300 ps gate width at up to 110 MHz repetition rate. Spectral range 200–900 nm. Used for FLIM, single-molecule spectroscopy, pump-probe and time-resolved Raman experiments.' },
-];
-
-/* ══════════════════════════════════════════════════
-   BATCH 2 — remaining 191 items from the register
-   Gated by /meta/seedImport2Done
-   ══════════════════════════════════════════════════ */
-const SEED_ITEMS_2 = [
-  { invnum:'000001408', name:'Coherent RegA 9050 Ti:Sa Regenerative Amplifier', manufacturer:'Coherent', model:'RegA 9050', category:'Laser system (pulsed)', purchaseDate:'2015-07-15' },
-  { invnum:'000001415', name:'Coherent Vitara-T Ultrashort Ti:Sa Oscillator', manufacturer:'Coherent', model:'Vitara-T', category:'Laser system (pulsed)', purchaseDate:'2015-07-15' },
-  { invnum:'FA003681', name:'Newport M-RS4000 Custom Non-Magnetic Optical Table', manufacturer:'Newport', model:'M-RS4000', category:'Optical table / breadboard', purchaseDate:'2019-07-11' },
-  { invnum:'000000961', name:'JEOL JCM-6000 NeoScope II Scanning Electron Microscope', manufacturer:'JEOL', model:'JCM-6000 NeoScope II', category:'Microscope', purchaseDate:'2015-04-29' },
-  { invnum:'000003648', name:'Otsuka Electronics Goniophotometer with 20″ Integrating Sphere', manufacturer:'Otsuka Electronics', model:'GS-1000', category:'Cleanroom & lab support', purchaseDate:'2017-08-28' },
-  { invnum:'000001406', name:'Coherent MBR-110 CW Ring Ti:Sa Laser with Wideband Isolator', manufacturer:'Coherent', model:'MBR-110', category:'Laser system (CW)', purchaseDate:'2015-07-15' },
-  { invnum:'000001395', name:'Coherent MBR-110 CW Ring Ti:Sa Laser #2', manufacturer:'Coherent', model:'MBR-110', category:'Laser system (CW)', purchaseDate:'2015-07-15' },
-  { invnum:'000001401', name:'Coherent Mira HP-D Femtosecond Ti:Sa Oscillator', manufacturer:'Coherent', model:'Mira HP-D', category:'Laser system (pulsed)', purchaseDate:'2015-07-15' },
-  { invnum:'FA013552', name:'Spectra-Physics Millennia eV 25 W 532 nm CW DPSS Pump Laser', manufacturer:'Spectra-Physics', model:'Millennia eV 25W', category:'Laser system (CW)', purchaseDate:'2021-06-30' },
-  { invnum:'000001407', name:'Coherent MBD 200 Diode-Pumped CW Laser System', manufacturer:'Coherent', model:'MBD 200', category:'Laser system (CW)', purchaseDate:'2015-07-15' },
-  { invnum:'000001212', name:'NKT Photonics SuperK WL-SC-400-8-PP Supercontinuum Laser', manufacturer:'NKT Photonics', model:'SuperK WL-SC-400-8-PP', category:'Laser system (CW)', purchaseDate:'2015-09-21' },
-  { invnum:'FA013550', name:'Sirah Lasertechnik Matisse CR CW Ring Ti:Sa Laser', manufacturer:'Sirah Lasertechnik', model:'Matisse CR', category:'Laser system (CW)', purchaseDate:'2021-06-30' },
-  { invnum:'FA016416', name:'Spectra-Physics Millennia eV 20 W 532 nm CW DPSS Pump Laser #1', manufacturer:'Spectra-Physics', model:'Millennia eV 20W', category:'Laser system (CW)', purchaseDate:'2022-06-30' },
-  { invnum:'FA016417', name:'Spectra-Physics Millennia eV 20 W 532 nm CW DPSS Pump Laser #2', manufacturer:'Spectra-Physics', model:'Millennia eV 20W', category:'Laser system (CW)', purchaseDate:'2022-06-30' },
-  { invnum:'000005208', name:'Ekspla NT342 Compact Tunable Nanosecond OPO Laser System', manufacturer:'Ekspla', model:'NT342', category:'OPO / OPA / parametric source', purchaseDate:'2018-09-21' },
-  { invnum:'000001405', name:'Coherent Verdi G20 DPSS Pump Laser (Mira/MBR adapter) #1', manufacturer:'Coherent', model:'Verdi G20', category:'Laser system (CW)', purchaseDate:'2015-07-15' },
-  { invnum:'000001402', name:'Coherent Verdi G20 DPSS Pump Laser (Mira/MBR adapter) #2', manufacturer:'Coherent', model:'Verdi G20', category:'Laser system (CW)', purchaseDate:'2015-07-15' },
-  { invnum:'000001414', name:'Coherent OPerA Solo Tunable fs OPA', manufacturer:'Coherent', model:'OPerA Solo', category:'OPO / OPA / parametric source', purchaseDate:'2015-07-15' },
-  { invnum:'000001209', name:'QE/IPCE Spectral Sensitivity Measurement System', manufacturer:'', model:'', category:'Cleanroom & lab support', purchaseDate:'2015-06-30' },
-  { invnum:'000001141', name:'KLA-Tencor D-600 Stylus Profilometer', manufacturer:'KLA-Tencor', model:'D-600', category:'Cleanroom & lab support', purchaseDate:'2015-04-17' },
-  { invnum:'000000732', name:'TSI SMPS 3938L88 Scanning Mobility Particle Sizer', manufacturer:'TSI', model:'SMPS 3938L88', category:'Cleanroom & lab support', purchaseDate:'2014-12-17' },
-  { invnum:'000003293', name:'Princeton Instruments ProEM-HS:1024BX3 EMCCD Camera', manufacturer:'Princeton Instruments', model:'ProEM-HS:1024BX3', category:'Camera / CCD / sCMOS', purchaseDate:'2017-05-19' },
-  { invnum:'FA007863', name:'Spectra-Physics Millennia eV 10 W 532 nm CW DPSS Pump Laser', manufacturer:'Spectra-Physics', model:'Millennia eV 10W', category:'Laser system (CW)', purchaseDate:'2020-03-31' },
-  { invnum:'000001418', name:'Coherent Verdi G18 DPSS Pump Laser (Mira/MBR adapter)', manufacturer:'Coherent', model:'Verdi G18', category:'Laser system (CW)', purchaseDate:'2015-07-15' },
-  { invnum:'000003646', name:'Otsuka Electronics QE-2000 Quantum Efficiency Measurement System', manufacturer:'Otsuka Electronics', model:'QE-2000', category:'Cleanroom & lab support', purchaseDate:'2017-08-28' },
-  { invnum:'000001011', name:'Yokogawa AQ6373 Optical Spectrum Analyzer', manufacturer:'Yokogawa', model:'AQ6373', category:'Spectrometer', purchaseDate:'2015-03-18' },
-  { invnum:'000001411', name:'Coherent OPA 9450 Tunable Femtosecond OPA', manufacturer:'Coherent', model:'OPA 9450', category:'OPO / OPA / parametric source', purchaseDate:'2015-07-15' },
-  { invnum:'000001412', name:'Coherent OPA 9850 Tunable Femtosecond OPA', manufacturer:'Coherent', model:'OPA 9850', category:'OPO / OPA / parametric source', purchaseDate:'2015-07-15' },
-  { invnum:'000001409', name:'Coherent Verdi G12 DPSS Pump Laser (Mira/MBR adapter)', manufacturer:'Coherent', model:'Verdi G12', category:'Laser system (CW)', purchaseDate:'2015-07-15' },
-  { invnum:'000001403', name:'Coherent Synchro-Lock AP Pulse Synchronizer for Mira-900', manufacturer:'Coherent', model:'Synchro-Lock AP', category:'Electronics / DAQ / power supply', purchaseDate:'2015-07-15' },
-  { invnum:'000001500', name:'PicoQuant HydraHarp 400 TCSPC 4-Channel System', manufacturer:'PicoQuant', model:'HydraHarp 400', category:'Photodetector / APD / PMT', purchaseDate:'2015-10-23' },
-  { invnum:'FA001362', name:'Princeton Instruments SP 2760 750 mm Imaging Spectrograph', manufacturer:'Princeton Instruments', model:'SP 2760', category:'Spectrometer', purchaseDate:'2019-03-31' },
-  { invnum:'000001404', name:'Coherent Mira Third Harmonic Generator', manufacturer:'Coherent', model:'Mira THG', category:'Electronics / DAQ / power supply', purchaseDate:'2015-07-15' },
-  { invnum:'000002457', name:'Bruker A562-G Integrating Sphere Accessory for FTIR', manufacturer:'Bruker', model:'A562-G', category:'Spectrometer', purchaseDate:'2016-11-09' },
-  { invnum:'FA027127', name:'PCO Edge 4.2 bi Back-Illuminated sCMOS Camera', manufacturer:'PCO', model:'Edge 4.2 bi', category:'Camera / CCD / sCMOS', purchaseDate:'2025-09-30' },
-  { invnum:'000001438', name:'PicoQuant FLIM Upgrade Kit for Zeiss LSM Confocal', manufacturer:'PicoQuant', model:'FLIM Kit', category:'Photodetector / APD / PMT', purchaseDate:'2015-10-23' },
-  { invnum:'000003481', name:'Aerotech ANT95-50-XY Ultra-Precision XY Positioner', manufacturer:'Aerotech', model:'ANT95-50-XY', category:'3D stage / positioner', purchaseDate:'2017-06-21' },
-  { invnum:'000001338', name:'Newport/Oriel QE/IPCE Measurement Kit with Silicon Detector', manufacturer:'Newport', model:'QE/IPCE Kit', category:'Photodetector / APD / PMT', purchaseDate:'2015-06-01' },
-  { invnum:'FA003756', name:'Andor Shamrock SR500i-D2 500 mm Imaging Spectrograph', manufacturer:'Andor', model:'Shamrock SR500i', category:'Spectrometer', purchaseDate:'2019-12-31' },
-  { invnum:'000001122', name:'Quorum Q150T ES High-Vacuum Sputter Coater', manufacturer:'Quorum Technologies', model:'Q150T ES', category:'Thin film deposition', purchaseDate:'2015-04-23' },
-  { invnum:'000002971', name:'Keysight DSOS204A 2 GHz 4-Channel Infiniium Oscilloscope #1', manufacturer:'Keysight', model:'DSOS204A', category:'Oscilloscope', purchaseDate:'2017-02-22' },
-  { invnum:'000002972', name:'Keysight DSOS204A 2 GHz 4-Channel Infiniium Oscilloscope #2', manufacturer:'Keysight', model:'DSOS204A', category:'Oscilloscope', purchaseDate:'2017-02-22' },
-  { invnum:'000003475', name:'Toptica DL Pro 780 nm Tunable Diode Laser System', manufacturer:'Toptica Photonics', model:'DL Pro 780 nm', category:'Laser system (CW)', purchaseDate:'2017-05-15' },
-  { invnum:'000003065', name:'APE pulseSelect HP Ti:Sa Pulse Picker #1', manufacturer:'APE', model:'pulseSelect HP', category:'Electronics / DAQ / power supply', purchaseDate:'2017-03-23' },
-  { invnum:'000003066', name:'APE pulseSelect HP Ti:Sa Pulse Picker #2', manufacturer:'APE', model:'pulseSelect HP', category:'Electronics / DAQ / power supply', purchaseDate:'2017-03-23' },
-  { invnum:'000001447', name:'PicoQuant τ-SPAD Single Photon Detection Module', manufacturer:'PicoQuant', model:'τ-SPAD', category:'Photodetector / APD / PMT', purchaseDate:'2015-10-23' },
-  { invnum:'000001410', name:'Coherent Synchrolock AP Controller for Vitara Laser', manufacturer:'Coherent', model:'Synchrolock AP', category:'Electronics / DAQ / power supply', purchaseDate:'2015-07-15' },
-  { invnum:'FA008100', name:'Holoeye GAEA-2-NIR Spatial Light Modulator', manufacturer:'Holoeye', model:'GAEA-2-NIR', category:'Spatial light modulator', purchaseDate:'2019-12-31' },
-  { invnum:'000003067', name:'APE pulseCheck USB ShortPulse Autocorrelator', manufacturer:'APE', model:'pulseCheck USB', category:'Electronics / DAQ / power supply', purchaseDate:'2017-03-23' },
-  { invnum:'000000962', name:'Nikon Eclipse LV150N Optical Microscope', manufacturer:'Nikon', model:'Eclipse LV150N', category:'Microscope', purchaseDate:'2015-03-27' },
-  { invnum:'000003022', name:'Hamamatsu X13138-02 LCOS-SLM Optical Phase Modulator #1', manufacturer:'Hamamatsu Photonics', model:'X13138-02 LCOS-SLM', category:'Spatial light modulator', purchaseDate:'2017-02-28' },
-  { invnum:'000003023', name:'Hamamatsu X13138-02 LCOS-SLM Optical Phase Modulator #2', manufacturer:'Hamamatsu Photonics', model:'X13138-02 LCOS-SLM', category:'Spatial light modulator', purchaseDate:'2017-02-28' },
-  { invnum:'000005867', name:'Hamamatsu X13138-01 LCOS-SLM Optical Phase Modulator', manufacturer:'Hamamatsu Photonics', model:'X13138-01 LCOS-SLM', category:'Spatial light modulator', purchaseDate:'2018-11-12' },
-  { invnum:'000005868', name:'Hamamatsu X13138-SPL Cooled LCOS-SLM Phase Modulator', manufacturer:'Hamamatsu Photonics', model:'X13138-SPL LCOS-SLM', category:'Spatial light modulator', purchaseDate:'2018-11-19' },
-  { invnum:'000005672', name:'Gooch & Housego Acousto-Optic Modulator', manufacturer:'Gooch & Housego', model:'AOM', category:'Spatial light modulator', purchaseDate:'2018-12-17' },
-  { invnum:'FA024355', name:'Hamamatsu ORCA-Flash4.0 V3 sCMOS Camera #1', manufacturer:'Hamamatsu Photonics', model:'ORCA-Flash4.0 V3', category:'Camera / CCD / sCMOS', purchaseDate:'2023-10-31' },
-  { invnum:'FA024356', name:'Hamamatsu ORCA-Flash4.0 V3 sCMOS Camera #2', manufacturer:'Hamamatsu Photonics', model:'ORCA-Flash4.0 V3', category:'Camera / CCD / sCMOS', purchaseDate:'2023-10-31' },
-  { invnum:'000001416', name:'Coherent CPC II Laser Pulse Compressor', manufacturer:'Coherent', model:'CPC II', category:'Laser system (pulsed)', purchaseDate:'2015-12-10' },
-  { invnum:'000001186', name:'Holoeye PLUTO-NIR-015-C Phase-Only SLM #1', manufacturer:'Holoeye', model:'PLUTO-NIR-015-C', category:'Spatial light modulator', purchaseDate:'2015-04-27' },
-  { invnum:'000001187', name:'Holoeye PLUTO-NIR-015-C Phase-Only SLM #2', manufacturer:'Holoeye', model:'PLUTO-NIR-015-C', category:'Spatial light modulator', purchaseDate:'2015-04-27' },
-  { invnum:'000002942', name:'Hinds Instruments PEM-100 Photoelastic Modulator + Controller #1', manufacturer:'Hinds Instruments', model:'PEM-100', category:'Spatial light modulator', purchaseDate:'2017-02-08' },
-  { invnum:'000002943', name:'Hinds Instruments PEM-100 Photoelastic Modulator + Controller #2', manufacturer:'Hinds Instruments', model:'PEM-100', category:'Spatial light modulator', purchaseDate:'2017-02-08' },
-  { invnum:'000002470', name:'SHVEN-H1600 Chemical Fume Hood', manufacturer:'', model:'SHVEN-H1600', category:'Cleanroom & lab support', purchaseDate:'2016-11-15' },
-  { invnum:'FA018859', name:'Keysight MSO8104 2 GHz Mixed Signal Oscilloscope 4+16-Ch', manufacturer:'Keysight', model:'MSO8104', category:'Oscilloscope', purchaseDate:'2022-12-31' },
-  { invnum:'000000768', name:'Sheet Resistance Measurement System for Thin Films', manufacturer:'', model:'', category:'Cleanroom & lab support', purchaseDate:'2014-10-20' },
-  { invnum:'000003058', name:'VariSpec Liquid Crystal Tunable Bandpass Filter', manufacturer:'PerkinElmer', model:'VariSpec', category:'Spatial light modulator', purchaseDate:'2017-02-03' },
-  { invnum:'000001010', name:'Linkam THMS350V Cryo/Thermo Stage for Optical Microscopes', manufacturer:'Linkam Scientific', model:'THMS350V', category:'3D stage / positioner', purchaseDate:'2015-03-11' },
-  { invnum:'000003949', name:'Ocean Optics QE Pro High-Sensitivity Scientific Spectrometer', manufacturer:'Ocean Optics', model:'QE Pro', category:'Spectrometer', purchaseDate:'2017-12-12' },
-  { invnum:'000002416', name:'Keysight DSOX3054T 4-Channel 500 MHz Oscilloscope', manufacturer:'Keysight', model:'DSOX3054T', category:'Oscilloscope', purchaseDate:'2016-10-20' },
-  { invnum:'000000958', name:'RMS-EL-Z Sheet Resistance Measurement System', manufacturer:'', model:'RMS-EL-Z', category:'Cleanroom & lab support', purchaseDate:'2015-01-01' },
-  { invnum:'000002946', name:'Diener Zepto Benchtop Plasma Cleaner', manufacturer:'Diener Electronic', model:'Zepto', category:'Thin film deposition', purchaseDate:'2017-02-10' },
-  { invnum:'000002900', name:'Laminar Flow Clean Workstation with Air Purification #1', manufacturer:'', model:'1SV-12-24', category:'Cleanroom & lab support', purchaseDate:'2017-01-13' },
-  { invnum:'000002901', name:'Laminar Flow Clean Workstation with Air Purification #2', manufacturer:'', model:'1SV-12-24', category:'Cleanroom & lab support', purchaseDate:'2017-01-13' },
-  { invnum:'FA012483', name:'Thorlabs NanoMax 6-Axis Flexure Stage Platform', manufacturer:'Thorlabs', model:'NanoMax 6-Axis', category:'3D stage / positioner', purchaseDate:'2021-03-31' },
-  { invnum:'000005471', name:'Keysight DSOX3052T 2-Channel 500 MHz Oscilloscope', manufacturer:'Keysight', model:'DSOX3052T', category:'Oscilloscope', purchaseDate:'2018-10-31' },
-  { invnum:'000002437', name:'Excelitas SPCM-AQRH-16-FC Single Photon Counting Module #1', manufacturer:'Excelitas Technologies', model:'SPCM-AQRH-16-FC', category:'Photodetector / APD / PMT', purchaseDate:'2016-10-28' },
-  { invnum:'000002438', name:'Excelitas SPCM-AQRH-16-FC Single Photon Counting Module #2', manufacturer:'Excelitas Technologies', model:'SPCM-AQRH-16-FC', category:'Photodetector / APD / PMT', purchaseDate:'2016-10-28' },
-  { invnum:'000002851', name:'Newport RS2000 Optical Table 1200×2400×305 mm M6 #2', manufacturer:'Newport', model:'RS2000', category:'Optical table / breadboard', purchaseDate:'2016-11-01' },
-  { invnum:'000002850', name:'Newport RS2000 Optical Table 1200×2400×305 mm M6 #1', manufacturer:'Newport', model:'RS2000', category:'Optical table / breadboard', purchaseDate:'2016-11-01' },
-  { invnum:'000002415', name:'Keysight DSOX3052T 2-Channel 500 MHz Oscilloscope (2016)', manufacturer:'Keysight', model:'DSOX3052T', category:'Oscilloscope', purchaseDate:'2016-10-20' },
-  { invnum:'000001424', name:'Newport RS2000 Optical Table 1200×2400×305 mm M6 #3', manufacturer:'Newport', model:'RS2000', category:'Optical table / breadboard', purchaseDate:'2015-11-19' },
-  { invnum:'000001425', name:'Newport RS2000 Optical Table 1200×2400×305 mm M6 #4', manufacturer:'Newport', model:'RS2000', category:'Optical table / breadboard', purchaseDate:'2015-11-19' },
-  { invnum:'000002966', name:'Stanford Research SR865A 4 MHz Dual-Phase Lock-in Amplifier', manufacturer:'Stanford Research Systems', model:'SR865A', category:'Lock-in amplifier / preamplifier', purchaseDate:'2017-02-22' },
-  { invnum:'000001567', name:'Physik Instrumente Z-Axis Piezo Stage with Controller', manufacturer:'Physik Instrumente', model:'Z-stage', category:'3D stage / positioner', purchaseDate:'2015-08-19' },
-  { invnum:'000002467', name:'Laurell WS-650Mz-23NPPB Spin Coater', manufacturer:'Laurell Technologies', model:'WS-650Mz-23NPPB', category:'Thin film deposition', purchaseDate:'2016-11-15' },
-  { invnum:'000002852', name:'MilliporeSigma Water Purification System + 30 L PE Tank', manufacturer:'MilliporeSigma', model:'Milli-Q', category:'Cleanroom & lab support', purchaseDate:'2016-12-21' },
-  { invnum:'000001439', name:'Becker & Hickl Hybrid PMT Detector Head for Zeiss LSM #1', manufacturer:'Becker & Hickl', model:'HPM-100', category:'Photodetector / APD / PMT', purchaseDate:'2015-10-23' },
-  { invnum:'000001440', name:'Becker & Hickl Hybrid PMT Detector Head for Zeiss LSM #2', manufacturer:'Becker & Hickl', model:'HPM-100', category:'Photodetector / APD / PMT', purchaseDate:'2015-10-23' },
-  { invnum:'000002958', name:'PicoQuant PDL 800-D Picosecond Diode Laser Controller', manufacturer:'PicoQuant', model:'PDL 800-D', category:'Electronics / DAQ / power supply', purchaseDate:'2017-02-15' },
-  { invnum:'000004486', name:'Newport GuideStar II Active Beam Steering System', manufacturer:'Newport', model:'GuideStar II', category:'Electronics / DAQ / power supply', purchaseDate:'2018-02-12' },
-  { invnum:'000001005', name:'ELGA PURELAB Flex 3 Water Purification System', manufacturer:'ELGA LabWater', model:'PURELAB Flex 3', category:'Cleanroom & lab support', purchaseDate:'2015-02-27' },
-  { invnum:'000001445', name:'Becker & Hickl Hybrid PMT Detector Head for Zeiss LSM #3', manufacturer:'Becker & Hickl', model:'HPM-100', category:'Photodetector / APD / PMT', purchaseDate:'2015-10-23' },
-  { invnum:'000002957', name:'PicoQuant LDH-D Picosecond Pulsed Diode Laser', manufacturer:'PicoQuant', model:'LDH-D Series', category:'Laser system (CW)', purchaseDate:'2017-02-15' },
-  { invnum:'000003704', name:'Linkam THMS350EV Vacuum Cryo/Heating Stage', manufacturer:'Linkam Scientific', model:'THMS350EV', category:'3D stage / positioner', purchaseDate:'2017-10-11' },
-  { invnum:'000002162', name:'Coherent LabMax-TO Laser Power / Energy Meter #1', manufacturer:'Coherent', model:'LabMax-TO', category:'Electronics / DAQ / power supply', purchaseDate:'2015-07-13' },
-  { invnum:'000003157', name:'Lab Equipment Rack with Shelf and Ladder', manufacturer:'', model:'', category:'Cleanroom & lab support', purchaseDate:'2017-01-07' },
-  { invnum:'000002351', name:'Pfeiffer HiCube 80 Eco Turbo Pumping Station DN40 KF #1', manufacturer:'Pfeiffer Vacuum', model:'HiCube 80 Eco', category:'Vacuum system / pump', purchaseDate:'2016-09-12' },
-  { invnum:'000002352', name:'Pfeiffer HiCube 80 Eco Turbo Pumping Station DN40 KF #2', manufacturer:'Pfeiffer Vacuum', model:'HiCube 80 Eco', category:'Vacuum system / pump', purchaseDate:'2016-09-12' },
-  { invnum:'FA027246', name:'RSTVAK SVP 300 Scroll Vacuum Pump', manufacturer:'RSTVAK', model:'SVP 300', category:'Vacuum system / pump', purchaseDate:'2025-09-30' },
-  { invnum:'000001565', name:'Thorlabs Fast XY Scanning Stage', manufacturer:'Thorlabs', model:'Fast XY Stage', category:'3D stage / positioner', purchaseDate:'2015-08-19' },
-  { invnum:'000005478', name:'Stanford Research DG535 Digital Delay / Pulse Generator (GPIB)', manufacturer:'Stanford Research Systems', model:'DG535', category:'Signal generator / pulse generator', purchaseDate:'2018-10-31' },
-  { invnum:'000001563', name:'Thorlabs 300 mm Linear Stage with BBD201 Controller #1', manufacturer:'Thorlabs', model:'BBD201 + Stage', category:'3D stage / positioner', purchaseDate:'2015-08-19' },
-  { invnum:'000001564', name:'Thorlabs 300 mm Linear Stage with BBD201 Controller #2', manufacturer:'Thorlabs', model:'BBD201 + Stage', category:'3D stage / positioner', purchaseDate:'2015-08-19' },
-  { invnum:'000002879', name:'Keithley 2400 SourceMeter Single-Channel #1', manufacturer:'Keithley', model:'2400 SourceMeter', category:'Electronics / DAQ / power supply', purchaseDate:'2017-02-01' },
-  { invnum:'000001686', name:'Pfeiffer HiCube 80 Eco Turbo Pumping Station DN40 KF #3', manufacturer:'Pfeiffer Vacuum', model:'HiCube 80 Eco', category:'Vacuum system / pump', purchaseDate:'2015-07-21' },
-  { invnum:'000004437', name:'Keithley 6221 AC/DC Current Source (for 2182A)', manufacturer:'Keithley', model:'6221', category:'Electronics / DAQ / power supply', purchaseDate:'2018-03-07' },
-  { invnum:'000001446', name:'PicoQuant Multi-Mode Fibre-Coupled SPAD Detector', manufacturer:'PicoQuant', model:'τ-SPAD MM', category:'Photodetector / APD / PMT', purchaseDate:'2015-10-23' },
-  { invnum:'000004436', name:'Keithley 2400 SourceMeter Single-Channel #2', manufacturer:'Keithley', model:'2400 SourceMeter', category:'Electronics / DAQ / power supply', purchaseDate:'2018-03-07' },
-  { invnum:'000002876', name:'Holoeye LC2012 Transmissive Liquid Crystal SLM', manufacturer:'Holoeye', model:'LC2012', category:'Spatial light modulator', purchaseDate:'2017-01-24' },
-  { invnum:'FA004247', name:'Ocean Insight Ocean FX VIS-NIR Spectrometer', manufacturer:'Ocean Insight', model:'Ocean FX VIS-NIR', category:'Spectrometer', purchaseDate:'2019-09-30' },
-  { invnum:'000004438', name:'Keithley 6487 Picoammeter / Voltage Source', manufacturer:'Keithley', model:'6487', category:'Electronics / DAQ / power supply', purchaseDate:'2018-03-07' },
-  { invnum:'FA005041', name:'Newport LBP2-HR-VIS2 Laser Beam Profiler', manufacturer:'Newport', model:'LBP2-HR-VIS2', category:'Camera / CCD / sCMOS', purchaseDate:'2019-11-25' },
-  { invnum:'000005469', name:'Keysight 33512B 2-Ch 20 MHz Arbitrary Waveform Generator #1', manufacturer:'Keysight', model:'33512B', category:'Signal generator / pulse generator', purchaseDate:'2018-10-31' },
-  { invnum:'000005470', name:'Keysight 33512B 2-Ch 20 MHz Arbitrary Waveform Generator #2', manufacturer:'Keysight', model:'33512B', category:'Signal generator / pulse generator', purchaseDate:'2018-10-31' },
-  { invnum:'000001240', name:'Newport GuideStar II 8783 Beam Steering Controller #1', manufacturer:'Newport', model:'GuideStar II 8783', category:'Electronics / DAQ / power supply', purchaseDate:'2015-05-15' },
-  { invnum:'000001241', name:'Newport GuideStar II 8783 Beam Steering Controller #2', manufacturer:'Newport', model:'GuideStar II 8783', category:'Electronics / DAQ / power supply', purchaseDate:'2015-05-15' },
-  { invnum:'000001603', name:'Stabilized HeNe Laser 632.991 nm 1.2 mW Polarized #1', manufacturer:'', model:'HeNe 632.991 nm', category:'Laser system (CW)', purchaseDate:'2015-08-19' },
-  { invnum:'000001604', name:'Stabilized HeNe Laser 632.991 nm 1.2 mW Polarized #2', manufacturer:'', model:'HeNe 632.991 nm', category:'Laser system (CW)', purchaseDate:'2015-08-19' },
-  { invnum:'000001442', name:'PicoQuant Timing Switch 0–31.5 ns Delay (0.5 ns steps) #1', manufacturer:'PicoQuant', model:'SPC-130 Switch', category:'Electronics / DAQ / power supply', purchaseDate:'2015-10-23' },
-  { invnum:'000001443', name:'PicoQuant Timing Switch 0–31.5 ns Delay (0.5 ns steps) #2', manufacturer:'PicoQuant', model:'SPC-130 Switch', category:'Electronics / DAQ / power supply', purchaseDate:'2015-10-23' },
-  { invnum:'000001449', name:'PicoQuant τ-SPAD 80% Coupling Efficiency SPAD Module #1', manufacturer:'PicoQuant', model:'τ-SPAD 80%', category:'Photodetector / APD / PMT', purchaseDate:'2015-10-23' },
-  { invnum:'000001448', name:'PicoQuant τ-SPAD 80% Coupling Efficiency SPAD Module #2', manufacturer:'PicoQuant', model:'τ-SPAD 80%', category:'Photodetector / APD / PMT', purchaseDate:'2015-10-23' },
-  { invnum:'000002011', name:'Ocean Optics FLAME-S Miniature Fibre Spectrometer', manufacturer:'Ocean Optics', model:'FLAME-S', category:'Spectrometer', purchaseDate:'2016-02-15' },
-  { invnum:'FA024852', name:'Fire-Resistant Safety Cabinet for Flammable Liquids 90 min', manufacturer:'Sfera', model:'LVZh-1', category:'Cleanroom & lab support', purchaseDate:'2024-12-31' },
-  { invnum:'000001441', name:'Zeiss Beam Splitter Adapter for Confocal Port Detectors', manufacturer:'Zeiss', model:'HFT Adapter', category:'Electronics / DAQ / power supply', purchaseDate:'2015-10-23' },
-  { invnum:'000004439', name:'Rigol MSO2024B 200 MHz 4-Ch Mixed Signal Oscilloscope', manufacturer:'Rigol', model:'MSO2024B', category:'Oscilloscope', purchaseDate:'2018-03-07' },
-  { invnum:'000005474', name:'Stanford Research SR560 Low-Noise Voltage Preamplifier', manufacturer:'Stanford Research Systems', model:'SR560', category:'Lock-in amplifier / preamplifier', purchaseDate:'2018-10-31' },
-  { invnum:'000005475', name:'Stanford Research SR570 Low-Noise Current Preamplifier #1', manufacturer:'Stanford Research Systems', model:'SR570', category:'Lock-in amplifier / preamplifier', purchaseDate:'2018-10-31' },
-  { invnum:'000005476', name:'Stanford Research SR570 Low-Noise Current Preamplifier #2', manufacturer:'Stanford Research Systems', model:'SR570', category:'Lock-in amplifier / preamplifier', purchaseDate:'2018-10-31' },
-  { invnum:'000005477', name:'Stanford Research SR570 Low-Noise Current Preamplifier #3', manufacturer:'Stanford Research Systems', model:'SR570', category:'Lock-in amplifier / preamplifier', purchaseDate:'2018-10-31' },
-  { invnum:'000002417', name:'Keysight 33511B 1-Ch 20 MHz Waveform Generator', manufacturer:'Keysight', model:'33511B', category:'Signal generator / pulse generator', purchaseDate:'2016-10-20' },
-  { invnum:'000004434', name:'Keithley 2182A Nanovoltmeter 2-Channel', manufacturer:'Keithley', model:'2182A Nanovoltmeter', category:'Lock-in amplifier / preamplifier', purchaseDate:'2018-03-07' },
-  { invnum:'FA017423', name:'Eaton 9SX 5000i RT3U 5 kVA Rack UPS #2', manufacturer:'Eaton', model:'9SX 5000i RT3U', category:'Electronics / DAQ / power supply', purchaseDate:'2022-03-31' },
-  { invnum:'000002165', name:'Soleil-Babinet Polarization Compensator 365–800 nm', manufacturer:'', model:'Soleil-Babinet Comp.', category:'Cleanroom & lab support', purchaseDate:'2015-08-19' },
-  { invnum:'FA011366', name:'Eaton 9SX 5000i 5 kVA Tower UPS #1', manufacturer:'Eaton', model:'9SX 5000i', category:'Electronics / DAQ / power supply', purchaseDate:'2020-09-30' },
-  { invnum:'000002371', name:'Piezomechanik SVR 150/1 Single-Ch Piezo Amplifier #1', manufacturer:'Piezomechanik', model:'SVR 150/1', category:'Electronics / DAQ / power supply', purchaseDate:'2016-08-25' },
-  { invnum:'000002372', name:'Piezomechanik SVR 150/1 Single-Ch Piezo Amplifier #2', manufacturer:'Piezomechanik', model:'SVR 150/1', category:'Electronics / DAQ / power supply', purchaseDate:'2016-08-25' },
-  { invnum:'FA013514', name:'SMC HECR002-A5-EFP Thermoelectric Chiller', manufacturer:'SMC', model:'HECR002-A5-EFP', category:'Cleanroom & lab support', purchaseDate:'2021-03-31' },
-  { invnum:'000003469', name:'Mitutoyo Plan Apo VIS Microscope Objective #1', manufacturer:'Mitutoyo', model:'Plan Apo', category:'Microscope', purchaseDate:'2017-06-29' },
-  { invnum:'000003470', name:'Mitutoyo Plan Apo VIS Microscope Objective #2', manufacturer:'Mitutoyo', model:'Plan Apo', category:'Microscope', purchaseDate:'2017-06-29' },
-  { invnum:'000001125', name:'Elma Elmasonic S 100H Ultrasonic Cleaner', manufacturer:'Elma', model:'Elmasonic S 100H', category:'Cleanroom & lab support', purchaseDate:'2015-04-01' },
-  { invnum:'000001242', name:'Newport ESP301 3-Axis Motion Controller #1', manufacturer:'Newport', model:'ESP301-1G', category:'3D stage / positioner', purchaseDate:'2015-05-15' },
-  { invnum:'000001243', name:'Newport ESP301 3-Axis Motion Controller #2', manufacturer:'Newport', model:'ESP301-1G', category:'3D stage / positioner', purchaseDate:'2015-05-15' },
-  { invnum:'000001566', name:'Thorlabs BBD202 Dual-Axis DC Servo Motor Controller', manufacturer:'Thorlabs', model:'BBD202', category:'3D stage / positioner', purchaseDate:'2015-08-19' },
-  { invnum:'FA011368', name:'Apple MacBook Pro 16" Intel Core i7 2020', manufacturer:'Apple', model:'MacBook Pro 16"', category:'Computer / IT equipment', purchaseDate:'2020-09-30' },
-  { invnum:'000001569', name:'Thorlabs NanoMax 3-Axis Flexure Stage with Piezo #1', manufacturer:'Thorlabs', model:'NanoMax 3-Axis', category:'3D stage / positioner', purchaseDate:'2015-08-19' },
-  { invnum:'000001570', name:'Thorlabs NanoMax 3-Axis Flexure Stage with Piezo #2', manufacturer:'Thorlabs', model:'NanoMax 3-Axis', category:'3D stage / positioner', purchaseDate:'2015-08-19' },
-  { invnum:'000001571', name:'Thorlabs NanoMax 3-Axis Flexure Stage with Piezo #3', manufacturer:'Thorlabs', model:'NanoMax 3-Axis', category:'3D stage / positioner', purchaseDate:'2015-08-19' },
-  { invnum:'000001572', name:'Thorlabs NanoMax 3-Axis Flexure Stage with Piezo #4', manufacturer:'Thorlabs', model:'NanoMax 3-Axis', category:'3D stage / positioner', purchaseDate:'2015-08-19' },
-  { invnum:'000003472', name:'Mitutoyo M Plan Apo NIR B 50× Objective #1', manufacturer:'Mitutoyo', model:'M Plan Apo NIR B 50×', category:'Microscope', purchaseDate:'2017-06-29' },
-  { invnum:'000003473', name:'Mitutoyo M Plan Apo NIR B 50× Objective #2', manufacturer:'Mitutoyo', model:'M Plan Apo NIR B 50×', category:'Microscope', purchaseDate:'2017-06-29' },
-  { invnum:'000003474', name:'Mitutoyo M Plan Apo NIR B 50× Objective #3', manufacturer:'Mitutoyo', model:'M Plan Apo NIR B 50×', category:'Microscope', purchaseDate:'2017-06-29' },
-  { invnum:'000003471', name:'Mitutoyo M Plan Apo NIR B 50× Objective #4', manufacturer:'Mitutoyo', model:'M Plan Apo NIR B 50×', category:'Microscope', purchaseDate:'2017-06-29' },
-  { invnum:'000001592', name:'Thorlabs APT 3-Channel Stepper Motor Controller #1', manufacturer:'Thorlabs', model:'APT TST001', category:'3D stage / positioner', purchaseDate:'2015-08-19' },
-  { invnum:'000001593', name:'Thorlabs APT 3-Channel Stepper Motor Controller #2', manufacturer:'Thorlabs', model:'APT TST001', category:'3D stage / positioner', purchaseDate:'2015-08-19' },
-  { invnum:'FA006622', name:'Thorlabs HNL100LB 10 mW 632.8 nm Polarized HeNe Laser', manufacturer:'Thorlabs', model:'HNL100LB', category:'Laser system (CW)', purchaseDate:'2020-02-13' },
-  { invnum:'FA006621', name:'Thorlabs HRS015B 15 mW 632.8 nm Stabilized HeNe Laser', manufacturer:'Thorlabs', model:'HRS015B', category:'Laser system (CW)', purchaseDate:'2020-02-13' },
-  { invnum:'FA016779', name:'Olympus SZ61-TR Trinocular Stereo Microscope', manufacturer:'Olympus', model:'SZ61-TR', category:'Microscope', purchaseDate:'2022-09-30' },
-  { invnum:'FA025821', name:'CICO ISO 5 Cleanroom Vacuum Cleaner 10 L', manufacturer:'CICO', model:'Cleanroom Vacuum', category:'Cleanroom & lab support', purchaseDate:'2024-12-31' },
-  { invnum:'000002743', name:'Stanford Research SIM960 100 kHz Analog PID Controller #1', manufacturer:'Stanford Research Systems', model:'SIM960', category:'Lock-in amplifier / preamplifier', purchaseDate:'2016-12-26' },
-  { invnum:'000002744', name:'Stanford Research SIM960 100 kHz Analog PID Controller #2', manufacturer:'Stanford Research Systems', model:'SIM960', category:'Lock-in amplifier / preamplifier', purchaseDate:'2016-12-26' },
-  { invnum:'000005698', name:'Apple MacBook Pro 13" Touch Bar Intel i5 2018', manufacturer:'Apple', model:'MacBook Pro 13"', category:'Computer / IT equipment', purchaseDate:'2018-12-19' },
-  { invnum:'000001127', name:'SD-160 Laboratory Hot Plate', manufacturer:'', model:'SD-160', category:'Cleanroom & lab support', purchaseDate:'2015-04-01' },
-  { invnum:'000002967', name:'Keysight 33511B 1-Ch 20 MHz Waveform Generator #1', manufacturer:'Keysight', model:'33511B', category:'Signal generator / pulse generator', purchaseDate:'2017-02-22' },
-  { invnum:'000002968', name:'Keysight 33511B 1-Ch 20 MHz Waveform Generator #2', manufacturer:'Keysight', model:'33511B', category:'Signal generator / pulse generator', purchaseDate:'2017-02-22' },
-  { invnum:'000002969', name:'Keysight 33511B 1-Ch 20 MHz Waveform Generator #3', manufacturer:'Keysight', model:'33511B', category:'Signal generator / pulse generator', purchaseDate:'2017-02-22' },
-  { invnum:'000002970', name:'Keysight 33511B 1-Ch 20 MHz Waveform Generator #4', manufacturer:'Keysight', model:'33511B', category:'Signal generator / pulse generator', purchaseDate:'2017-02-22' },
-  { invnum:'000001518', name:'USB 2.0 Colour CCD Camera 1280×1024 #1', manufacturer:'', model:'CCD 1280×1024', category:'Camera / CCD / sCMOS', purchaseDate:'2015-08-19' },
-  { invnum:'000001519', name:'USB 2.0 Colour CCD Camera 1280×1024 #2', manufacturer:'', model:'CCD 1280×1024', category:'Camera / CCD / sCMOS', purchaseDate:'2015-08-19' },
-  { invnum:'000001520', name:'USB 2.0 Colour CCD Camera 1280×1024 #3', manufacturer:'', model:'CCD 1280×1024', category:'Camera / CCD / sCMOS', purchaseDate:'2015-08-19' },
-  { invnum:'000001521', name:'USB 2.0 Colour CCD Camera 1280×1024 #4', manufacturer:'', model:'CCD 1280×1024', category:'Camera / CCD / sCMOS', purchaseDate:'2015-08-19' },
-  { invnum:'000003000', name:'Mettler-Toledo ME204 Analytical Balance 220 g / 0.1 mg', manufacturer:'Mettler-Toledo', model:'ME204', category:'Cleanroom & lab support', purchaseDate:'2017-01-07' },
-  { invnum:'FA004319', name:'New Focus 1024 High-Speed Photodetector', manufacturer:'New Focus', model:'1024', category:'Photodetector / APD / PMT', purchaseDate:'2019-12-31' },
-  { invnum:'FA026236', name:'Deepcool Matrexx 55 V3 Desktop PC', manufacturer:'', model:'Desktop PC', category:'Computer / IT equipment', purchaseDate:'2025-06-30' },
-  { invnum:'FA016443', name:'Apple iPad Pro 12.9" Wi-Fi 512 GB', manufacturer:'Apple', model:'iPad Pro 12.9"', category:'Computer / IT equipment', purchaseDate:'2021-12-31' },
-  { invnum:'000004465', name:'Apple iMac 27" Retina 5K Intel Core i5 3.4 GHz', manufacturer:'Apple', model:'iMac 27" 5K', category:'Computer / IT equipment', purchaseDate:'2018-03-28' },
-  { invnum:'000001444', name:'Becker & Hickl Fast APD Trigger Detector for SPC Cards', manufacturer:'Becker & Hickl', model:'SPAD-APD', category:'Photodetector / APD / PMT', purchaseDate:'2015-10-23' },
-  { invnum:'000003024', name:'Hamamatsu C10709 PMT Module Power Supply #1', manufacturer:'Hamamatsu Photonics', model:'C10709', category:'Electronics / DAQ / power supply', purchaseDate:'2017-02-28' },
-  { invnum:'000003025', name:'Hamamatsu C10709 PMT Module Power Supply #2', manufacturer:'Hamamatsu Photonics', model:'C10709', category:'Electronics / DAQ / power supply', purchaseDate:'2017-02-28' },
-  { invnum:'000003026', name:'Hamamatsu C10709 PMT Module Power Supply #3', manufacturer:'Hamamatsu Photonics', model:'C10709', category:'Electronics / DAQ / power supply', purchaseDate:'2017-02-28' },
-  { invnum:'000003027', name:'Hamamatsu C10709 PMT Module Power Supply #4', manufacturer:'Hamamatsu Photonics', model:'C10709', category:'Electronics / DAQ / power supply', purchaseDate:'2017-02-28' },
-  { invnum:'000002468', name:'Oil-Free Vacuum Pump', manufacturer:'', model:'', category:'Vacuum system / pump', purchaseDate:'2016-11-15' },
-  { invnum:'000002995', name:'Lenovo ThinkPad T460p Laptop', manufacturer:'Lenovo', model:'ThinkPad T460p', category:'Computer / IT equipment', purchaseDate:'2017-03-09' },
-  { invnum:'000004702', name:'Dell XPS 13 9360 Ultrabook', manufacturer:'Dell', model:'XPS 13 9360', category:'Computer / IT equipment', purchaseDate:'2018-06-25' },
-  { invnum:'FA012360', name:'Apple MacBook Air 13" Intel Core i5 2020', manufacturer:'Apple', model:'MacBook Air 13"', category:'Computer / IT equipment', purchaseDate:'2020-12-31' },
-  { invnum:'000002353', name:'Pfeiffer PKR 251 Full-Range Vacuum Gauge (Pirani + Cold Cathode) #1', manufacturer:'Pfeiffer Vacuum', model:'PKR 251', category:'Vacuum system / pump', purchaseDate:'2016-09-12' },
-  { invnum:'000002354', name:'Pfeiffer PKR 251 Full-Range Vacuum Gauge (Pirani + Cold Cathode) #2', manufacturer:'Pfeiffer Vacuum', model:'PKR 251', category:'Vacuum system / pump', purchaseDate:'2016-09-12' },
-  { invnum:'000002163', name:'Coherent LabMax-TO Laser Power / Energy Meter #2', manufacturer:'Coherent', model:'LabMax-TO', category:'Electronics / DAQ / power supply', purchaseDate:'2015-07-13' },
-  { invnum:'FA023417', name:'Lenovo IdeaPad Gaming 3 Intel i5-12450H Laptop #1', manufacturer:'Lenovo', model:'IdeaPad Gaming 3', category:'Computer / IT equipment', purchaseDate:'2023-12-31' },
-  { invnum:'FA023418', name:'Lenovo IdeaPad Gaming 3 Intel i5-12450H Laptop #2', manufacturer:'Lenovo', model:'IdeaPad Gaming 3', category:'Computer / IT equipment', purchaseDate:'2023-12-31' },
-  { invnum:'000002471', name:'MOS-PT900D Laboratory Washer / Dryer', manufacturer:'', model:'MOS-PT900D', category:'Cleanroom & lab support', purchaseDate:'2016-11-15' },
-];
-
-/* ══════════════════════════════════════════════════
-   SEED IMPORT — one-shot, gated by /meta/seedV2Done
-   Wipes all existing items + meta, then writes all
-   201 devices (10 enriched + 191 from register).
-   ══════════════════════════════════════════════════ */
-function runSeedImport() {
-  window._db.getSeedFlag().then(done => {
-    if (done) { console.log('Seed v2 already done — skipping.'); return; }
-    console.log('Resetting database and seeding 201 items…');
-    const now   = new Date().toISOString();
-    const today = now.slice(0, 10);
-
-    // Combine both arrays into one flat list
-    const allSeeds = [...SEED_ITEMS, ...SEED_ITEMS_2];
-
-    // Wipe everything first, then write all items atomically
-    window._db.resetAll().then(() => {
-      const promises = allSeeds.map(seed => {
-        const item = {
-          id:                 uid(),
-          name:               seed.name,
-          invnum:             seed.invnum,
-          manufacturer:       seed.manufacturer || '',
-          model:              seed.model        || '',
-          serial:             '',
-          url:                seed.url          || '',
-          location:           '',
-          setup:              '',
-          category:           seed.category,
-          status:             'in-use',
-          person:             'Mael Brossard',
-          purchaseDate:       seed.purchaseDate || '',
-          notes:              seed.notes        || '',
-          photo:              null,
-          manuals:            [],
-          added:              today,
-          lastModifiedBy:     'seed-v2',
-          lastModifiedByName: 'Seed Import',
-          lastModifiedAt:     now
-        };
-        return window._db.save(item);
-      });
-      return Promise.all(promises);
-    })
-    .then(() => window._db.setSeedFlag())
-    .then(() => {
-      console.log(`Seed v2 complete — ${allSeeds.length} items written.`);
-      // Now fetch & compress photos for the 10 enriched items
-      patchSeedImages();
-    })
-    .catch(err => console.error('Seed v2 error:', err));
-  }).catch(err => console.error('Could not check seed v2 flag:', err));
-}
-
-/* ── Fetch manufacturer images and store as base64 ── */
-async function fetchImageAsBase64(url) {
-  const MAX_PX = 800;
-  const QUALITY = 0.82;
-
-  async function tryFetch(src) {
-    const res = await fetch(src);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.blob();
-  }
-
-  async function blobToBase64(blob) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const objUrl = URL.createObjectURL(blob);
-      img.onload = () => {
-        URL.revokeObjectURL(objUrl);
-        let w = img.naturalWidth, h = img.naturalHeight;
-        if (Math.max(w, h) > MAX_PX) {
-          if (w >= h) { h = Math.round(h * MAX_PX / w); w = MAX_PX; }
-          else        { w = Math.round(w * MAX_PX / h); h = MAX_PX; }
-        }
-        const cvs = document.createElement('canvas');
-        cvs.width = w; cvs.height = h;
-        cvs.getContext('2d').drawImage(img, 0, 0, w, h);
-        resolve(cvs.toDataURL('image/jpeg', QUALITY));
-      };
-      img.onerror = () => { URL.revokeObjectURL(objUrl); reject(new Error('Image decode failed')); };
-      img.src = objUrl;
-    });
-  }
-
-  let blob;
-  try {
-    blob = await tryFetch(url);
-  } catch(e) {
-    console.warn(`Direct fetch failed (${e.message}) — trying proxy`);
-    blob = await tryFetch(`https://corsproxy.io/?url=${encodeURIComponent(url)}`);
-  }
-  return blobToBase64(blob);
-}
-
-/* ── After seeding, fetch & store base64 photos for the 10 enriched items ── */
-function patchSeedImages() {
-  const byInvnum = {};
-  SEED_ITEMS.forEach(s => { if (s.photoUrl) byInvnum[s.invnum] = s; });
-
-  // items array will have been refreshed by Firebase onValue before we get here
-  const toUpdate = items.filter(it => byInvnum[it.invnum]);
-  if (!toUpdate.length) {
-    console.log('Image patch: no matching items yet — will retry on next sync.');
-    return;
-  }
-  console.log(`Fetching photos for ${toUpdate.length} devices…`);
-  const now = new Date().toISOString();
-
-  toUpdate.forEach(async it => {
-    const seed = byInvnum[it.invnum];
-    try {
-      const base64 = await fetchImageAsBase64(seed.photoUrl);
-      await window._db.save(Object.assign({}, it, {
-        photo: base64,
-        lastModifiedBy: 'image-patch',
-        lastModifiedByName: 'Image Patch',
-        lastModifiedAt: now
-      }));
-      console.log(`✓ Photo stored for ${it.invnum}`);
-    } catch(err) {
-      console.warn(`✗ Photo failed for ${it.invnum}: ${err.message}`);
-    }
-  });
-}
-
-
-
-/* ══════════════════════════════════════════════════
-   QR FULLSCREEN OVERLAY
-   ══════════════════════════════════════════════════ */
-function showQR(id) {
-  const it = items.find(x => x.id === id); if (!it) return;
-  const overlay = document.getElementById('qr-overlay');
-  const codeEl  = document.getElementById('qr-overlay-code');
-  const nameEl  = document.getElementById('qr-overlay-name');
-
-  // Clear previous QR and name
-  codeEl.innerHTML = '';
-  nameEl.textContent = it.name;
-
-  // Pick QR size: 80% of the shorter screen dimension, capped at 320px
-  const size = Math.min(320, Math.round(Math.min(window.innerWidth, window.innerHeight) * 0.72));
-
-  new QRCode(codeEl, {
-    text: 'labitem:' + it.id,
-    width: size,
-    height: size,
-    correctLevel: QRCode.CorrectLevel.H
-  });
-
-  overlay.style.display = 'flex';
-  // Prevent body scroll while overlay is open
-  document.body.style.overflow = 'hidden';
-}
-
-function closeQR() {
-  document.getElementById('qr-overlay').style.display = 'none';
-  document.body.style.overflow = '';
-}
-
-// Also close on Escape key (desktop/keyboard users)
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeQR(); });
-
-/* ══════════════════════════════════════════════════
-   BOOT: wait for Firebase, then subscribe
-   ══════════════════════════════════════════════════ */
-window._firebaseReady.then(() => {
-  // Migrate any old localStorage text data first
-  migrateLegacyData();
-
-  let firstLoad = true;
-  // Subscribe to live Firebase updates
-  window._db.subscribe(
-    newItems => {
-      items = newItems;
-      render();
-      setSyncBadge('synced', 'Live sync ✓');
-      if (firstLoad) {
-        firstLoad = false;
-        migrateLegacyPhotos();
-        // Run the one-shot seed import (no-ops if already done)
-        runSeedImport();
-      }
-    },
-    err => {
-      console.error('Firebase listener error:', err);
-      setSyncBadge('offline', 'Offline');
-    }
-  );
-});
+document.querySelectorAll(".lang-opt").forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
+setLang(lang);
 </script>
 </body>
 </html>
